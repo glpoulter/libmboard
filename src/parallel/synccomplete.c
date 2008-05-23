@@ -1,0 +1,68 @@
+/* $Id$ */
+/*!
+ * \file parallel/synccomplete.c
+ * \code
+ *      Author: Lee-Shawn Chin 
+ *      Date  : April 2008 
+ *      Copyright (c) 2008 STFC Rutherford Appleton Laboratory
+ * \endcode
+ * 
+ * \brief Parallel implementation of MB_SyncComplete()
+ * 
+ */
+#include "mb_parallel.h"
+
+/*!
+ * \brief Completes the synchronisation of a board.
+ * \ingroup MB_API
+ * \param[in] mb MessageBoard Handle
+ * 
+ * (more ...)
+ * 
+ * Synchronisation of a null board (::MB_NULL_MBOARD) is valid, and will 
+ * return immediately with ::MB_SUCCESS
+ * 
+ * Possible return codes:
+ *  - ::MB_SUCCESS
+ *  - ::MB_ERR_INVALID  (Invalid board)
+ * 
+ */
+int MB_SyncComplete(MBt_Board mb) {
+    
+    int rc;
+    MBIt_Board *board;
+    
+    /* Check for NULL message board */
+    if (mb == MB_NULL_MBOARD) return MB_SUCCESS;
+
+    /* get object mapped to mb handle */
+    board = (MBIt_Board *)MBI_getMBoardRef(mb);
+    if (board == NULL) return MB_ERR_INVALID;
+
+    /* check if board is locked */
+    if (board->locked == MB_FALSE) return MB_ERR_INVALID;
+    
+    /* capture lock */
+    rc = pthread_mutex_lock(&(board->syncLock));
+    assert(0 == rc);
+    if (rc != 0) return MB_ERR_INTERNAL;
+    
+    /* if sync not complete, wait till it is */
+    while(board->syncCompleted != MB_TRUE)
+    {
+        rc = pthread_cond_wait(&(board->syncCond), &(board->syncLock));
+        assert(rc == 0);
+    }
+    
+    /* release lock */
+    rc = pthread_mutex_unlock(&(board->syncLock));
+    assert(0 == rc);
+    if (rc != 0) return MB_ERR_INTERNAL;
+    
+    /* unlock board */
+    board->locked = MB_FALSE;
+    
+    /* return */
+    return MB_SUCCESS;
+    
+}
