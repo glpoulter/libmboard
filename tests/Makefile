@@ -125,7 +125,7 @@ splint:
 	       testsuite_$${TS}/*.c; \
 	 done
 
-build: $(EXES)
+build: $(CUNIT_LIB_TARGET) $(EXES)
 
 $(EXE_UTIL): $(OBJ_UTIL)
 	@echo -e "\n----- Linking Test Executable: $@ -----\n"
@@ -145,6 +145,7 @@ $(EXE_PARALLEL): $(OBJ_PARALLEL)
 	
 $(CUNIT_LIB_TARGET):
 	@echo -e "\n----- Building CUnit library -----"
+	if [ ! -d $(CUNIT_DIR) ]; then mkdir $(CUNIT_DIR); fi
 	(cd $(CUNIT_SRC_DIR) && ./configure --prefix=`pwd`/../$(CUNIT_DIR) && \
 	$(MAKE) all install)
 
