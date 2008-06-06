@@ -1,0 +1,3 @@
+To install this example code, you will first need to run the 
+./autogen.sh script. This will generate all the files needed
+to configure and compile the example.

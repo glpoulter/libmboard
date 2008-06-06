@@ -20,7 +20,7 @@
 #include <time.h>
 
 /* we use EXPAT (http://expat.sourceforge.net) for parsing XML */
-#include "xmlparse.h"
+#include "expat.h"
 
 #ifdef _PARALLEL
     #include <mpi.h>
