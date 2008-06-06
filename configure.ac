@@ -4,7 +4,7 @@
 AC_PREREQ(2.59)
 AC_REVISION($Revision$)
 
-AC_INIT(libmboard, 0.1.1-PreRelease, L.S.Chin@rl.ac.uk)
+AC_INIT(libmboard, 0.1.1-alpha, L.S.Chin@rl.ac.uk)
 AM_INIT_AUTOMAKE
 #AM_MAINTAINER_MODE
 

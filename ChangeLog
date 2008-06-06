@@ -1,21 +1,3 @@
-2008-06-03	Lee-Shawn Chin <L.S.Chi@rl.ac.uk>
+2008-06-06  Lee-Shawn Chin <L.S.Chin@rl.ac.uk>
 
-	* m4/check_mboard.m4: File added
-
-2008-05-29	Lee-Shawn Chin <L.S.Chin@rl.ac.uk>
-
-	* Makefile.am, src/utils/Makefile.am, src/serial/Makefile.am, 
-	  src/parallel/Makefile.am, m4/check_parallel.m4: Files added.
-	* Makefile, include.mk, src/utils/config.mk, src/serial/config.mk, 
-	  src/parallel/config.mk: Files removed
-	  
-	* test/Makefile, test/include.mk, test/testsuite_*/config.mk: Files removed
-	* test/testsuite_*/Makefile.am: Files added
-	
-
-2008-05-23	Lee-Shawn Chin <L.S.Chin@rl.ac.uk>
-
-	* tests/CUnit-2.1-0: CUnit source no longer included with tests.
-	* tests/Makefile: References to tests/CUnit-2.1-0 removed. Dynamically link libcunit.
-
-	* README, AUTHORS, NEWS, ChangeLog, configure.in: Files added.
+    * First version. Tagged as 0.1.1-alpha
