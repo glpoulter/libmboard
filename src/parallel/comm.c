@@ -946,7 +946,6 @@ int MBIt_Comm_CompletePropagation(struct MBIt_commqueue *node) {
         assert(0 == rc);
         
         board->syncCompleted = MB_TRUE;
-        board->locked        = MB_FALSE;
         
         rc = pthread_mutex_unlock(&(board->syncLock));
         assert(0 == rc);
