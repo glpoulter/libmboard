@@ -7,9 +7,34 @@ AC_INIT(libmboard, 0.1.2-alpha, L.S.Chin@rl.ac.uk)
 AM_INIT_AUTOMAKE
 #AM_MAINTAINER_MODE
 
+AC_CONFIG_SRCDIR([src/serial/env_init.c])
+AC_CONFIG_HEADER([config.h])
+
+# Checks for programs.
+AC_PROG_CC
+AC_PROG_MAKE_SET
+AC_DISABLE_SHARED
+AC_PROG_LIBTOOL
+
 # Default CFLAGS
 # Need extra checks to set this depending on compiler
-CFLAGS=" -Wall -pedantic -O3 -fno-common"
+case "$CC" in
+	gcc*)
+		CFLAGS="-Wall -pedantic -O3 -fno-common"
+		;;
+	pgcc*)
+		CFLAGS="-c9x -Minform=warm"
+		;;
+	icc*)
+		CFLAGS="-std=c99 -Wall"
+		;;
+	xlc*)
+		CFLAGS="-qlanglvl=stdc99 -qinfo=all -qflag=w:u -qcheck=all"
+		;;
+	*)
+		CFLAGS=""
+		;;
+esac
 
 PRODUCTION_CFLAGS=" -DNDEBUG"
 DEBUG_CFLAGS=" -g -D_EXTRA_CHECKS"
@@ -20,15 +45,6 @@ AC_SUBST(PARALLEL_EXTRA_CFLAGS)
 AC_SUBST(PRODUCTION_CFLAGS)
 AC_SUBST(DEBUG_CFLAGS)
 AC_SUBST(COMMON_LDFLAGS)
-
-AC_CONFIG_SRCDIR([src/serial/env_init.c])
-AC_CONFIG_HEADER([config.h])
-
-# Checks for programs.
-AC_PROG_CC
-AC_PROG_MAKE_SET
-AC_DISABLE_SHARED
-AC_PROG_LIBTOOL
 
 # Checks for libraries.
 AC_CHECK_LIB([m], [sqrt], [],[AC_MSG_ERROR(sqrt() from libm is required)])
@@ -75,3 +91,16 @@ tests/testsuite_objmap/Makefile
 tests/testsuite_pooled_list/Makefile
 tests/testsuite_syncqueue/Makefile
 ])dnl
+
+echo ""
+echo "------------------- Configuration successful --------------------------"
+echo ""
+echo "Compile parallel libs : $want_parallel"
+echo "Prepare unit tests    : $want_tests"
+echo ""
+echo "Default compiler : $CC"
+echo "Default CFLAGS   : $CFLAGS"
+echo ""
+echo "If you wish to use a different compiler and/or CFLAGS, you can "
+echo "override CC and CFLAGS during the invocation of 'make'. For example:"
+echo '# make CC="xlc_r" CFLAGS="-qlanglvl=stdc99 -qinfo=all -qflag=w:u -qcheck=all "'

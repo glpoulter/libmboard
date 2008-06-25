@@ -1,9 +1,11 @@
 2008-06-25	Lee-Shawn Chin <L.S.Chin@rl.ac.uk>
 	
-	* comm.c: update to solve bug with board->locked status being updated prematurely.
+	* comm.c, tests/testsuite_commroutines/test_cr1.c: update to solve bug with board->locked status being updated prematurely.
+	* configure.ac, */Makefile.am: now possible to override CFLAGS during 'make'
 	
 	* Tagged as 0.1.2-alpha
 
 2008-06-06  Lee-Shawn Chin <L.S.Chin@rl.ac.uk>
 
-    * First version. Tagged as 0.1.1-alpha
+	* First version. Tagged as 0.1.1-alpha
+	
