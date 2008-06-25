@@ -919,12 +919,21 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * (this limitation may be removed or changed in the future if there is
  * a compelling reason to do so).
  * 
+ * \c fh can be ::MB_NULL_FUNCTION, in which case \c mb will be deassociated with any 
+ * function that it was previously assigned with.
+ * 
+ * If \c params is \c NULL, \c param_size will be ignored.
+ * 
  * It is the users' responsibility to ensure that \c params is valid and
  * populated with the right data before board synchronisation, and not
  * modified during the synchronisation process.
  * 
- * (more details needed)
- * 
+ * Possible return codes:
+ *  - ::MB_SUCCESS
+ *  - ::MB_ERR_INVALID (at least one of the input parameters is invalid.)
+ *  - ::MB_ERR_MEMALLOC (unable to allocate required memory)
+ *  - ::MB_ERR_INTERNAL (internal error, possibly a bug)
+ *  - ::MB_ERR_LOCKED (\c mb is locked by another process)
  * \endif
  */
 
@@ -933,8 +942,14 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \ingroup FUNC
  * \brief Deallocates a registered function
  * 
- * (more details needed)
+ * Free up memory used to represent a function. 
  * 
+ * It is the users' responsibility to ensure that a function is no longer in use
+ * before freeing.
+ * 
+ * Possible return codes:
+ *  - ::MB_SUCCESS
+ *  - ::MB_ERR_INVALID (\c fh_ptr is NULL or invalid)
  * \endif
  */
 

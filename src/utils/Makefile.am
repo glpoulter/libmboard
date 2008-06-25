@@ -17,7 +17,7 @@ common_cflags    = -I$(INCLUDEDIR)
 
 lib_utils_la_SOURCES   = $(common_sources)     
 lib_utils_la_LIBADD    = $(common_libadd)
-lib_utils_la_CFLAGS    = $(common_cflags) @NORMAL_CFLAGS@
+lib_utils_la_CFLAGS    = $(common_cflags) @PRODUCTION_CFLAGS@
 
 lib_utils_d_la_SOURCES  = $(common_sources)     
 lib_utils_d_la_LIBADD   = $(common_libadd)

@@ -13,7 +13,7 @@ lib_t_pooled_list_la_SOURCES = setup_suite_pl.c \
 					           header_pooled_list.h
 							 
 lib_t_pooled_list_la_LDFLAGS = @COMMON_LDFLAGS@ @CUNITLIBS@
-lib_t_pooled_list_la_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @NORMAL_CFLAGS@
+lib_t_pooled_list_la_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @PRODUCTION_CFLAGS@
 
 else
 

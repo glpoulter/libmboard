@@ -1,3 +1,9 @@
+2008-06-25	Lee-Shawn Chin <L.S.Chin@rl.ac.uk>
+	
+	* comm.c: update to solve bug with board->locked status being updated prematurely.
+	
+	* Tagged as 0.1.2-alpha
+
 2008-06-06  Lee-Shawn Chin <L.S.Chin@rl.ac.uk>
 
     * First version. Tagged as 0.1.1-alpha

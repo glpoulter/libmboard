@@ -24,7 +24,7 @@
  * 
  * Possible return codes:
  *  - ::MB_SUCCESS
- *  - ::MB_ERR_INVALID  (Invalid board)
+ *  - ::MB_ERR_INVALID  (Invalid board. E.g. if board is not being synchronised.)
  * 
  */
 int MB_SyncComplete(MBt_Board mb) {

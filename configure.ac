@@ -1,20 +1,23 @@
 # Process this file with autoconf to produce a configure script.
 
-
 AC_PREREQ(2.59)
 AC_REVISION($Revision$)
 
-AC_INIT(libmboard, 0.1.1-alpha, L.S.Chin@rl.ac.uk)
+AC_INIT(libmboard, 0.1.2-alpha, L.S.Chin@rl.ac.uk)
 AM_INIT_AUTOMAKE
 #AM_MAINTAINER_MODE
 
-NORMAL_CFLAGS=" -Wall -pedantic -O3 -DNDEBUG -fno-common"
-DEBUG_CFLAGS=" -g -Wall -pedantic -fno-common -D_EXTRA_CHECKS"
+# Default CFLAGS
+# Need extra checks to set this depending on compiler
+CFLAGS=" -Wall -pedantic -O3 -fno-common"
+
+PRODUCTION_CFLAGS=" -DNDEBUG"
+DEBUG_CFLAGS=" -g -D_EXTRA_CHECKS"
 PARALLEL_EXTRA_CFLAGS=" -std=c9x"
 COMMON_LDFLAGS="-lm"
 
 AC_SUBST(PARALLEL_EXTRA_CFLAGS)
-AC_SUBST(NORMAL_CFLAGS)
+AC_SUBST(PRODUCTION_CFLAGS)
 AC_SUBST(DEBUG_CFLAGS)
 AC_SUBST(COMMON_LDFLAGS)
 

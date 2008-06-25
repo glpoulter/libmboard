@@ -45,7 +45,7 @@ common_cflags    = -I$(INCLUDEDIR)
 if COMPILE_PARALLEL
 lib_mb_p_la_SOURCES   = $(common_sources)     
 lib_mb_p_la_LIBADD    = $(common_libadd) @THREADS_LIBS@ @MPILIBS@
-lib_mb_p_la_CFLAGS    = $(common_cflags) @THREADS_CFLAGS@ @MPICFLAGS@ @PARALLEL_EXTRA_CFLAGS@ @NORMAL_CFLAGS@
+lib_mb_p_la_CFLAGS    = $(common_cflags) @THREADS_CFLAGS@ @MPICFLAGS@ @PARALLEL_EXTRA_CFLAGS@ @PRODUCTION_CFLAGS@
 
 lib_mb_pd_la_SOURCES  = $(common_sources)     
 lib_mb_pd_la_LIBADD   = $(common_libadd) @THREADS_LIBS@ @MPILIBS@
