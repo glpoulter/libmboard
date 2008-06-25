@@ -494,7 +494,7 @@ void test_cr_completepropagation(void) {
     board->syncCompleted = MB_FALSE;
     
     /* repeat till comm completed */
-    while (board->locked == MB_TRUE)
+    while (board->syncCompleted == MB_FALSE)
     {
         rc = MBIt_Comm_CompletePropagation(node);
         
