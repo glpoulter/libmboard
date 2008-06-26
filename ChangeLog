@@ -2,6 +2,7 @@
 	
 	* comm.c, tests/testsuite_commroutines/test_cr1.c: update to solve bug with board->locked status being updated prematurely.
 	* configure.ac, */Makefile.am: now possible to override CFLAGS during 'make'
+	* m4/check_parallel, m4/check_testing: properly define export *_LDFLAGS and *_LIBS
 	
 	* Tagged as 0.1.2-alpha
 

@@ -22,40 +22,46 @@ noinst_PROGRAMS += run_test_parallel_utils \
 				   run_test_parallel
 
 run_test_parallel_utils_SOURCES = run_test_parallel_utils.c testing.h
-run_test_parallel_utils_LDFLAGS = -all-static @CUNITLIBS@
-run_test_parallel_utils_CFLAGS  = -I$(INLUCEDIR) @CUNITCFLAGS@ @PRODUCTION_CFLAGS@
-run_test_parallel_utils_LDADD   = $(testcode_dir)/testsuite_commqueue/lib_t_commqueue.la \
+run_test_parallel_utils_LDFLAGS = @CUNITLDFLAGS@ @THREADS_LDFLAGS@ @MPILDFLAGS@
+run_test_parallel_utils_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @PRODUCTION_CFLAGS@ @THREADS_CFLAGS@ @MPICFLAGS@
+run_test_parallel_utils_LDADD   =  \
+								  $(testcode_dir)/testsuite_commqueue/lib_t_commqueue.la \
                                   $(testcode_dir)/testsuite_syncqueue/lib_t_syncqueue.la \
                                   $(testcode_dir)/testsuite_commroutines/lib_t_commroutines.la \
                                   $(top_srcdir)/src/parallel/lib_mb_p.la \
-                                  $(top_srcdir)/src/utils/lib_utils.la
+                                  $(top_srcdir)/src/utils/lib_utils.la \
+						  		  @CUNITLIBS@ @THREADS_LIBS@ @MPILIBS@
 						    	  
 						    	  
                
 run_test_parallel_SOURCES = run_test_parallel.c testing.h
-run_test_parallel_LDFLAGS = -all-static @CUNITLIBS@
-run_test_parallel_CFLAGS  = -I$(INLUCEDIR) @CUNITCFLAGS@ @PRODUCTION_CFLAGS@
-run_test_parallel_LDADD   = $(testcode_dir)/testsuite_mb_parallel/lib_t_mb_parallel.la \
+run_test_parallel_LDFLAGS = @CUNITLDFLAGS@ @THREADS_LDFLAGS@ @MPILDFLAGS@
+run_test_parallel_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @PRODUCTION_CFLAGS@ @THREADS_CFLAGS@ @MPICFLAGS@
+run_test_parallel_LDADD   = \
+							$(testcode_dir)/testsuite_mb_parallel/lib_t_mb_parallel.la \
 						    $(top_srcdir)/src/parallel/lib_mb_p.la \
-						    $(top_srcdir)/src/utils/lib_utils.la 
+						    $(top_srcdir)/src/utils/lib_utils.la \
+						    @CUNITLIBS@ @THREADS_LIBS@ @MPILIBS@ 
 						    
 
 endif
 
 run_test_utils_SOURCES  = run_test_utils.c testing.h
-run_test_utils_LDFLAGS  = -all-static @CUNITLIBS@
-run_test_utils_CFLAGS   = -I$(INLUCEDIR) @CUNITCFLAGS@ @PRODUCTION_CFLAGS@
+run_test_utils_LDFLAGS  = @CUNITLDFLAGS@
+run_test_utils_CFLAGS   = -I$(INCLUDEDIR) @CUNITCFLAGS@ @PRODUCTION_CFLAGS@
 run_test_utils_LDADD    = $(testcode_dir)/testsuite_objmap/lib_t_objmap.la \
                           $(testcode_dir)/testsuite_pooled_list/lib_t_pooled_list.la \
-						  $(top_srcdir)/src/utils/lib_utils.la
+						  $(top_srcdir)/src/utils/lib_utils.la \
+						  @CUNITLIBS@
 
                
 run_test_serial_SOURCES = run_test_serial.c testing.h
-run_test_serial_LDFLAGS = -all-static @CUNITLIBS@
-run_test_serial_CFLAGS  = -I$(INLUCEDIR) @CUNITCFLAGS@ @PRODUCTION_CFLAGS@
+run_test_serial_LDFLAGS = @CUNITLDFLAGS@
+run_test_serial_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @PRODUCTION_CFLAGS@
 run_test_serial_LDADD   = $(testcode_dir)/testsuite_mb_serial/lib_t_mb_serial.la \
 						  $(top_srcdir)/src/serial/lib_mb_s.la \
-						  $(top_srcdir)/src/utils/lib_utils.la 
+						  $(top_srcdir)/src/utils/lib_utils.la \
+						  @CUNITLIBS@
 						  
 
 

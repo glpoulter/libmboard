@@ -96,7 +96,21 @@ echo ""
 echo "------------------- Configuration successful --------------------------"
 echo ""
 echo "Compile parallel libs : $want_parallel"
+if test x${want_parallel} = xyes; then
+echo " - MPI CFLAGS       = $MPICFLAGS"
+echo " - MPI LDFLAGS      = $MPILDFLAGS"
+echo " - MPI LIBS         = $MPILIBS"
+echo " - PTHREADS CFLAGS  = $THREADS_CFLAGS"
+echo " - PTHREADS LDFLAGS = $THREADS_LDFLAGS"
+echo " - PTHREADS LIBS    = $THREADS_LIBS"
+fi
+echo ""
 echo "Prepare unit tests    : $want_tests"
+if test x${want_tests} = xyes; then
+echo " - CUNIT CFLAGS     = $CUNITCFLAGS"
+echo " - CUNIT LDFLAGS    = $CUNITLDFLAGS"
+echo " - CUNIT LIBS       = $CUNITLIBS"
+fi
 echo ""
 echo "Default compiler : $CC"
 echo "Default CFLAGS   : $CFLAGS"
@@ -104,3 +118,5 @@ echo ""
 echo "If you wish to use a different compiler and/or CFLAGS, you can "
 echo "override CC and CFLAGS during the invocation of 'make'. For example:"
 echo '# make CC="xlc_r" CFLAGS="-qlanglvl=stdc99 -qinfo=all -qflag=w:u -qcheck=all "'
+echo ""
+

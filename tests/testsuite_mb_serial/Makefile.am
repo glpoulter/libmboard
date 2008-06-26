@@ -19,7 +19,7 @@ lib_t_mb_serial_la_SOURCES = setup_suite_mb_serial.c \
 							   testsuite_mb_serial_utils.c \
 							   header_mb_serial.h
 							 
-lib_t_mb_serial_la_LDFLAGS = @COMMON_LDFLAGS@ @CUNITLIBS@
+lib_t_mb_serial_la_LDFLAGS = @COMMON_LDFLAGS@ @CUNITLDFLAGS@
 lib_t_mb_serial_la_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @PRODUCTION_CFLAGS@
 
 else

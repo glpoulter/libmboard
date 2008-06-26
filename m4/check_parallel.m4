@@ -18,8 +18,14 @@ AC_ARG_WITH([mpi],
             [AC_HELP_STRING([--with-mpi=MPIDIR],
                             [Specify path to MPI installation])]
            )
-           
 MPIDIR=${with_mpi}
+   
+# Allow users to manually specify path to PTHREADS installation
+AC_ARG_WITH([pthreads],
+            [AC_HELP_STRING([--with-pthreads=PTHREADSDIR],
+                            [Specify path to PTHREAD installation])]
+           )
+PTHREADSDIR=${with_pthreads}
 
 if test "x${want_parallel}" != xno;
 then
@@ -38,7 +44,7 @@ then
 	original_CC="${CC}"
 	original_LIBS="${LIBS}"
 	original_CFLAGS="${CFLAGS}"
-	original_LDFLAGS="${CFLAGS}"
+	original_LDFLAGS="${LDFLAGS}"
 	
 	# Look for MPI C compiler wrappers
 	MPICC=
@@ -67,13 +73,19 @@ then
 			
 			# remove -I from link - the @<:@ and @:>@ become [ and ] when m4sh is done
           	mpi_link_args="`echo ${mpi_link_args} | sed -e \"s/\-I@<:@^ @:>@*//g\"`"
+          	mpi_ldflags="`echo ${mpi_link_args} | sed -e \"s/\-l@<:@^ @:>@*//g\"`"
+          	mpi_libs="`(for i in ${mpi_link_args}; do echo $i | awk '/^-l/'; done) | tr '\n' ' '`"
           	
           	AC_MSG_CHECKING([compiler flags for MPI support])
           	MPICFLAGS="${mpi_compile_args}"
           	AC_MSG_RESULT([${MPICFLAGS}])
           	
-          	AC_MSG_CHECKING([libraries for MPI support])
-          	MPILIBS="${mpi_link_args}"
+          	AC_MSG_CHECKING([additional libs added by ${MPICC}])
+          	MPILDFLAGS="${mpi_ldflags}"
+          	AC_MSG_RESULT([${MPILDFLAGS}])
+          	
+          	AC_MSG_CHECKING([linker flags used by ${MPICC}])
+          	MPILIBS="${mpi_libs}"
           	AC_MSG_RESULT([${MPILIBS}])
           	
 		elif test ! "`${MPICC} -show 2>&1 | grep lmpi`" = ""
@@ -91,13 +103,20 @@ then
 			
 			# remove -I from link - the @<:@ and @:>@ become [ and ] when m4sh is done
           	mpi_link_args="`echo ${mpi_link_args} | sed -e \"s/\-I@<:@^ @:>@*//g\"`"
-          	
+          	mpi_ldflags="`echo ${mpi_link_args} | sed -e \"s/\-l@<:@^ @:>@*//g\"`"
+          	mpi_libs="`(for i in ${mpi_link_args}; do echo $i | awk '/^-l/'; done) | tr '\n' ' '`"
+            
+            
           	AC_MSG_CHECKING([compiler flags used by ${MPICC}])
           	MPICFLAGS="${mpi_compile_args}"
           	AC_MSG_RESULT([${MPICFLAGS}])
           	
+          	AC_MSG_CHECKING([additional libs added by ${MPICC}])
+          	MPILDFLAGS="${mpi_ldflags}"
+          	AC_MSG_RESULT([${MPILDFLAGS}])
+          	
           	AC_MSG_CHECKING([linker flags used by ${MPICC}])
-          	MPILIBS="${mpi_link_args}"
+          	MPILIBS="${mpi_libs}"
           	AC_MSG_RESULT([${MPILIBS}])
 		else
 			AC_MSG_RESULT([unknown])
@@ -165,7 +184,9 @@ then
 
 	# CC="${MPICC}"
 	LIBS="${MPILIBS}"
+	LDFLAGS="${MPILDFLAGS}"
 	CFLAGS="${MPICFLAGS}"
+	
 	AC_TRY_COMPILE([#include <mpi.h>],[],
                    [mpi_header="yes"; AC_MSG_RESULT(yes)],
                    [mpi_header="no"; AC_MSG_RESULT(no) ])
@@ -174,16 +195,22 @@ then
     	AC_MSG_ERROR([Could not locate MPI header file (mpi.h)])
     fi
     
-    # restore env values
-	CC="${original_CC}"
-	LIBS="${original_LIBS}"
-	CFLAGS="${original_CFLAGS}"
+
 	
 	# export MPI vars
 	AC_SUBST(MPICC)
 	AC_SUBST(MPILIBS)
+	AC_SUBST(MPILDFLAGS)
 	AC_SUBST(MPICFLAGS)
 	
+	# if PTHREADS path specified, use that. Else, use env PATH
+	if test ! x${PTHREADSDIR} = x;
+	then
+		THREADS_CFLAGS="-I${PTHREADSDIR}/include"
+		THREADS_LDFLAGS="-L${PTHREADSDIR}/libs"
+		CFLAGS="${CFLAGS} ${THREADS_CFLAGS}"
+		LDFLAGS="${LDFLAGS} ${THREADS_LDFLAGS}"
+	fi
 	
 	### Check for pthread
 	THREADS_LIBS=
@@ -211,8 +238,15 @@ then
    
 	fi
 
+	 # restore env values
+	CC="${original_CC}"
+	LIBS="${original_LIBS}"
+	CFLAGS="${original_CFLAGS}"
+	LDFLAGS="${original_LDFLAGS}"
+	
 	AC_SUBST(THREADS_LIBS)
 	AC_SUBST(THREADS_CFLAGS)
+	AC_SUBST(THREADS_LDFLAGS)
 	
 	AM_CONDITIONAL([COMPILE_PARALLEL], [true])
 else

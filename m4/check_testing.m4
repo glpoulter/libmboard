@@ -35,10 +35,12 @@ then
 	# if CUnit path specified, use that.
 	if test ! "x${CUNITDIR}" = x;
 	then
-		CUNITCFLAGS="-I${CUNITDIR}/include -L${CUNITDIR}/lib"	
+		CUNITCFLAGS="-I${CUNITDIR}/include"	
+		CUNITLDFLAGS="-L${CUNITDIR}/lib"
 	fi
 	
 	LIBS="${CUNITLIBS}"
+	LDFLAGS="${CUNITLDFLAGS}"
 	CFLAGS="${CUNITCFLAGS}"
 	have_cunit=""
 	
@@ -64,6 +66,7 @@ then
 	
 	AC_SUBST(CUNITLIBS)
 	AC_SUBST(CUNITCFLAGS)
+	AC_SUBST(CUNITLDFLAGS)
 	
 	AM_CONDITIONAL([TESTS_CONFIGURED], [true])
 else

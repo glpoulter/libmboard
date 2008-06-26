@@ -131,6 +131,8 @@ static void *commthread_main(void *params) {
     }
     
     pthread_exit(NULL); /* thread ends */
+    
+    return NULL;
 }
 
 /* sets termination flag and wakes comm thread up if sleeping */

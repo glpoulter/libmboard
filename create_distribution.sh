@@ -80,4 +80,4 @@ if test $? != 0; then exit 1; fi
 
 echo " ----------------------------------------------------- "
 echo ""
-echo "Your distribution file is not ready."
+echo "Your distribution file is now ready."
