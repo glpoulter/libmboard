@@ -499,10 +499,13 @@ void test_cr_completepropagation(void) {
         rc = MBIt_Comm_CompletePropagation(node);
         
         /* if still not completed */
-        if (board->locked == MB_TRUE) sleep(1);
+        if (board->syncCompleted == MB_FALSE) sleep(1);
     }
-    CU_ASSERT_EQUAL(board->locked, MB_FALSE);
     CU_ASSERT_EQUAL(board->syncCompleted, MB_TRUE);
+    
+    /* unlocking is meant to be done by SyncComplete */
+    CU_ASSERT_EQUAL(board->locked, MB_TRUE);
+    board->locked = MB_FALSE;
     
     /* check board content */
 
@@ -540,15 +543,18 @@ void test_cr_completepropagation(void) {
     board->syncCompleted = MB_FALSE;
     
     /* repeat till comm completed */
-    while (board->locked == MB_TRUE)
+    while (board->syncCompleted == MB_FALSE)
     {
         rc = MBIt_Comm_CompletePropagation(node);
         
         /* if still not completed */
-        if (board->locked == MB_TRUE) sleep(1);
+        if (board->syncCompleted == MB_FALSE) sleep(1);
     }
-    CU_ASSERT_EQUAL(board->locked, MB_FALSE);
     CU_ASSERT_EQUAL(board->syncCompleted, MB_TRUE);
+    
+    /* unlocking is meant to be done by SyncComplete */
+    CU_ASSERT_EQUAL(board->locked, MB_TRUE);
+    board->locked = MB_FALSE;
     
     /* check board content */
 
@@ -596,15 +602,18 @@ void test_cr_completepropagation(void) {
     board->syncCompleted = MB_FALSE;
     
     /* repeat till comm completed */
-    while (board->locked == MB_TRUE)
+    while (board->syncCompleted == MB_FALSE)
     {
         rc = MBIt_Comm_CompletePropagation(node);
         
         /* if still not completed */
-        if (board->locked == MB_TRUE) sleep(1);
-    }
-    CU_ASSERT_EQUAL(board->locked, MB_FALSE);
+        if (board->syncCompleted == MB_FALSE) sleep(1);
+    };
     CU_ASSERT_EQUAL(board->syncCompleted, MB_TRUE);
+    
+    /* unlocking is meant to be done by SyncComplete */
+    CU_ASSERT_EQUAL(board->locked, MB_TRUE);
+    board->locked = MB_FALSE;
     
     /* check board content */
 
