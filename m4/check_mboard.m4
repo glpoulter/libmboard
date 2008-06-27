@@ -1,3 +1,9 @@
+# $Id$
+# 
+# Copyright (c) 2008 STFC Rutherford Appleton Laboratory 
+# Author: Lee-Shawn Chin 
+# Date  : June 2008
+
 AC_DEFUN([MBOARD_CHECK_LIBAVAILABLE], [
 
 # C compiler is required
