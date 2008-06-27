@@ -1,9 +1,17 @@
 2008-06-25	Lee-Shawn Chin <L.S.Chin@rl.ac.uk>
 	
 	* comm.c, tests/testsuite_commroutines/test_cr1.c: update to solve bug with board->locked status being updated prematurely.
-	* configure.ac, */Makefile.am: now possible to override CFLAGS during 'make'
-	* m4/check_parallel, m4/check_testing: properly define export *_LDFLAGS and *_LIBS
 	* src/parallel/*.c: removed checks on errno as they sometimes pick up values for non-blocking MPI routines.
+	
+	* m4/check_parallel, m4/check_testing: properly define export *_LDFLAGS and *_LIBS
+	* configure.ac, */Makefile.am: now possible to override CFLAGS during 'make'
+	* example/circles_mb/configure.ac, example/circles_mb/Makefile.am, 
+	  m4/check_mboard: updated to reflect changes in main configure.ac and m4/*
+	
+	* tests/Makefile.am, tests/*/Makefile.am: testsuites now have assertion enabled, and uses the debug versions of libs
+	  
+	* Builds and run fine on Linux (tested with MPICH & LAM/MPI)
+	* Builds and run fine on Windows via Cygwin (tested with MPICH)
 	
 	* Tagged as 0.1.2-alpha
 

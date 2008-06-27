@@ -1,3 +1,9 @@
+# $Id$
+# 
+# Copyright (c) 2008 STFC Rutherford Appleton Laboratory 
+# Author: Lee-Shawn Chin 
+# Date  : June 2008
+
 SUBDIRS = src/utils src/parallel src/serial 
 DIST_SUBDIRS = $(SUBDIRS) tests
 
@@ -5,7 +11,14 @@ INCLUDEDIR = $(top_srcdir)/include
 
 include_HEADERS = ${INCLUDEDIR}/mboard.h \
 			      ${INCLUDEDIR}/objmap.h \
-			      ${INCLUDEDIR}/pooled_list.h
+			      ${INCLUDEDIR}/mb_common.h \
+			      ${INCLUDEDIR}/mb_serial.h \
+			      ${INCLUDEDIR}/mb_parallel.h \
+			      ${INCLUDEDIR}/mb_utils.h \
+			      ${INCLUDEDIR}/syncqueue.h \
+			      ${INCLUDEDIR}/commqueue.h \
+			      ${INCLUDEDIR}/pooled_list.h \
+			      ${INCLUDEDIR}/uthash.h
 
 lib_LTLIBRARIES  = libmboard_s.la libmboard_sd.la 
 if COMPILE_PARALLEL

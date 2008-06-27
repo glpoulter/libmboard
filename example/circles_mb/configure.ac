@@ -1,4 +1,9 @@
 # Process this file with autoconf to produce a configure script.
+# $Id$
+# 
+# Copyright (c) 2008 STFC Rutherford Appleton Laboratory 
+# Author: Lee-Shawn Chin 
+# Date  : June 2008
 
 AC_PREREQ(2.59)
 AC_REVISION($Revision$)

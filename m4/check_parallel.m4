@@ -231,7 +231,8 @@ then
 		AC_CHECK_LIB([c], [pthread_create], [THREADS_LIBS=""; pthreads_found="yes"],
 		             [AC_MSG_ERROR([
  ** pthread support is required for building parallel library.
- ** Please install the pthread library and try again. 
+ ** Please install the pthread library and try again. If you do have PTHREADS 
+    installed,specify the installation path using --with-pthreads=PTHREADS_DIR.
  ** Or, if you do not need the parallel libraries, reconfigure with the
     --disable-parallel option to build only the serial libraries and tests.	])
                      ])

@@ -1,3 +1,9 @@
+# $Id$
+# 
+# Copyright (c) 2008 STFC Rutherford Appleton Laboratory 
+# Author: Lee-Shawn Chin 
+# Date  : June 2008
+
 INCLUDEDIR = $(top_srcdir)/include
 
 noinst_LTLIBRARIES  = lib_utils.la lib_utils_d.la

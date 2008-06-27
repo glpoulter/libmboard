@@ -1,4 +1,9 @@
 #!/bin/bash
+# $Id$
+# 
+# Copyright (c) 2008 STFC Rutherford Appleton Laboratory 
+# Author: Lee-Shawn Chin 
+# Date  : June 2008
 
 # Check that ./autogen.sh is executable
 if test ! -x ./autogen.sh;

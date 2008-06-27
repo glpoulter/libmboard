@@ -1,4 +1,9 @@
 #!/bin/bash
+# $Id$
+# 
+# Copyright (c) 2008 STFC Rutherford Appleton Laboratory 
+# Author: Lee-Shawn Chin 
+# Date  : June 2008
 
 LOGFILE="autogen.log"
 echo -e "$0 begins " `date` "\n" > $LOGFILE
