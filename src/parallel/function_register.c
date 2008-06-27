@@ -39,7 +39,7 @@ int MB_Function_Register(MBt_Function *fh_ptr,
     /* create and populate func ptr wrapper so it can be placed in the map */
     fwrap = (MBIt_filterfunc_wrapper *)malloc(sizeof(MBIt_filterfunc_wrapper));
     assert(fwrap != NULL);
-    if (fwrap == NULL || errno != 0) return MB_ERR_MEMALLOC;
+    if (fwrap == NULL) return MB_ERR_MEMALLOC;
     fwrap->func = filterFunc; /* set func ptr in wrapper */
     
     /* add func ptr to map. Get back fh. Make sure it is valid */

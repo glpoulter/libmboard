@@ -162,16 +162,16 @@ int MBIt_Comm_InitTagging(struct MBIt_commqueue *node) {
      */
     node->outbuf = (void **)malloc(sizeof(void*));
     assert(node->outbuf != NULL);
-    if (node->outbuf == NULL || errno != 0) return MB_ERR_MEMALLOC;
+    if (node->outbuf == NULL) return MB_ERR_MEMALLOC;
     
     node->outbuf[0] = (void *)malloc(psize);
     assert(node->outbuf[0] != NULL);
-    if (node->outbuf[0] == NULL || errno != 0) return MB_ERR_MEMALLOC;
+    if (node->outbuf[0] == NULL) return MB_ERR_MEMALLOC;
     
     /* Allocate memory for send requests */
     node->sendreq = (MPI_Request *)malloc(sizeof(MPI_Request) * MBI_CommSize);
     assert(node->sendreq != NULL);
-    if (node->sendreq == NULL || errno != 0) return MB_ERR_MEMALLOC;
+    if (node->sendreq == NULL) return MB_ERR_MEMALLOC;
     
     /* copy fparams into outbuf */
     memcpy(node->outbuf[0], board->fparams, psize);
@@ -195,12 +195,12 @@ int MBIt_Comm_InitTagging(struct MBIt_commqueue *node) {
     /* prep input buffer */
     node->inbuf = (void **)malloc(sizeof(void*) * MBI_CommSize);
     assert(node->inbuf != NULL);
-    if (node->inbuf == NULL || errno != 0) return MB_ERR_MEMALLOC;
+    if (node->inbuf == NULL) return MB_ERR_MEMALLOC;
     
     /* Allocate memory for send requests */
     node->recvreq = (MPI_Request *)malloc(sizeof(MPI_Request) * MBI_CommSize);
     assert(node->recvreq != NULL);
-    if (node->recvreq == NULL || errno != 0) return MB_ERR_MEMALLOC;
+    if (node->recvreq == NULL) return MB_ERR_MEMALLOC;
     
     /* initiate non-blocking recv */
     for (i = 0; i < MBI_CommSize; i++)
@@ -215,7 +215,7 @@ int MBIt_Comm_InitTagging(struct MBIt_commqueue *node) {
         
         node->inbuf[i] = malloc(psize);
         assert(node->inbuf[i] != NULL);
-        if (node->inbuf[i] == NULL || errno != 0) return MB_ERR_MEMALLOC;
+        if (node->inbuf[i] == NULL) return MB_ERR_MEMALLOC;
         
         rc = MPI_Irecv(node->inbuf[i], (int)psize, MPI_BYTE, i, tag,
                 MBI_CommWorld, &(node->recvreq[i]));
@@ -349,7 +349,7 @@ int MBIt_Comm_TagMessages(struct MBIt_commqueue *node) {
     /* allocate memory for TagTable */
     tbl = (MBIt_TagTable *)malloc(sizeof(MBIt_TagTable));
     assert(tbl != NULL);
-    if (tbl == NULL || errno != 0) return MB_ERR_MEMALLOC;
+    if (tbl == NULL) return MB_ERR_MEMALLOC;
     
     /* attach TagTable to board */
     board->tt = tbl;
@@ -362,12 +362,12 @@ int MBIt_Comm_TagMessages(struct MBIt_commqueue *node) {
     bytes_required = (int)(MBI_CommSize / 8) + 1;
     tbl->tt = malloc((size_t)(mcount * bytes_required));
     assert(tbl->tt != NULL);
-    if (tbl->tt == NULL || errno != 0) return MB_ERR_MEMALLOC;
+    if (tbl->tt == NULL) return MB_ERR_MEMALLOC;
     
     /* allocate tbl->tagged */
     tbl->tagged = (int*)malloc(sizeof(int) * MBI_CommSize);
     assert(tbl->tagged != NULL);
-    if (tbl->tagged == NULL || errno != 0) return MB_ERR_MEMALLOC;
+    if (tbl->tagged == NULL) return MB_ERR_MEMALLOC;
     for (i = 0; i < MBI_CommSize; i++) tbl->tagged[i] = 0;
     
     /* ------------ start tagging messages ----------------- */
@@ -553,11 +553,11 @@ int MBIt_Comm_InitPropagation(struct MBIt_commqueue *node) {
     /* prep outcount/incount array */
     outcount = (int *)malloc(sizeof(int) * MBI_CommSize);
     assert(outcount != NULL);
-    if (outcount == NULL || errno != 0) return MB_ERR_MEMALLOC;
+    if (outcount == NULL) return MB_ERR_MEMALLOC;
     
     node->incount = (int *)malloc(sizeof(int) * MBI_CommSize);
     assert(node->incount != NULL);
-    if (node->incount == NULL || errno != 0) return MB_ERR_MEMALLOC;
+    if (node->incount == NULL) return MB_ERR_MEMALLOC;
     
     /* determined number of messages to send to each proc */
 
@@ -597,11 +597,11 @@ int MBIt_Comm_InitPropagation(struct MBIt_commqueue *node) {
     /* allocate request table memory */
     node->recvreq = (MPI_Request *)malloc(sizeof(MPI_Request) * MBI_CommSize);
     assert(node->recvreq != NULL);
-    if (node->recvreq == NULL || errno != 0) return MB_ERR_MEMALLOC;
+    if (node->recvreq == NULL) return MB_ERR_MEMALLOC;
     /* allocate output buffer table */
     node->inbuf = (void **)malloc(sizeof(void *) * MBI_CommSize);
     assert(node->inbuf != NULL);
-    if (node->inbuf == NULL || errno != 0) return MB_ERR_MEMALLOC;
+    if (node->inbuf == NULL) return MB_ERR_MEMALLOC;
 
     node->pending_in = 0; 
     
@@ -618,7 +618,7 @@ int MBIt_Comm_InitPropagation(struct MBIt_commqueue *node) {
         /* allocate memory for input buffer for proc i */
         node->inbuf[i] = malloc((size_t)(node->incount[i] * msgsize));
         assert(node->inbuf[i] != NULL);
-        if (node->inbuf[i] == NULL || errno != 0) return MB_ERR_MEMALLOC;
+        if (node->inbuf[i] == NULL) return MB_ERR_MEMALLOC;
         
         rc = MPI_Irecv(node->inbuf[i], node->incount[i] * msgsize,
                 MPI_BYTE, i, tag, MBI_CommWorld, &(node->recvreq[i]));
@@ -630,11 +630,11 @@ int MBIt_Comm_InitPropagation(struct MBIt_commqueue *node) {
     /* allocate request table memory */
     node->sendreq = (MPI_Request *)malloc(sizeof(MPI_Request) * MBI_CommSize);
     assert(node->sendreq != NULL);
-    if (node->sendreq == NULL || errno != 0) return MB_ERR_MEMALLOC;
+    if (node->sendreq == NULL) return MB_ERR_MEMALLOC;
     /* allocate output buffer table */
     node->outbuf = (void **)malloc(sizeof(void *) * MBI_CommSize);
     assert(node->outbuf != NULL);
-    if (node->outbuf == NULL || errno != 0) return MB_ERR_MEMALLOC;
+    if (node->outbuf == NULL) return MB_ERR_MEMALLOC;
     
     node->pending_out = 0; 
     
@@ -652,7 +652,7 @@ int MBIt_Comm_InitPropagation(struct MBIt_commqueue *node) {
             /* allocate memory */
             node->outbuf[0] = malloc((size_t)(board->data->count_current * msgsize));
             assert(node->outbuf[0] != NULL);
-            if (node->outbuf[0] == NULL || errno != 0) return MB_ERR_MEMALLOC;
+            if (node->outbuf[0] == NULL) return MB_ERR_MEMALLOC;
             
             /* copy messages into buffer */
             i = 0;
@@ -702,7 +702,7 @@ int MBIt_Comm_InitPropagation(struct MBIt_commqueue *node) {
             /* allocate memory for output buffer for proc i */
             node->outbuf[i] = malloc((size_t)(outcount[i] * msgsize));
             assert(node->outbuf[i] != NULL);
-            if (node->outbuf[i] == NULL || errno != 0) return MB_ERR_MEMALLOC;
+            if (node->outbuf[i] == NULL) return MB_ERR_MEMALLOC;
             
         }
         

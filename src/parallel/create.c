@@ -58,7 +58,7 @@ static int newBoardObj(MBt_Board *mb_ptr, size_t msgsize) {
     /* allocate message board object */
     mb_obj = (MBIt_Board *)malloc(sizeof(MBIt_Board));
     assert(mb_obj != NULL);
-    if (errno != 0 || mb_obj == NULL) /* on error */
+    if (mb_obj == NULL) /* on error */
     {
         return MB_ERR_MEMALLOC;
     }

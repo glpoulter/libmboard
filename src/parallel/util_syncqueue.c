@@ -121,7 +121,7 @@ int MBI_SyncQueue_Push(MBt_Board mb) {
     node = (struct MBIt_SyncRequest_queuenode *)
             malloc(sizeof(struct MBIt_SyncRequest_queuenode));
     assert(node != NULL);
-    if (errno != 0 || node == NULL) return MB_ERR_MEMALLOC;
+    if (node == NULL) return MB_ERR_MEMALLOC;
     
     /* assign give mb handle to sync request */
     node->mb = mb;

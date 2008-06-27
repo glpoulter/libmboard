@@ -47,7 +47,7 @@ int MBI_CommQueue_Init(void) {
     /* allocate memory for temp int array */
     MBI_comm_indices = (int*)malloc(sizeof(int) * MBI_CommSize);
     assert(MBI_comm_indices != NULL);
-    if (MBI_comm_indices == NULL || errno != 0) return MB_ERR_MEMALLOC;
+    if (MBI_comm_indices == NULL) return MB_ERR_MEMALLOC;
     
     return MB_SUCCESS;
 }
@@ -119,7 +119,7 @@ int MBI_CommQueue_Push(MBt_Board mb, enum MBIt_CommStage startstage) {
     /* allocate memory for commQ node */
     node = (struct MBIt_commqueue*)malloc(sizeof(struct MBIt_commqueue));
     assert(node != NULL);
-    if (node == NULL || errno != 0) return MB_ERR_MEMALLOC;
+    if (node == NULL) return MB_ERR_MEMALLOC;
     
     /* initialise values */
     node->mb = mb;
