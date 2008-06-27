@@ -20,7 +20,7 @@ lib_t_mb_parallel_la_SOURCES = setup_suite_mb_parallel.c \
 							   header_mb_parallel.h
 							 
 lib_t_mb_parallel_la_LDFLAGS = @COMMON_LDFLAGS@ @CUNITLDFLAGS@
-lib_t_mb_parallel_la_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @MPICFLAGS@ @PARALLEL_EXTRA_CFLAGS@ @PRODUCTION_CFLAGS@
+lib_t_mb_parallel_la_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @MPICFLAGS@ @PARALLEL_EXTRA_CFLAGS@ @DEBUG_CFLAGS@
 endif
 
 else

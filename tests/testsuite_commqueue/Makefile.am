@@ -9,7 +9,7 @@ lib_t_commqueue_la_SOURCES = setup_suite_commqueue.c \
 							 header_commqueue.h
 							 
 lib_t_commqueue_la_LDFLAGS = @COMMON_LDFLAGS@ @CUNITLDFLAGS@
-lib_t_commqueue_la_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @MPICFLAGS@ @PARALLEL_EXTRA_CFLAGS@ @PRODUCTION_CFLAGS@
+lib_t_commqueue_la_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @MPICFLAGS@ @PARALLEL_EXTRA_CFLAGS@ @DEBUG_CFLAGS@
 endif
 
 else

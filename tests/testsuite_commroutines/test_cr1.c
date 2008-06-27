@@ -171,6 +171,7 @@ void test_cr_inittagging(void) {
     CU_ASSERT_EQUAL_FATAL(node_m->stage, PRE_TAGGING);
     CU_ASSERT_EQUAL_FATAL(node_m->mb, mb_m);
     rc = MBIt_Comm_InitTagging(node_m);
+    
     CU_ASSERT_EQUAL(rc, MB_SUCCESS);
     CU_ASSERT_PTR_NOT_NULL(node_m->outbuf);
     CU_ASSERT_PTR_NOT_NULL(node_m->outbuf[0]);
@@ -267,7 +268,7 @@ void test_cr_initpropagation(void) {
     int i, rc;
     MBIt_Board *board;
     struct MBIt_commqueue *node;
-    
+
     CU_ASSERT_EQUAL_FATAL(node_e->stage, PRE_PROPAGATION);
     CU_ASSERT_EQUAL_FATAL(node_m->stage, PRE_PROPAGATION);
     CU_ASSERT_EQUAL_FATAL(node_x->stage, PRE_PROPAGATION);
@@ -277,11 +278,14 @@ void test_cr_initpropagation(void) {
     board = (MBIt_Board *)MBI_getMBoardRef(node->mb);
     CU_ASSERT_PTR_NOT_NULL_FATAL(board);
     CU_ASSERT_EQUAL(board->tagging, MB_FALSE);
-
+    
+    MPI_Barrier(MPI_COMM_WORLD);
     rc = MBIt_Comm_InitPropagation(node);
     CU_ASSERT_EQUAL(rc, MB_SUCCESS);
     CU_ASSERT_EQUAL(node->stage, PROPAGATION);
+    
     CU_ASSERT_PTR_NULL(board->tt);
+    
     if (MBI_CommSize > 1)
     {
         CU_ASSERT_PTR_NOT_NULL(node->incount);

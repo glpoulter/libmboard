@@ -36,6 +36,9 @@ case "$CC" in
 		;;
 esac
 
+# Make sure compiler uses re-entrant option for things like errno 
+# CFLAGS="$CFLAGS -D_REENTRANT -D_LIBC_REENTRANT"
+
 PRODUCTION_CFLAGS=" -DNDEBUG"
 DEBUG_CFLAGS=" -g -D_EXTRA_CHECKS"
 PARALLEL_EXTRA_CFLAGS=" -std=c9x"

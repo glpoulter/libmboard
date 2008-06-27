@@ -10,7 +10,7 @@ lib_t_objmap_la_SOURCES = setup_suite_om.c \
 					      header_objmap.h
 							 
 lib_t_objmap_la_LDFLAGS = @COMMON_LDFLAGS@ @CUNITLDFLAGS@
-lib_t_objmap_la_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @PRODUCTION_CFLAGS@
+lib_t_objmap_la_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @DEBUG_CFLAGS@
 
 else
 

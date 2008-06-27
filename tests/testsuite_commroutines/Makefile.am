@@ -9,7 +9,7 @@ lib_t_commroutines_la_SOURCES = setup_suite_commroutines.c \
 							    header_commroutines.h
 							 
 lib_t_commroutines_la_LDFLAGS = @COMMON_LDFLAGS@ @CUNITLDFLAGS@
-lib_t_commroutines_la_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @MPICFLAGS@ @PARALLEL_EXTRA_CFLAGS@ @PRODUCTION_CFLAGS@
+lib_t_commroutines_la_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @MPICFLAGS@ @PARALLEL_EXTRA_CFLAGS@ @DEBUG_CFLAGS@
 endif
 
 else

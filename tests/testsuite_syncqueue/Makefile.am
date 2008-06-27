@@ -9,7 +9,7 @@ lib_t_syncqueue_la_SOURCES = setup_suite_syncqueue.c \
 							 header_syncqueue.h
 							 
 lib_t_syncqueue_la_LDFLAGS = @COMMON_LDFLAGS@ @CUNITLIBS@
-lib_t_syncqueue_la_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @MPICFLAGS@ @PARALLEL_EXTRA_CFLAGS@ @PRODUCTION_CFLAGS@
+lib_t_syncqueue_la_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @MPICFLAGS@ @PARALLEL_EXTRA_CFLAGS@ @DEBUG_CFLAGS@
 endif
 
 else
