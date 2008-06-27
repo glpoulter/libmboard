@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-# $Id$
+# $Id: configure.ac 989 2008-06-27 10:33:36Z lsc $
 # 
 # Copyright (c) 2008 STFC Rutherford Appleton Laboratory 
 # Author: Lee-Shawn Chin 
@@ -8,14 +8,15 @@
 AC_PREREQ(2.59)
 AC_REVISION($Revision$)
 
-AC_INIT(circles_example, 0.1.1, L.S.Chin@rl.ac.uk)
+AC_INIT(circles_example, 0.1.2, L.S.Chin@rl.ac.uk)
 AM_INIT_AUTOMAKE
 
-NORMAL_CFLAGS="-Wall -pedantic -I../../include -O3 -g"
+# default CFLAGS
+NORMAL_CFLAGS="-Wall -pedantic -O3 -g"
+
 PARALLEL_EXTRA_CFLAGS=" -std=c9x -D_PARALLEL"
 
 AC_SUBST(PARALLEL_EXTRA_CFLAGS)
-AC_SUBST(NORMAL_CFLAGS)
 
 AC_CONFIG_SRCDIR([debug.c])
 AC_CONFIG_HEADER([config.h])

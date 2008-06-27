@@ -37,12 +37,12 @@ circles_serial_debug_LDADD   = @MBOARD_SD_LIBS@
 
 if COMPILE_PARALLEL
 circles_parallel_SOURCES = ${common_sources}
-circles_parallel_CFLAGS  = @MBOARD_P_CFLAGS@ -D_PARALLEL
+circles_parallel_CFLAGS  = @MBOARD_P_CFLAGS@ @PARALLEL_EXTRA_CFLAGS@
 circles_parallel_LDFLAGS = @MBOARD_P_LDFLAGS@
 circles_parallel_LDADD   = @MBOARD_P_LIBS@
 
 circles_parallel_debug_SOURCES = ${common_sources}
-circles_parallel_debug_CFLAGS  = @MBOARD_PD_CFLAGS@ -D_PARALLEL
+circles_parallel_debug_CFLAGS  = @MBOARD_PD_CFLAGS@ @PARALLEL_EXTRA_CFLAGS@
 circles_parallel_debug_LDFLAGS = @MBOARD_PD_LDFLAGS@
 circles_parallel_debug_LDADD   = @MBOARD_PD_LIBS@
 endif
