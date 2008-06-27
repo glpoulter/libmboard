@@ -1,4 +1,4 @@
-2008-06-25	Lee-Shawn Chin <L.S.Chin@rl.ac.uk>
+2008-06-27	Lee-Shawn Chin <L.S.Chin@rl.ac.uk>
 	
 	* comm.c, tests/testsuite_commroutines/test_cr1.c: update to solve bug with board->locked status being updated prematurely.
 	* src/parallel/*.c: removed checks on errno as they sometimes pick up values for non-blocking MPI routines.
