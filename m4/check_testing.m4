@@ -78,4 +78,4 @@ then
 else
 	AM_CONDITIONAL([TESTS_CONFIGURED], [false])
 fi
-])dnl
+])dnl MBOARD_CHECK_TESTING

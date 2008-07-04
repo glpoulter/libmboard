@@ -28,7 +28,7 @@ noinst_PROGRAMS += run_test_parallel_utils \
 				   run_test_parallel
 
 run_test_parallel_utils_SOURCES = run_test_parallel_utils.c testing.h
-run_test_parallel_utils_LDFLAGS = @CUNITLDFLAGS@ @THREADS_LDFLAGS@ @MPILDFLAGS@
+run_test_parallel_utils_LDFLAGS = -static @CUNITLDFLAGS@ @THREADS_LDFLAGS@ @MPILDFLAGS@
 run_test_parallel_utils_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @DEBUG_CFLAGS@ @THREADS_CFLAGS@ @MPICFLAGS@
 run_test_parallel_utils_LDADD   =  \
 								  $(testcode_dir)/testsuite_commqueue/lib_t_commqueue.la \
@@ -41,7 +41,7 @@ run_test_parallel_utils_LDADD   =  \
 						    	  
                
 run_test_parallel_SOURCES = run_test_parallel.c testing.h
-run_test_parallel_LDFLAGS = @CUNITLDFLAGS@ @THREADS_LDFLAGS@ @MPILDFLAGS@
+run_test_parallel_LDFLAGS = -static @CUNITLDFLAGS@ @THREADS_LDFLAGS@ @MPILDFLAGS@
 run_test_parallel_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @DEBUG_CFLAGS@ @THREADS_CFLAGS@ @MPICFLAGS@
 run_test_parallel_LDADD   = \
 							$(testcode_dir)/testsuite_mb_parallel/lib_t_mb_parallel.la \
@@ -53,7 +53,7 @@ run_test_parallel_LDADD   = \
 endif
 
 run_test_utils_SOURCES  = run_test_utils.c testing.h
-run_test_utils_LDFLAGS  = @CUNITLDFLAGS@
+run_test_utils_LDFLAGS  = -static @CUNITLDFLAGS@
 run_test_utils_CFLAGS   = -I$(INCLUDEDIR) @CUNITCFLAGS@ @DEBUG_CFLAGS@
 run_test_utils_LDADD    = $(testcode_dir)/testsuite_objmap/lib_t_objmap.la \
                           $(testcode_dir)/testsuite_pooled_list/lib_t_pooled_list.la \
@@ -62,7 +62,7 @@ run_test_utils_LDADD    = $(testcode_dir)/testsuite_objmap/lib_t_objmap.la \
 
                
 run_test_serial_SOURCES = run_test_serial.c testing.h
-run_test_serial_LDFLAGS = @CUNITLDFLAGS@
+run_test_serial_LDFLAGS = -static @CUNITLDFLAGS@
 run_test_serial_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @DEBUG_CFLAGS@
 run_test_serial_LDADD   = $(testcode_dir)/testsuite_mb_serial/lib_t_mb_serial.la \
 						  $(top_srcdir)/src/serial/lib_mb_sd.la \

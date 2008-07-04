@@ -55,7 +55,7 @@ AC_CHECK_LIB([m], [floor],[],[AC_MSG_ERROR(floor() from libm is required)])
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([float.h limits.h stddef.h stdlib.h string.h unistd.h],[],
+AC_CHECK_HEADERS([limits.h stddef.h unistd.h],[],
 				 [AC_MSG_ERROR(That header file is required)])
 
 # Check requirements for parallel implementation

@@ -25,21 +25,14 @@ AC_ARG_WITH([mpi],
                             [Specify path to MPI installation])]
            )
 MPIDIR=${with_mpi}
-   
-# Allow users to manually specify path to PTHREADS installation
-AC_ARG_WITH([pthreads],
-            [AC_HELP_STRING([--with-pthreads=PTHREADSDIR],
-                            [Specify path to PTHREAD installation])]
-           )
-PTHREADSDIR=${with_pthreads}
 
-if test "x${want_parallel}" != xno;
+if test "x${want_parallel}" != xno
 then
 	
 	### Check for MPI compiler
 	
 	# if MPI path specified, use that. Else, use env PATH
-	if test "x${MPIDIR}" = x;
+	if test "x${MPIDIR}" = x
 	then
 		MPIPATH="${PATH}"
 	else
@@ -52,29 +45,52 @@ then
 	original_CFLAGS="${CFLAGS}"
 	original_LDFLAGS="${LDFLAGS}"
 	
-	# Look for MPI C compiler wrappers
-	MPICC=
-	MPILIBS=
-	MPICFLAGS=
+	
+	MPICC=""
+	MPILIBS=""
+	MPICFLAGS=""
 
-	AC_PATH_PROGS(MPICC, [mpicc mpcc_r mpcc mpxlc_rmpxlc hcc cmpicc], none, ${MPIPATH})
+	# Look for MPI C compiler wrappers
+	AC_PATH_PROGS(MPICC, [mpicc mpcc_r mpcc mpxlc_r mpxlc hcc cmpicc], none, ${MPIPATH})
 	AC_MSG_CHECKING([for MPI C Compiler wrapper])
 	if test ! "x${MPICC}"  = "xnone"
 	then
-		AC_MSG_RESULT([found ${mpicc}])
+		AC_MSG_RESULT([found ${MPICC}])
 		
-		AC_MSG_CHECKING([for MPI Compiler style])
-		if test ! "`${MPICC} -showme 2>&1 | grep lmpi`" = ""
+		AC_MSG_CHECKING([checking ${MPICC} for -show option])
+		mpi_compile_test="`${MPICC} -show`"
+		
+		if test ! x"$?" = x0
 		then
-			AC_MSG_RESULT([LAM])
+			AC_MSG_RESULT([none])
+			AC_MSG_CHECKING([checking ${MPICC} for -showme option])
 			
-			mpi_compile_test="`${MPICC} -showme -c DUMMY.c`"
+			mpi_compile_test="`${MPICC} -showme`"
+			if test ! x"$?" = x0
+			then
+				AC_MSG_RESULT([none])
+				mpi_compile_test=""
+			else
+				AC_MSG_RESULT([found])
+				mpi_link_test="`${MPICC} -showme DUMMY.o -o DUMMY`"
+			fi
+		else
+			AC_MSG_RESULT([found])
+			mpi_link_test="`${MPICC} -show DUMMY.o -o DUMMY`"
+		fi
+		
+		if test ! "x${mpi_compile_test}" = "x"
+		then
+			
 			mpi_compile_args="`echo ${mpi_compile_test} | cut -d' ' -f2-`"
-			mpi_link_test="`${MPICC} -showme DUMMY.o -o DUMMY`"
 			mpi_link_args="`echo ${mpi_link_test} | cut -d' ' -f2-`"
 			
+			# remove -l* entries in CFLAGS
+			mpi_compile_args="`echo ${mpi_compile_args} | sed -e \"s/\-l@<:@^ @:>@*//g\" | tr -s ' '`"
+			
 			# remove DUMMY filenames
-			mpi_compile_args="`echo ${mpi_compile_args} | sed -e \"s/-c DUMMY.c//g\"`"
+			mpi_link_args="`echo ${mpi_link_args} | sed -e \"s/DUMMY.o//g\"`"
+			mpi_link_args="`echo ${mpi_link_args} | sed -e \"s/[']*-o[']* DUMMY//g\"`"
 			mpi_link_args="`echo ${mpi_link_args} | sed -e \"s/DUMMY.o -o DUMMY//g\"`"
 			
 			# remove -I from link - the @<:@ and @:>@ become [ and ] when m4sh is done
@@ -86,47 +102,16 @@ then
           	MPICFLAGS="${mpi_compile_args}"
           	AC_MSG_RESULT([${MPICFLAGS}])
           	
-          	AC_MSG_CHECKING([additional libs added by ${MPICC}])
+          	AC_MSG_CHECKING([linker flags used by ${MPICC}])
           	MPILDFLAGS="${mpi_ldflags}"
           	AC_MSG_RESULT([${MPILDFLAGS}])
           	
-          	AC_MSG_CHECKING([linker flags used by ${MPICC}])
-          	MPILIBS="${mpi_libs}"
-          	AC_MSG_RESULT([${MPILIBS}])
-          	
-		elif test ! "`${MPICC} -show 2>&1 | grep lmpi`" = ""
-		then
-			AC_MSG_RESULT([MPICH])
-			
-			mpi_compile_test="`${MPICC} -show -c DUMMY.c`"
-			mpi_compile_args="`echo ${mpi_compile_test} | cut -d' ' -f2-`"
-			mpi_link_test="`${MPICC} -show DUMMY.o -o DUMMY`"
-			mpi_link_args="`echo ${mpi_link_test} | cut -d' ' -f2-`"
-			
-			# remove DUMMY filenames
-			mpi_compile_args="`echo ${mpi_compile_args} | sed -e \"s/-c DUMMY.c//g\"`"
-			mpi_link_args="`echo ${mpi_link_args} | sed -e \"s/DUMMY.o -o DUMMY//g\"`"
-			
-			# remove -I from link - the @<:@ and @:>@ become [ and ] when m4sh is done
-          	mpi_link_args="`echo ${mpi_link_args} | sed -e \"s/\-I@<:@^ @:>@*//g\"`"
-          	mpi_ldflags="`echo ${mpi_link_args} | sed -e \"s/\-l@<:@^ @:>@*//g\"`"
-          	mpi_libs="`(for i in ${mpi_link_args}; do echo $i | awk '/^-l/'; done) | tr '\n' ' '`"
-            
-            
-          	AC_MSG_CHECKING([compiler flags used by ${MPICC}])
-          	MPICFLAGS="${mpi_compile_args}"
-          	AC_MSG_RESULT([${MPICFLAGS}])
-          	
           	AC_MSG_CHECKING([additional libs added by ${MPICC}])
-          	MPILDFLAGS="${mpi_ldflags}"
-          	AC_MSG_RESULT([${MPILDFLAGS}])
-          	
-          	AC_MSG_CHECKING([linker flags used by ${MPICC}])
           	MPILIBS="${mpi_libs}"
           	AC_MSG_RESULT([${MPILIBS}])
+          	
 		else
-			AC_MSG_RESULT([unknown])
-			AC_MSG_WARN([Unknown MPI compiler found. Will try default compiler.])
+			AC_MSG_WARN([Unknown MPI compiler (${MPICC}). Will try default compiler.])
 			MPICC="none"
 		fi
 	else
@@ -185,10 +170,9 @@ then
 	fi
 	
 	# check for mpi headers
-	# Use AC_TRY_COMPILE because AC_CHECK_HEADERS uses $CPP
+	# Use AC TRY COMPILE because AC CHECK HEADERS uses $CPP
 	AC_MSG_CHECKING([for mpi.h])
 
-	# CC="${MPICC}"
 	LIBS="${MPILIBS}"
 	LDFLAGS="${MPILDFLAGS}"
 	CFLAGS="${MPICFLAGS}"
@@ -196,54 +180,20 @@ then
 	AC_TRY_COMPILE([#include <mpi.h>],[],
                    [mpi_header="yes"; AC_MSG_RESULT(yes)],
                    [mpi_header="no"; AC_MSG_RESULT(no) ])
+                   
     if test x"${mpi_header}" = "xno"
     then
     	AC_MSG_ERROR([Could not locate MPI header file (mpi.h)])
     fi
-    
-
 	
-	# export MPI vars
-	AC_SUBST(MPICC)
-	AC_SUBST(MPILIBS)
-	AC_SUBST(MPILDFLAGS)
-	AC_SUBST(MPICFLAGS)
-	
-	# if PTHREADS path specified, use that. Else, use env PATH
-	if test ! x${PTHREADSDIR} = x;
-	then
-		THREADS_CFLAGS="-I${PTHREADSDIR}/include"
-		THREADS_LDFLAGS="-L${PTHREADSDIR}/libs"
-		CFLAGS="${CFLAGS} ${THREADS_CFLAGS}"
-		LDFLAGS="${LDFLAGS} ${THREADS_LDFLAGS}"
-	fi
-	
-	### Check for pthread
-	THREADS_LIBS=
-	pthreads_found="no"
-	
-	# Check for libpthread
-	AC_CHECK_LIB([pthread], [pthread_create], [THREADS_LIBS=-lpthread; pthreads_found="yes"])
-	
-	# Else, check for libpthreads
-	if test x"$pthreads_found" = xno
-	then
-		AC_CHECK_LIB([pthreads], [pthread_create], [THREADS_LIBS=-lpthreads; pthreads_found="yes"])
-	fi
-	
-	# Else, check for pthread support within standard C library
-	if test x"$pthreads_found" = xno
-	then
-		AC_CHECK_LIB([c], [pthread_create], [THREADS_LIBS=""; pthreads_found="yes"],
-		             [AC_MSG_ERROR([
+	# check for pthreads.
+	ACX_PTHREAD([],[AC_MSG_ERROR([
  ** pthread support is required for building parallel library.
  ** Please install the pthread library and try again. If you do have PTHREADS 
     installed,specify the installation path using --with-pthreads=PTHREADS_DIR.
  ** Or, if you do not need the parallel libraries, reconfigure with the
     --disable-parallel option to build only the serial libraries and tests.	])
-                     ])
-   
-	fi
+    ])
 
 	 # restore env values
 	CC="${original_CC}"
@@ -251,6 +201,19 @@ then
 	CFLAGS="${original_CFLAGS}"
 	LDFLAGS="${original_LDFLAGS}"
 	
+	CC="${PTHREAD_CC}"
+	THREADS_CFLAGS="${PTHREAD_CFLAGS}"
+	THREADS_LIBS="${PTHREAD_LIBS}"
+	# yes, use of CFLAGS as LDFLAGS is intentional. Not a typo.
+	THREADS_LDFLAGS="${THREADS_CFLAGS}" 
+	
+	# export MPI vars
+	AC_SUBST(MPICC)
+	AC_SUBST(MPILIBS)
+	AC_SUBST(MPILDFLAGS)
+	AC_SUBST(MPICFLAGS)
+	
+	# export THREADS vars
 	AC_SUBST(THREADS_LIBS)
 	AC_SUBST(THREADS_CFLAGS)
 	AC_SUBST(THREADS_LDFLAGS)
@@ -260,4 +223,4 @@ else
 	AM_CONDITIONAL([COMPILE_PARALLEL], [false])
 fi
 
-])dnl
+])dnl MBOARD_CHECK_PARALLEL
