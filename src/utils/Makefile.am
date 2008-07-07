@@ -18,13 +18,10 @@ common_sources   = objmap.c pooled_list.c unmap.c \
                     $(INCLUDEDIR)/mboard.h \
                     $(INCLUDEDIR)/mb_utils.h \
                     $(INCLUDEDIR)/mb_common.h
-common_libadd    = -lm
 common_cflags    = -I$(INCLUDEDIR)
 
 lib_utils_la_SOURCES   = $(common_sources)     
-lib_utils_la_LIBADD    = $(common_libadd)
 lib_utils_la_CFLAGS    = $(common_cflags) @PRODUCTION_CFLAGS@
 
 lib_utils_d_la_SOURCES  = $(common_sources)     
-lib_utils_d_la_LIBADD   = $(common_libadd)
 lib_utils_d_la_CFLAGS   = $(common_cflags) @DEBUG_CFLAGS@

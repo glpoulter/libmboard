@@ -38,13 +38,10 @@ common_sources   = 	addmessage.c \
                     $(INCLUDEDIR)/mb_common.h \
                     $(INCLUDEDIR)/mb_serial.h
                     
-common_libadd    = @COMMON_LDFLAGS@
 common_cflags    = -I$(INCLUDEDIR)
 
 lib_mb_s_la_SOURCES   = $(common_sources)     
-lib_mb_s_la_LIBADD    = $(common_libadd)
 lib_mb_s_la_CFLAGS    = $(common_cflags) @PRODUCTION_CFLAGS@
 
 lib_mb_sd_la_SOURCES  = $(common_sources)     
-lib_mb_sd_la_LIBADD   = $(common_libadd)
 lib_mb_sd_la_CFLAGS   = $(common_cflags) @DEBUG_CFLAGS@

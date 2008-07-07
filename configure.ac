@@ -3,7 +3,7 @@
 AC_PREREQ(2.59)
 AC_REVISION($Revision$)
 
-AC_INIT(libmboard, 0.1.2-alpha, L.S.Chin@rl.ac.uk)
+AC_INIT(libmboard, pre-0.1.3.alpha, L.S.Chin@rl.ac.uk)
 AM_INIT_AUTOMAKE
 #AM_MAINTAINER_MODE
 
@@ -42,16 +42,14 @@ esac
 PRODUCTION_CFLAGS=" -DNDEBUG"
 DEBUG_CFLAGS=" -g -D_EXTRA_CHECKS"
 PARALLEL_EXTRA_CFLAGS=" -std=c9x"
-COMMON_LDFLAGS="-lm"
 
 AC_SUBST(PARALLEL_EXTRA_CFLAGS)
 AC_SUBST(PRODUCTION_CFLAGS)
 AC_SUBST(DEBUG_CFLAGS)
-AC_SUBST(COMMON_LDFLAGS)
 
 # Checks for libraries.
-AC_CHECK_LIB([m], [sqrt], [],[AC_MSG_ERROR(sqrt() from libm is required)])
-AC_CHECK_LIB([m], [floor],[],[AC_MSG_ERROR(floor() from libm is required)])
+AC_CHECK_LIB([m], [sqrt])
+#AC_CHECK_LIB([m], [floor],[],[AC_MSG_ERROR(floor() from libm is required)])
 
 # Checks for header files.
 AC_HEADER_STDC
@@ -73,6 +71,8 @@ AC_TYPE_SIZE_T
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([memset],[],[AC_MSG_ERROR(memset() is required)])
 AC_CHECK_FUNCS([memcpy],[],[AC_MSG_ERROR(memcpy() is required)])
+AC_CHECK_FUNCS([sqrt],[],[AC_MSG_ERROR(sqrt() is required)])
+AC_CHECK_FUNCS([floor],[],[AC_MSG_ERROR(floor() is required)])
 
 # files to create
 
@@ -100,9 +100,11 @@ echo "------------------- Configuration successful --------------------------"
 echo ""
 echo "Compile parallel libs : $want_parallel"
 if test x${want_parallel} = xyes; then
+echo " - CC used by MPI Compiler Wrapper ($mpi_cc_wrapper) = $mpi_cc"
 echo " - MPI CFLAGS       = $MPICFLAGS"
 echo " - MPI LDFLAGS      = $MPILDFLAGS"
 echo " - MPI LIBS         = $MPILIBS"
+echo ""
 echo " - PTHREADS CFLAGS  = $THREADS_CFLAGS"
 echo " - PTHREADS LDFLAGS = $THREADS_LDFLAGS"
 echo " - PTHREADS LIBS    = $THREADS_LIBS"
@@ -117,6 +119,11 @@ fi
 echo ""
 echo "Default compiler : $CC"
 echo "Default CFLAGS   : $CFLAGS"
+echo "Default LDFLAGS  : $LDFLAGS"
+echo "Default LIBS     : $LIBS"
+echo ""
+
+echo "-----------------------------------------------------------------------"
 echo ""
 echo "If you wish to use a different compiler and/or CFLAGS, you can "
 echo "override CC and CFLAGS during the invocation of 'make'. For example:"

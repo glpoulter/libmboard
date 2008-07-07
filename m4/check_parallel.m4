@@ -82,6 +82,7 @@ then
 		if test ! "x${mpi_compile_test}" = "x"
 		then
 			
+			mpi_cc="`echo ${mpi_compile_test} | cut -d' ' -f1`"
 			mpi_compile_args="`echo ${mpi_compile_test} | cut -d' ' -f2-`"
 			mpi_link_args="`echo ${mpi_link_test} | cut -d' ' -f2-`"
 			
@@ -186,6 +187,10 @@ then
     	AC_MSG_ERROR([Could not locate MPI header file (mpi.h)])
     fi
 	
+	# Store CC that mpicc wrapper uses
+	mpi_cc_wrapper="${MPICC}"
+	MPICC="${mpi_cc}"
+	
 	# check for pthreads.
 	ACX_PTHREAD([],[AC_MSG_ERROR([
  ** pthread support is required for building parallel library.
@@ -201,11 +206,16 @@ then
 	CFLAGS="${original_CFLAGS}"
 	LDFLAGS="${original_LDFLAGS}"
 	
-	CC="${PTHREAD_CC}"
+	if test ! ${CC} = ${PTHREAD_CC}
+	then
+		AC_MSG_WARN([Default compiler changed from $CC to $PTHREAD_CC to enable pthread support])
+		CC="${PTHREAD_CC}"
+	fi
 	THREADS_CFLAGS="${PTHREAD_CFLAGS}"
 	THREADS_LIBS="${PTHREAD_LIBS}"
 	# yes, use of CFLAGS as LDFLAGS is intentional. Not a typo.
 	THREADS_LDFLAGS="${THREADS_CFLAGS}" 
+	
 	
 	# export MPI vars
 	AC_SUBST(MPICC)

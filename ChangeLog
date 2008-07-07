@@ -1,3 +1,7 @@
+2008-07-04  Lee-Shawn Chin <L.S.Chin@rl.ac.uk>
+
+	* m4/*.m4: Implemented better configuration checks for MPI and Pthreads
+
 2008-06-27	Lee-Shawn Chin <L.S.Chin@rl.ac.uk>
 	
 	* comm.c, tests/testsuite_commroutines/test_cr1.c: update to solve bug with board->locked status being updated prematurely.
