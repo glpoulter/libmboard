@@ -125,6 +125,14 @@ then
 	
 		mpi_init_found="no"
 		
+		if ! test "x${MPIDIR}" = x
+		then
+			MPICFLAGS="${MPICFLAGS} -I${MPIDIR}/include"
+			CFLAGS="${CFLAGS} -I${MPIDIR}/include"
+			MPILDFLAGS="${MPILDFLAGS} -L${MPIDIR}/lib"
+			LDFLAGS="${LDFLAGS} -L${MPIDIR}/lib"
+		fi
+		
 		if test "${mpi_init_found}" = no
 		then
 			AC_CHECK_FUNC(MPI_Init, [mpi_init_found="yes"])
@@ -227,9 +235,11 @@ then
 	# yes, use of CFLAGS as LDFLAGS is intentional. Not a typo.
 	THREADS_LDFLAGS="${THREADS_CFLAGS}" 
 	
+	MB_PARALLEL_CFLAGS="${MPICFLAGS} ${THREADS_CFLAGS}"
+	MB_PARALLEL_LDFLAGS="${MPILDFLAGS} ${THREADS_LDFLAGS}"
+	MB_PARALLEL_LIBS="${MPILIBS} ${THREADS_LIBS}"
 	
 	# export MPI vars
-	AC_SUBST(MPICC)
 	AC_SUBST(MPILIBS)
 	AC_SUBST(MPILDFLAGS)
 	AC_SUBST(MPICFLAGS)
@@ -238,6 +248,11 @@ then
 	AC_SUBST(THREADS_LIBS)
 	AC_SUBST(THREADS_CFLAGS)
 	AC_SUBST(THREADS_LDFLAGS)
+	
+	# export MB_PARALLEL vars (combination of MPI* and THREADS_*)
+	AC_SUBST(MB_PARALLEL_LIBS)
+	AC_SUBST(MB_PARALLEL_CFLAGS)
+	AC_SUBST(MB_PARALLEL_LDFLAGS)
 	
 	AM_CONDITIONAL([COMPILE_PARALLEL], [true])
 else

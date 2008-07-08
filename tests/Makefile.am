@@ -28,26 +28,26 @@ noinst_PROGRAMS += run_test_parallel_utils \
 				   run_test_parallel
 
 run_test_parallel_utils_SOURCES = run_test_parallel_utils.c testing.h
-run_test_parallel_utils_LDFLAGS = @CUNITLDFLAGS@ @THREADS_LDFLAGS@ @MPILDFLAGS@
-run_test_parallel_utils_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @DEBUG_CFLAGS@ @THREADS_CFLAGS@ @MPICFLAGS@
+run_test_parallel_utils_LDFLAGS = @CUNITLDFLAGS@ @MB_PARALLEL_LDFLAGS@
+run_test_parallel_utils_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @DEBUG_CFLAGS@ @MB_PARALLEL_CFLAGS@
 run_test_parallel_utils_LDADD   =  \
 								  $(testcode_dir)/testsuite_commqueue/lib_t_commqueue.la \
                                   $(testcode_dir)/testsuite_syncqueue/lib_t_syncqueue.la \
                                   $(testcode_dir)/testsuite_commroutines/lib_t_commroutines.la \
                                   $(top_srcdir)/src/parallel/lib_mb_pd.la \
                                   $(top_srcdir)/src/utils/lib_utils.la \
-						  		  @CUNITLIBS@ @THREADS_LIBS@ @MPILIBS@
+						  		  @CUNITLIBS@ @MB_PARALLEL_LIBS@
 						    	  
 						    	  
                
 run_test_parallel_SOURCES = run_test_parallel.c testing.h
-run_test_parallel_LDFLAGS = @CUNITLDFLAGS@ @THREADS_LDFLAGS@ @MPILDFLAGS@
-run_test_parallel_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @DEBUG_CFLAGS@ @THREADS_CFLAGS@ @MPICFLAGS@
+run_test_parallel_LDFLAGS = @CUNITLDFLAGS@ @MB_PARALLEL_LDFLAGS@
+run_test_parallel_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @DEBUG_CFLAGS@ @MB_PARALLEL_CFLAGS@
 run_test_parallel_LDADD   = \
 							$(testcode_dir)/testsuite_mb_parallel/lib_t_mb_parallel.la \
 						    $(top_srcdir)/src/parallel/lib_mb_pd.la \
 						    $(top_srcdir)/src/utils/lib_utils.la \
-						    @CUNITLIBS@ @THREADS_LIBS@ @MPILIBS@ 
+						    @CUNITLIBS@ @MB_PARALLEL_LIBS@ 
 						    
 
 endif

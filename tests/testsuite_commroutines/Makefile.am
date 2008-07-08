@@ -14,9 +14,9 @@ lib_t_commroutines_la_SOURCES = setup_suite_commroutines.c \
 							    test_cr1.c \
 							    header_commroutines.h
 							 
-lib_t_commroutines_la_LIBS    = @CUNITLIBS@
-lib_t_commroutines_la_LDFLAGS = @CUNITLDFLAGS@
-lib_t_commroutines_la_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @MPICFLAGS@ @PARALLEL_EXTRA_CFLAGS@ @DEBUG_CFLAGS@
+lib_t_commroutines_la_LIBS    = @CUNITLIBS@ @MB_PARALLEL_LIBS@ 
+lib_t_commroutines_la_LDFLAGS = @CUNITLDFLAGS@ @MB_PARALLEL_LDFLAGS@ 
+lib_t_commroutines_la_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @MB_PARALLEL_CFLAGS@ @PARALLEL_EXTRA_CFLAGS@ @DEBUG_CFLAGS@
 endif
 
 else

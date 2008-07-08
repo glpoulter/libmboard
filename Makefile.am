@@ -35,12 +35,12 @@ libmboard_sd_la_LIBADD  = src/utils/lib_utils_d.la src/serial/lib_mb_sd.la
 
 if COMPILE_PARALLEL
 libmboard_p_la_SOURCES  =
-libmboard_p_la_LDFLAGS  = @THREADS_LDFLAGS@ @MPILDFLAGSS@
-libmboard_p_la_LIBADD   = src/utils/lib_utils.la src/parallel/lib_mb_p.la @THREADS_LIBS@ @MPILIBS@
+libmboard_p_la_LDFLAGS  = @MB_PARALLEL_LDFLAGS@
+libmboard_p_la_LIBADD   = src/utils/lib_utils.la src/parallel/lib_mb_p.la @MB_PARALLEL_LIBS@
 
 libmboard_pd_la_SOURCES =
-libmboard_pd_la_LDFLAGS = @THREADS_LDFLAGS@ @MPILDFLAGSS@
-libmboard_pd_la_LIBADD  = src/utils/lib_utils_d.la src/parallel/lib_mb_pd.la @THREADS_LIBS@ @MPILIBS@
+libmboard_pd_la_LDFLAGS = @MB_PARALLEL_LDFLAGS@
+libmboard_pd_la_LIBADD  = src/utils/lib_utils_d.la src/parallel/lib_mb_pd.la @MB_PARALLEL_LIBS@
 endif
 
 EXTRA_DIST = \

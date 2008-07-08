@@ -49,12 +49,12 @@ common_cflags    = -I$(INCLUDEDIR)
 
 if COMPILE_PARALLEL
 lib_mb_p_la_SOURCES   = $(common_sources)   
-lib_mb_p_la_LDFLAGS   = @THREADS_LDFLAGS@ @MPILDFLAGS@
-lib_mb_p_la_LIBADD    = @THREADS_LIBS@ @MPILIBS@
-lib_mb_p_la_CFLAGS    = $(common_cflags) @THREADS_CFLAGS@ @MPICFLAGS@ @PARALLEL_EXTRA_CFLAGS@ @PRODUCTION_CFLAGS@
+lib_mb_p_la_LDFLAGS   = @MB_PARALLEL_LDFLAGS@
+lib_mb_p_la_LIBADD    = @MB_PARALLEL_LIBS@
+lib_mb_p_la_CFLAGS    = $(common_cflags) @MB_PARALLEL_CFLAGS@ @PARALLEL_EXTRA_CFLAGS@ @PRODUCTION_CFLAGS@
 
 lib_mb_pd_la_SOURCES  = $(common_sources)     
-lib_mb_pd_la_LDFLAGS   = @THREADS_LDFLAGS@ @MPILDFLAGS@
-lib_mb_pd_la_LIBADD   = $@THREADS_LIBS@ @MPILIBS@
-lib_mb_pd_la_CFLAGS   = $(common_cflags) @THREADS_CFLAGS@ @MPICFLAGS@ @PARALLEL_EXTRA_CFLAGS@ @DEBUG_CFLAGS@
+lib_mb_pd_la_LDFLAGS  = @MB_PARALLEL_LDFLAGS@
+lib_mb_pd_la_LIBADD   = @MB_PARALLEL_LIBS@
+lib_mb_pd_la_CFLAGS   = $(common_cflags) @MB_PARALLEL_CFLAGS@ @PARALLEL_EXTRA_CFLAGS@ @DEBUG_CFLAGS@
 endif
