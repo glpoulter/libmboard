@@ -134,6 +134,17 @@ then
 				MPICC="${CC}"
 			fi
 		fi
+
+		if test "${mpi_init_found}" = no
+		then
+			AC_CHECK_LIB(mpi_r, MPI_Init, [mpi_init_found="yes"])
+			if test x"${mpi_init_found}" = xyes
+			then
+				AC_MSG_RESULT([found])
+				MPICC="${CC}"
+				MPILIBS="-lmpi_r"
+			fi
+		fi
 		
 		if test "${mpi_init_found}" = no
 		then
