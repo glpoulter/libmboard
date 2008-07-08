@@ -1,7 +1,14 @@
-2008-07-04  Lee-Shawn Chin <L.S.Chin@rl.ac.uk>
+2008-07-08  Lee-Shawn Chin <L.S.Chin@rl.ac.uk>
 
-	* m4/*.m4: Implemented better configuration checks for MPI and Pthreads
+	* configure.ac m4/*.m4: Implemented better configuration checks for MPI and Pthreads
+	* Makefile.am, */Makefile.am: Updated to match changes in *.m4 
+	
+	* src/utils/objmap.c: Renamed map_t type declaration which clashes with those defined in AIX system header files 
 
+	* Builds and runs fine on bglogin2 (Bluegene/P) - using cc defined by `mpicc -show`
+	* Builds and runs fine on HPCx (IBM AIX) - tested with gcc and xlc_r
+	* Builds and runs fine on HAPU (HP Cluster Platform 4000) - tested with gcc and pgcc
+	
 2008-06-27	Lee-Shawn Chin <L.S.Chin@rl.ac.uk>
 	
 	* comm.c, tests/testsuite_commroutines/test_cr1.c: update to solve bug with board->locked status being updated prematurely.
@@ -14,8 +21,8 @@
 	
 	* tests/Makefile.am, tests/*/Makefile.am: testsuites now have assertion enabled, and uses the debug versions of libs
 	  
-	* Builds and run fine on Linux (tested with MPICH & LAM/MPI)
-	* Builds and run fine on Windows via Cygwin (tested with MPICH)
+	* Builds and runs fine on Linux (tested with MPICH & LAM/MPI)
+	* Builds and runs fine on Windows via Cygwin (tested with MPICH)
 	
 	* Tagged as 0.1.2-alpha
 
