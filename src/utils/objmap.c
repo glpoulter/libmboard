@@ -31,10 +31,10 @@ typedef struct {
     void *obj;
     /*! \brief metadata required by \c uthash */
     UT_hash_handle hh;
-} map_t;
+} mymap_t;
 
 /* internal routine to deallocate map memory */
-static void delete_map_data(map_t *ht);
+static void delete_map_data(mymap_t *ht);
 
 
 /*!
@@ -88,11 +88,11 @@ MBIt_objmap* MBI_objmap_new(void) {
 OM_key_t MBI_objmap_push(MBIt_objmap *map, void *obj) {
     
     OM_key_t handle;
-    map_t *entry;
-    map_t *ht;
+    mymap_t *entry;
+    mymap_t *ht;
 
 #ifdef OBJMAP_CYCLE_KEY
-    map_t *temp;
+    mymap_t *temp;
     static int key_wrapped = 0;
 #endif
     
@@ -101,14 +101,14 @@ OM_key_t MBI_objmap_push(MBIt_objmap *map, void *obj) {
     if (!obj) return OM_ERR_INVALID;
     
     /* get ref to hash table */
-    ht = (map_t *)(map->map);
+    ht = (mymap_t *)(map->map);
     /* assert(ht); */
     
     errno = 0;
     handle = map->top; 
     
     /* allocate struct for hastable entry */
-    entry = (map_t *)malloc(sizeof(map_t));
+    entry = (mymap_t *)malloc(sizeof(mymap_t));
     assert(entry != NULL);
     if (errno != 0 || entry == NULL) return OM_ERR_MEMALLOC;
     
@@ -178,14 +178,14 @@ OM_key_t MBI_objmap_push(MBIt_objmap *map, void *obj) {
  */
 void* MBI_objmap_getobj(MBIt_objmap *map, OM_key_t handle) {
     
-    map_t *entry = NULL;
+    mymap_t *entry = NULL;
     void  *obj   = NULL;
-    map_t *ht;
+    mymap_t *ht;
     
     if (!map) return NULL;
     
     /* get ref to hash table */
-    ht = (map_t *)(map->map);
+    ht = (mymap_t *)(map->map);
     /* assert(ht); */
     
     /* retrieve item from ut_hashtable */
@@ -214,14 +214,14 @@ void* MBI_objmap_getobj(MBIt_objmap *map, OM_key_t handle) {
  */
 void* MBI_objmap_pop(MBIt_objmap *map, OM_key_t handle) {
     
-    map_t *entry = NULL;
+    mymap_t *entry = NULL;
     void  *obj   = NULL;
-    map_t *ht;
+    mymap_t *ht;
     
     if (!map) return NULL;
     
     /* get ref to hash table */
-    ht = (map_t *)(map->map);
+    ht = (mymap_t *)(map->map);
     /* assert(ht); */
     
     /* retrieve item from ut_hashtable */
@@ -263,7 +263,7 @@ void MBI_objmap_destroy(MBIt_objmap **map) {
     mytmp = *map;
     *map  = NULL;
     
-    delete_map_data((map_t *)(mytmp->map));
+    delete_map_data((mymap_t *)(mytmp->map));
     free(mytmp);
     
     
@@ -278,8 +278,8 @@ void MBI_objmap_destroy(MBIt_objmap **map) {
  * Treats \ht as a linked-list (which is possible with \c uthash)
  * and delete all nodes as we traverse the list
  */
-static void delete_map_data(map_t *ht) {
-    map_t *first;
+static void delete_map_data(mymap_t *ht) {
+    mymap_t *first;
     
     while (ht) /* repeat till table empty */
     {
