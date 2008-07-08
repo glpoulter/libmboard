@@ -16,40 +16,36 @@ AC_PROG_MAKE_SET
 AC_DISABLE_SHARED
 AC_PROG_LIBTOOL
 
+AC_C_INLINE
+
 # Default CFLAGS
 # Need extra checks to set this depending on compiler
 case "$CC" in
 	gcc*)
-		CFLAGS="-Wall -pedantic -O3 -fno-common"
+		CFLAGS="${CFLAGS} -std=c99 -Wall -pedantic -fno-common"
 		;;
 	pgcc*)
-		CFLAGS="-c9x -Minform=warm"
+		CFLAGS="${CFLAGS} -c9x -Minform=warn"
 		;;
 	icc*)
-		CFLAGS="-std=c99 -Wall"
+		CFLAGS="${CFLAGS} -std=c99 -Wall"
 		;;
 	xlc*)
-		CFLAGS="-qlanglvl=stdc99 -qinfo=all -qflag=w:u -qcheck=all"
+		CFLAGS="${CFLAGS} -qlanglvl=stdc99 -qinfo=all -qflag=w:u -qcheck=all"
 		;;
 	*)
-		CFLAGS=""
+		CFLAGS="${CFLAGS} -std=c99"
 		;;
 esac
 
-# Make sure compiler uses re-entrant option for things like errno 
-# CFLAGS="$CFLAGS -D_REENTRANT -D_LIBC_REENTRANT"
+PRODUCTION_CFLAGS="-DNDEBUG -O3"
+DEBUG_CFLAGS="-g -D_EXTRA_CHECKS"
 
-PRODUCTION_CFLAGS=" -DNDEBUG"
-DEBUG_CFLAGS=" -g -D_EXTRA_CHECKS"
-PARALLEL_EXTRA_CFLAGS=" -std=c9x"
-
-AC_SUBST(PARALLEL_EXTRA_CFLAGS)
 AC_SUBST(PRODUCTION_CFLAGS)
 AC_SUBST(DEBUG_CFLAGS)
 
 # Checks for libraries.
 AC_CHECK_LIB([m], [sqrt])
-#AC_CHECK_LIB([m], [floor],[],[AC_MSG_ERROR(floor() from libm is required)])
 
 # Checks for header files.
 AC_HEADER_STDC
@@ -69,10 +65,10 @@ AC_TYPE_SIZE_T
 
 # Checks for library functions.
 AC_FUNC_MALLOC
-AC_CHECK_FUNCS([memset],[],[AC_MSG_ERROR(memset() is required)])
-AC_CHECK_FUNCS([memcpy],[],[AC_MSG_ERROR(memcpy() is required)])
-AC_CHECK_FUNCS([sqrt],[],[AC_MSG_ERROR(sqrt() is required)])
-AC_CHECK_FUNCS([floor],[],[AC_MSG_ERROR(floor() is required)])
+#AC_CHECK_FUNCS([memset],[],[AC_MSG_ERROR(memset() is required)])
+#AC_CHECK_FUNCS([memcpy],[],[AC_MSG_ERROR(memcpy() is required)])
+#AC_CHECK_FUNCS([sqrt],[],[AC_MSG_ERROR(sqrt() is required)])
+#AC_CHECK_FUNCS([floor],[],[AC_MSG_ERROR(floor() is required)])
 
 # files to create
 
@@ -122,7 +118,9 @@ echo "Default CFLAGS   : $CFLAGS"
 echo "Default LDFLAGS  : $LDFLAGS"
 echo "Default LIBS     : $LIBS"
 echo ""
-
+echo "Additional CFLAGS (production) : $PRODUCTION_CFLAGS"
+echo "Additional CFLAGS (debug)      : $DEBUG_CFLAGS"
+echo ""
 echo "-----------------------------------------------------------------------"
 echo ""
 echo "If you wish to use a different compiler and/or CFLAGS, you can "

@@ -16,7 +16,7 @@ lib_t_commqueue_la_SOURCES = setup_suite_commqueue.c \
 							 
 lib_t_commqueue_la_LIBS    = @CUNITLIBS@ @MB_PARALLEL_LIBSS@ 
 lib_t_commqueue_la_LDFLAGS = @CUNITLDFLAGS@ @MB_PARALLEL_LDFLAGS@ 
-lib_t_commqueue_la_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @MB_PARALLEL_CFLAGS@ @PARALLEL_EXTRA_CFLAGS@ @DEBUG_CFLAGS@
+lib_t_commqueue_la_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @MB_PARALLEL_CFLAGS@ @DEBUG_CFLAGS@
 endif
 
 else
