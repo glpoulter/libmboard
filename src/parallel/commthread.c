@@ -23,10 +23,10 @@ static int TERMINATE = 0;
 
 /* routines available to this file only */
 static void *commthread_main(void *params);
-__inline__ static void processSyncRequests(void);
-__inline__ static void processPendingComms(void);
-__inline__ static void initiate_board_sync(MBt_Board mb);
-__inline__ static void commthread_sendTerminationSignal(void);
+inline static void processSyncRequests(void);
+inline static void processPendingComms(void);
+inline static void initiate_board_sync(MBt_Board mb);
+inline static void commthread_sendTerminationSignal(void);
 #define TermFlagSet() (0 != TERMINATE)
 
 /* initialise and start communication thread */
@@ -136,7 +136,7 @@ static void *commthread_main(void *params) {
 }
 
 /* sets termination flag and wakes comm thread up if sleeping */
-__inline__ static void commthread_sendTerminationSignal(void) {
+inline static void commthread_sendTerminationSignal(void) {
     
     int rc;
     
@@ -149,7 +149,7 @@ __inline__ static void commthread_sendTerminationSignal(void) {
 }
 
 /* process pending sync requests */
-__inline__ static void processSyncRequests(void) {
+inline static void processSyncRequests(void) {
     
     int rc;
     MBt_Board mb = MB_NULL_MBOARD;
@@ -169,7 +169,7 @@ __inline__ static void processSyncRequests(void) {
 }
 
 /* process pending communications */
-__inline__ static void processPendingComms(void) {
+inline static void processPendingComms(void) {
     int rc;
     struct MBIt_commqueue *node, *next;
     
@@ -214,7 +214,7 @@ __inline__ static void processPendingComms(void) {
 }
 
 /* initiate synchronisation of a board */
-__inline__ static void initiate_board_sync(MBt_Board mb) { 
+inline static void initiate_board_sync(MBt_Board mb) { 
     
     int rc;
     enum MBIt_CommStage startstage;
