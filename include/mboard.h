@@ -69,7 +69,7 @@
 
 #include <stddef.h>
 #include <limits.h>
-#include "objmap.h"
+#include "mb_objmap.h"
 
 /*! 
  * \var MBt_handle

@@ -13,8 +13,8 @@
  * \image latex CommNode.eps
  */
 #include "mb_parallel.h"
-#include "commqueue.h"
-#include "pooled_list.h"
+#include "mb_commqueue.h"
+#include "mb_pooled_list.h"
 #include <string.h>
 #include <stdio.h>
 

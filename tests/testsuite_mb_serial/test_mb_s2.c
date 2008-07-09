@@ -1,4 +1,4 @@
-/* $Id:$ */
+/* $Id$ */
 /* 
  * Copyright (c) 2008 STFC Rutherford Appleton Laboratory 
  * Author: Lee-Shawn Chin 
@@ -7,7 +7,6 @@
  */
 
 #include "header_mb_serial.h"
-#include "objmap.h"
 #include <stdlib.h>
 
 /* test adding message to board */
@@ -20,7 +19,7 @@ void test_mb_s_addmessage(void) {
     MBt_Board null_mb = (MBt_Board)MB_NULL_MBOARD;
     
     pooled_list *pl, *pl2;
-    void *obj;
+    void *obj, *ptr;
     MBIt_Board *board;
     
     dummy_msg   msg;
@@ -112,19 +111,22 @@ void test_mb_s_addmessage(void) {
     CU_ASSERT_PTR_NOT_NULL_FATAL(pl->head);
     CU_ASSERT_PTR_NOT_NULL_FATAL(pl2->head);
     
-    rc = pl_getnode(pl, 0, (void **)&msg_ptr);
+    rc = pl_getnode(pl, 0, &ptr);
+    msg_ptr = (dummy_msg*)ptr;
     CU_ASSERT_EQUAL(rc, PL_SUCCESS);
     CU_ASSERT_PTR_NOT_NULL_FATAL(msg_ptr);
     CU_ASSERT_EQUAL(msg_ptr->ernet, 42);
     CU_ASSERT_EQUAL(msg_ptr->jeopardy, 3.142);
     
-    rc = pl_getnode(pl, 1, (void **)&msg_ptr);
+    rc = pl_getnode(pl, 1, (void **)&ptr);
+    msg_ptr = (dummy_msg*)ptr;
     CU_ASSERT_EQUAL(rc, PL_SUCCESS);
     CU_ASSERT_PTR_NOT_NULL_FATAL(msg_ptr);
     CU_ASSERT_EQUAL(msg_ptr->ernet, 24);
     CU_ASSERT_EQUAL(msg_ptr->jeopardy,2.413);
     
-    rc = pl_getnode(pl2, 0, (void **)&msg2_ptr);
+    rc = pl_getnode(pl2, 0, (void **)&ptr);
+    msg2_ptr = (dummy_msg2*)ptr;
     CU_ASSERT_EQUAL(rc, PL_SUCCESS);
     CU_ASSERT_PTR_NOT_NULL_FATAL(msg2_ptr);
     CU_ASSERT_EQUAL(msg2_ptr->eger, 36);
@@ -145,7 +147,7 @@ void test_mb_s_addmessage_many(void) {
     MBt_Board mb;
     dummy_msg msg;
     dummy_msg *msg_ptr;
-    void *obj;
+    void *obj, *ptr;
     pooled_list *pl;
     
     /* create message board */
@@ -174,7 +176,8 @@ void test_mb_s_addmessage_many(void) {
     for (i = 0; i < (int)(MB_CONFIG_SERIAL_POOLSIZE * 2.5); i++)
     {       
         /* Get ref to internal message */
-        rc = pl_getnode(pl, i, (void **)&msg_ptr);
+        rc = pl_getnode(pl, i, &ptr);
+        msg_ptr = (dummy_msg*)ptr;
         if (rc != PL_SUCCESS || !msg_ptr) 
         {
             errfound++;

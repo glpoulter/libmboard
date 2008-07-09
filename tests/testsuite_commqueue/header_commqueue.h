@@ -10,7 +10,7 @@
 #define HEADER_COMMQUEUE_H_
 
 #include "CUnit/CUnit.h"
-#include "commqueue.h"
+#include "mb_commqueue.h"
 
 /* ----- Source file: test_cq1.c ----- */
 

@@ -11,7 +11,7 @@
  * 
  */
 #include "mb_parallel.h"
-#include "syncqueue.h"
+#include "mb_syncqueue.h"
 
 /*!
  * \brief Synchronises the content of the board across all processes

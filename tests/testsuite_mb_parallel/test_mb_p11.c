@@ -85,6 +85,7 @@ void test_mb_p_function_assign(void) {
     MBt_Iterator itr;
     MBt_Function fh_even, fh_min;
     dummy_msg msg, *m;
+    void *ptr;
     
     if (MBI_CommSize == 1) 
     {
@@ -147,7 +148,8 @@ void test_mb_p_function_assign(void) {
     
     /* check content */
     e = 0;
-    MB_Iterator_GetMessage(itr, (void **)&m);
+    MB_Iterator_GetMessage(itr, &ptr);
+    m = (dummy_msg*)ptr;
     while(m)
     {
 
@@ -158,7 +160,8 @@ void test_mb_p_function_assign(void) {
             if (m->ernet % 2 == 1) e++;
         }
         free(m);
-        MB_Iterator_GetMessage(itr, (void **)&m);
+        MB_Iterator_GetMessage(itr, &ptr);
+        m = (dummy_msg*)ptr;
     }
     CU_ASSERT_EQUAL(e, 0);
     
@@ -188,12 +191,14 @@ void test_mb_p_function_assign(void) {
 
     /* check content, we should get all messages */
     e = 0;
-    MB_Iterator_GetMessage(itr, (void **)&m);
+    MB_Iterator_GetMessage(itr, &ptr);
+    m = (dummy_msg*)ptr;
     while(m)
     {
         e++;
         free(m);
-        MB_Iterator_GetMessage(itr, (void **)&m);
+        MB_Iterator_GetMessage(itr, &ptr);
+        m = (dummy_msg*)ptr;
     }
     CU_ASSERT_EQUAL(e, count * MBI_CommSize);
     
@@ -229,7 +234,8 @@ void test_mb_p_function_assign(void) {
     
     /* check content */
     e = 0;
-    MB_Iterator_GetMessage(itr, (void **)&m);
+    MB_Iterator_GetMessage(itr, &ptr);
+    m = (dummy_msg*)ptr;
     while(m)
     {
 
@@ -240,7 +246,8 @@ void test_mb_p_function_assign(void) {
             if (m->ernet < input) e++;
         }
         free(m);
-        MB_Iterator_GetMessage(itr, (void **)&m);
+        MB_Iterator_GetMessage(itr, &ptr);
+        m = (dummy_msg*)ptr;
     }
     CU_ASSERT_EQUAL(e, 0);
     

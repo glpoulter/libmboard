@@ -11,6 +11,7 @@
 
 #include "CUnit/CUnit.h"
 #include "mb_serial.h"
+#include "mb_objmap.h"
 #include <stdlib.h>
 
 #define SERIAL_TEST_MSG_COUNT (int)(MB_CONFIG_SERIAL_POOLSIZE * 3.5)

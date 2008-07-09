@@ -7,7 +7,6 @@
  */
 
 #include "header_objmap.h"
-#include "stdlib.h"
 
 /* test object creation and deletion */
 void test_om_new_destroy(void) {

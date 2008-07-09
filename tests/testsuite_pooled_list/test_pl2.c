@@ -6,13 +6,13 @@
  *  
  */
 
-#include <math.h>
 #include "header_pooled_list.h"
 
 /* test adding nodes */
 void test_pl_addnodes(void) {
     
     int rc;
+    void *ptr;
     pooled_list *pl;
     my_message_t *firstnode;
     my_message_t *new;
@@ -26,7 +26,8 @@ void test_pl_addnodes(void) {
     CU_ASSERT_PTR_NOT_NULL_FATAL(pl);
     
     /* Add new node */
-    rc = pl_newnode(pl, (void **)&new);
+    rc = pl_newnode(pl, &ptr);
+    new = (my_message_t *)ptr;
     
     CU_ASSERT(rc == PL_SUCCESS);      /* check return code */
     CU_ASSERT_PTR_NOT_NULL(new);      /* check return pointer */
@@ -51,11 +52,12 @@ void test_pl_addnodes(void) {
     CU_ASSERT(firstnode->john    == 2738);
     CU_ASSERT(firstnode->trouble == 0.1235445953);
     
-    
+ 
     
     /* add next message */
-    rc = pl_newnode(pl, (void **)&new);
-        
+    rc = pl_newnode(pl, &ptr);
+    new = (my_message_t *)ptr;
+    
     CU_ASSERT(rc == PL_SUCCESS);      /* check return code */
     CU_ASSERT_PTR_NOT_NULL(new);      /* check return pointer */
         
@@ -87,11 +89,14 @@ void test_pl_addnodes(void) {
 void test_pl_addnode_invalid(void) {
     
     int rc;
+    void *ptr;
     pooled_list *pl = NULL;
     my_message_t *new;
 
     /* Adding node with invalid pl */
-    rc = pl_newnode(pl, (void **)&new);
+    rc = pl_newnode(pl, &ptr);
+    new = (my_message_t *)ptr;
+    
     CU_ASSERT(rc == PL_ERR_INVALID); /* check return code */
     CU_ASSERT_PTR_NULL(new);      /* on error, return ptr should be null */
 

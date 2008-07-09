@@ -15,7 +15,7 @@
 /*@+ignoresigns@*/
 
 #include "mb_parallel.h"
-#include "commqueue.h"
+#include "mb_commqueue.h"
 
 int *MBI_comm_indices = NULL;
 

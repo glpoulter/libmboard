@@ -11,16 +11,25 @@
 #include <assert.h>
 #include <string.h>
 #include "mboard.h"
-#include "mb_common.h"
-#include "mb_utils.h"
-#include "pooled_list.h"
 #include "circles.h"
 
+/* !!!!! NOTE !!!!!
+ * The following headers are not meant to be used by users, and 
+ * are not installed into the system during "make install", hence
+ * the relative path to ../../include.
+ * They are used here for debugging purposes, and not meant as an
+ * example of how libmboard should be used
+ */
+#include "../../include/mb_common.h"
+#include "../../include/mb_utils.h"
+#include "../../include/mb_pooled_list.h"
+
 #ifdef _PARALLEL
-    #include "mb_parallel.h"
+    #include "../../include/mb_parallel.h"
 #else
-    #include "mb_serial.h"
+    #include "../../include/mb_serial.h"
 #endif
+
 
 static void dump_board_data(void);
 static void dump_iterator_data(void);

@@ -36,10 +36,10 @@ common_sources   = 	addmessage.c \
 				    synctest.c \
 				    util_commqueue.c \
 				    util_syncqueue.c \
-                    $(INCLUDEDIR)/objmap.h \
-                    $(INCLUDEDIR)/commqueue.h \
-                    $(INCLUDEDIR)/syncqueue.h \
-                    $(INCLUDEDIR)/pooled_list.h \
+                    $(INCLUDEDIR)/mb_objmap.h \
+                    $(INCLUDEDIR)/mb_commqueue.h \
+                    $(INCLUDEDIR)/mb_syncqueue.h \
+                    $(INCLUDEDIR)/mb_pooled_list.h \
                     $(INCLUDEDIR)/mboard.h \
                     $(INCLUDEDIR)/mb_utils.h \
                     $(INCLUDEDIR)/mb_common.h \

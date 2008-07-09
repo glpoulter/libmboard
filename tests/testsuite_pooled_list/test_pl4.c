@@ -6,7 +6,6 @@
  * 
  */
 
-#include <math.h>
 #include "header_pooled_list.h"
 
 /* test pl_recycle() */
@@ -106,6 +105,7 @@ void test_pl_reset(void) {
     pooled_list *pl = NULL;
     pl_address_node *addrnode;
     my_message_t *new;
+    void *ptr;
     
     /* first, try recycling an invalid pointer */
     CU_ASSERT(pl_reset(pl) == PL_ERR_INVALID);
@@ -161,7 +161,8 @@ void test_pl_reset(void) {
     errcount = errcount2 = errcount3 = errcount4 = 0;
     for (i = 0; i < memblock_size*2; i++)
     {
-        rc = pl_newnode(pl, (void **)&new);
+        rc = pl_newnode(pl, &ptr);
+        new = (my_message_t *)ptr;
         
         if (new == NULL) errcount++;
         if (rc != PL_SUCCESS) errcount2++;

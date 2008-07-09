@@ -11,8 +11,9 @@
 
 #include "CUnit/CUnit.h"
 #include "mb_parallel.h"
+#include "mb_syncqueue.h"
 #include "mboard.h"
-#include "objmap.h"
+#include "mb_objmap.h"
 #include <mpi.h>
 #include <stdlib.h>
 

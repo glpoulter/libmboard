@@ -12,7 +12,7 @@
  */
 
 #include "mb_parallel.h"
-#include "objmap.h"
+#include "mb_objmap.h"
 #include <string.h>
 
 /*!

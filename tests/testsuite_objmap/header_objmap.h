@@ -1,4 +1,4 @@
-/* $Id:$ */
+/* $Id$ */
 /* 
  * Copyright (c) 2008 STFC Rutherford Appleton Laboratory 
  * Author: Lee-Shawn Chin 
@@ -10,7 +10,8 @@
 #define HEADER_OBJMAP_H_
 
 #include "CUnit/CUnit.h"
-#include "objmap.h"
+#include "mb_objmap.h"
+#include <stdlib.h>
 
 /* test message */
 typedef struct {

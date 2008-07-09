@@ -10,7 +10,7 @@
 #define HEADER_SYNCQUEUE_H_
 
 #include "CUnit/CUnit.h"
-#include "syncqueue.h"
+#include "mb_syncqueue.h"
 
 /* ----- Source file: test_sq1.c ----- */
 

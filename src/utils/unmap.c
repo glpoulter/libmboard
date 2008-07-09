@@ -14,7 +14,7 @@
 #include "mboard.h"
 #include "mb_utils.h"
 #include "mb_common.h"
-#include "objmap.h"
+#include "mb_objmap.h"
 #include <assert.h>
 
 /* kindly request that the compiler inline these routines */

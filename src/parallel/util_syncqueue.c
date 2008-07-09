@@ -11,7 +11,7 @@
  * 
  */
 #include "mb_parallel.h"
-#include "syncqueue.h"
+#include "mb_syncqueue.h"
 
 struct MBIt_SyncRequest_queuenode {
     MBt_Board mb;

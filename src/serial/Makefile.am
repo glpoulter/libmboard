@@ -31,8 +31,8 @@ common_sources   = 	addmessage.c \
 				    synccomplete.c \
 				    syncstart.c \
 				    synctest.c \
-                    $(INCLUDEDIR)/objmap.h \
-                    $(INCLUDEDIR)/pooled_list.h \
+                    $(INCLUDEDIR)/mb_objmap.h \
+                    $(INCLUDEDIR)/mb_pooled_list.h \
                     $(INCLUDEDIR)/mboard.h \
                     $(INCLUDEDIR)/mb_utils.h \
                     $(INCLUDEDIR)/mb_common.h \

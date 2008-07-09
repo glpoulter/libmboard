@@ -7,7 +7,6 @@
  */
 
 #include "header_mb_parallel.h"
-#include "syncqueue.h"
 
 /* test init */
 void test_mb_p_init(void) {

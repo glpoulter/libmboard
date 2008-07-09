@@ -1,7 +1,10 @@
-2008-07-08  Lee-Shawn Chin <L.S.Chin@rl.ac.uk>
+2008-07-09  Lee-Shawn Chin <L.S.Chin@rl.ac.uk>
 
 	* configure.ac m4/*.m4: Implemented better configuration checks for MPI and Pthreads
 	* Makefile.am, */Makefile.am: Updated to match changes in *.m4 
+	
+	* include/*.h, */*.c: Headers (apart from mboard.h and uthash.h) renamed to mb_*.h to avoid conflicts with existing headers
+	* Makefile.am: Only mboard.h and mb_objmap.h are installed
 	
 	* src/utils/objmap.c: Renamed map_t type declaration which clashes with those defined in AIX system header files 
 

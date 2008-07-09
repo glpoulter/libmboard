@@ -7,7 +7,6 @@
  */
 
 #include "header_mb_parallel.h"
-#include "objmap.h"
 #include <pthread.h>
 
 static void check_board_initial_values(MBt_Board mb, size_t msgsize);
@@ -96,7 +95,7 @@ static void check_board_initial_values(MBt_Board mb, size_t msgsize) {
 static void check_board_same_handle(MBt_Board mb) {
     
     int i, errcount = 0;
-    MBt_Board *mb_array;
+    MBt_Board *mb_array = NULL;
     
     /* only need to do this if more than one node */
     if (testsuite_mpi_size < 2) return;

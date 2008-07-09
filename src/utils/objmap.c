@@ -13,7 +13,7 @@
  */
 
 #include "uthash.h"
-#include "objmap.h"
+#include "mb_objmap.h"
 #include <assert.h>
 #include <errno.h>
 #include <stdlib.h>

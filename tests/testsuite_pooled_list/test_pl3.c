@@ -7,7 +7,6 @@
  */
 
 #include "header_pooled_list.h"
-#include <math.h>
 
 /* test linked list traversal */
 void test_pl_traverse(void) {

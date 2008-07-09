@@ -14,8 +14,8 @@
  * 
  */
 #include "mb_parallel.h"
-#include "commqueue.h"
-#include "syncqueue.h"
+#include "mb_commqueue.h"
+#include "mb_syncqueue.h"
 
 /* variables global to this file only */
 static pthread_t ct;

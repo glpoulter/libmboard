@@ -9,16 +9,16 @@ DIST_SUBDIRS = $(SUBDIRS) tests
 
 INCLUDEDIR = $(top_srcdir)/include
 
-include_HEADERS = ${INCLUDEDIR}/mboard.h \
-			      ${INCLUDEDIR}/objmap.h \
-			      ${INCLUDEDIR}/mb_common.h \
-			      ${INCLUDEDIR}/mb_serial.h \
-			      ${INCLUDEDIR}/mb_parallel.h \
-			      ${INCLUDEDIR}/mb_utils.h \
-			      ${INCLUDEDIR}/syncqueue.h \
-			      ${INCLUDEDIR}/commqueue.h \
-			      ${INCLUDEDIR}/pooled_list.h \
-			      ${INCLUDEDIR}/uthash.h
+include_HEADERS = $(INCLUDEDIR)/mboard.h \
+			      $(INCLUDEDIR)/mb_objmap.h
+noinst_HEADERS  = $(INCLUDEDIR)/mb_common.h \
+			      $(INCLUDEDIR)/mb_serial.h \
+			      $(INCLUDEDIR)/mb_parallel.h \
+			      $(INCLUDEDIR)/mb_utils.h \
+			      $(INCLUDEDIR)/mb_syncqueue.h \
+			      $(INCLUDEDIR)/mb_commqueue.h \
+			      $(INCLUDEDIR)/mb_pooled_list.h \
+			      $(INCLUDEDIR)/uthash.h
 
 lib_LTLIBRARIES  = libmboard_s.la libmboard_sd.la 
 if COMPILE_PARALLEL

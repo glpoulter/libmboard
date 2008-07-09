@@ -10,9 +10,9 @@
 
 #include "CUnit/CUnit.h"
 #include "header_commroutines.h"
-#include "commqueue.h"
-#include "syncqueue.h"
-#include "objmap.h"
+#include "mb_commqueue.h"
+#include "mb_syncqueue.h"
+#include "mb_objmap.h"
 #include "mb_parallel.h"
 #include <unistd.h> /* for sleep() */
 #include <stdio.h>

@@ -10,7 +10,8 @@
 #define HEADER_POOLED_LIST_H_
 
 #include "CUnit/CUnit.h"
-#include "pooled_list.h"
+#include "mb_pooled_list.h"
+#include <math.h>
 
 /* default memory block size */
 #define ELEM_COUNT_DEFAULT 10

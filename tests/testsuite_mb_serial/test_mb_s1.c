@@ -7,7 +7,6 @@
  */
 
 #include "header_mb_serial.h"
-#include "objmap.h"
 
 /* test init */
 void test_mb_s_init(void) {
