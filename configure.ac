@@ -3,7 +3,7 @@
 AC_PREREQ(2.59)
 AC_REVISION($Revision$)
 
-AC_INIT(libmboard, pre-0.1.3.alpha, L.S.Chin@rl.ac.uk)
+AC_INIT(libmboard, pre-0.1.3.alpha, L.S.Chin@_NOSPAM_rl.ac.uk)
 AM_INIT_AUTOMAKE
 #AM_MAINTAINER_MODE
 
@@ -75,6 +75,7 @@ AC_FUNC_MALLOC
 AC_CONFIG_FILES([Makefile])
 
 AC_OUTPUT([
+README
 Doxyfile_user
 Doxyfile_developer_serial
 Doxyfile_developer_parallel

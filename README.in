@@ -1,0 +1,79 @@
+        MESSAGE BOARD LIBRARY (@PACKAGE_NAME@ Release @PACKAGE_VERSION@)
+       
+        
+The message board library (@PACKAGE_NAME@) is a ..... (enter description here).
+
+
+===============================================================================
+Installing from a distribution file
+-------------------------------------------------------------------------------
+
+##### Requirements: #####
+
+You will need the following:
+ * a C compiler, e.g. GCC 
+ * GNU Make
+ * libtool 
+ * Doxygen (optional, to generate documentation)
+   - available from http://www.doxygen.org
+
+To compile the parallel version of the library, you will also need:
+ * An MPI Library, e.g. MPICH             
+   - available from http://www.mcs.anl.gov/research/projects/mpich2/
+ * Support for pthreads                  
+   - see http://en.wikipedia.org/wiki/POSIX_Threads
+
+To compile the unit tests, you will also need:
+ * CUnit                                    
+   - available from http://cunit.sourceforge.net/
+
+
+##### Installation: #####
+
+... (more) ...
+
+For more details on installation, see the 'INSTALL' file.
+
+
+===============================================================================
+++ Installing from Subversion (developer's version) ++
+-------------------------------------------------------------------------------
+
+##### Requirements: #####
+
+
+Apart from the requirements listed above, you will also need:
+ * GNU Autoconf
+ * GNU Automake
+ 
+
+ 
+##### Bootstrapping: #####
+
+
+Note: You must repeat this step every time you update your Subversion checkout.
+
+Before you can configure and install the project, you will first need to 
+process the pristine source through GNU Autotools. This can be done by running
+the following command:
+  ./autogen.sh
+  
+Upon successful bootstrapping, proceed by following the installation
+instructions above.
+
+
+##### Creating Distributions: #####
+
+From the developer's source tree, you can generate a distribution version by
+running the following command:
+  ./create_distribution.sh
+  
+  
+  
+
+-------------------------------------------------------------------------------
+Copyright (c) 2008 STFC Rutherford Appleton Laboratory 
+Report all bugs to @PACKAGE_BUGREPORT@
+
+$Id$
+ 

@@ -14,6 +14,8 @@ function complainAndQuit() {
 	exit 1
 }
 
+touch README
+
 echo -n "Running libtoolize ... "
 echo "(libtoolize)" >> $LOGFILE
 libtoolize --copy --force >> $LOGFILE 2>> $LOGFILE
