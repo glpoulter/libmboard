@@ -57,7 +57,8 @@ then
 	
 	# Look for MPI C compiler wrappers
 	AC_PATH_PROGS(MPICC, [mpicc mpcc_r mpcc mpxlc_r mpxlc hcc cmpicc], none, ${MPIPATH})
-	if test ! "x${CC}" = "x${MPICC}"
+	mpicc_basename=`basename $MPICC`
+	if test ! "x${CC}" = "x${mpicc_basename}"
 	then
 		
 		AC_MSG_CHECKING([for MPI C Compiler wrapper])
