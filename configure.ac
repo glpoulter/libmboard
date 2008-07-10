@@ -34,7 +34,7 @@ case "$CC" in
 		CFLAGS="${CFLAGS} -qlanglvl=stdc99 -qinfo=all -qflag=w:u -qcheck=all"
 		;;
 	*)
-		CFLAGS="${CFLAGS} -std=c99"
+		CFLAGS="${CFLAGS}"
 		;;
 esac
 

@@ -1,4 +1,4 @@
-2008-07-09  Lee-Shawn Chin <L.S.Chin@rl.ac.uk>
+2008-07-10  Lee-Shawn Chin <L.S.Chin@rl.ac.uk>
 
 	* configure.ac m4/*.m4: Implemented better configuration checks for MPI and Pthreads
 	* Makefile.am, */Makefile.am: Updated to match changes in *.m4 
@@ -11,6 +11,7 @@
 	* Builds and runs fine on bglogin2 (Bluegene/P) - using cc defined by `mpicc -show`
 	* Builds and runs fine on HPCx (IBM AIX) - tested with gcc and xlc_r
 	* Builds and runs fine on HAPU (HP Cluster Platform 4000) - tested with gcc and pgcc
+	* Builds and runs fine on SCARF (Based on RHEL4.4) - tested with gcc, icc and pgcc
 	
 2008-06-27	Lee-Shawn Chin <L.S.Chin@rl.ac.uk>
 	
