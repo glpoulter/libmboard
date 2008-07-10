@@ -54,73 +54,78 @@ then
 	MPILIBS=""
 	MPICFLAGS=""
 
+	
 	# Look for MPI C compiler wrappers
 	AC_PATH_PROGS(MPICC, [mpicc mpcc_r mpcc mpxlc_r mpxlc hcc cmpicc], none, ${MPIPATH})
-	AC_MSG_CHECKING([for MPI C Compiler wrapper])
-	if test ! "x${MPICC}"  = "xnone"
+	if test ! "x${CC}" = "x${MPICC}"
 	then
-		AC_MSG_RESULT([found ${MPICC}])
 		
-		AC_MSG_CHECKING([checking ${MPICC} for -show option])
-		mpi_compile_test="`${MPICC} -show`"
-		
-		if test ! x"$?" = x0
+		AC_MSG_CHECKING([for MPI C Compiler wrapper])
+		if test ! "x${MPICC}"  = "xnone"
 		then
-			AC_MSG_RESULT([none])
-			AC_MSG_CHECKING([checking ${MPICC} for -showme option])
+			AC_MSG_RESULT([found ${MPICC}])
 			
-			mpi_compile_test="`${MPICC} -showme`"
+			AC_MSG_CHECKING([checking ${MPICC} for -show option])
+			mpi_compile_test="`${MPICC} -show`"
+			
 			if test ! x"$?" = x0
 			then
 				AC_MSG_RESULT([none])
-				mpi_compile_test=""
+				AC_MSG_CHECKING([checking ${MPICC} for -showme option])
+				
+				mpi_compile_test="`${MPICC} -showme`"
+				if test ! x"$?" = x0
+				then
+					AC_MSG_RESULT([none])
+					mpi_compile_test=""
+				else
+					AC_MSG_RESULT([found])
+					mpi_link_test="`${MPICC} -showme DUMMY.o -o DUMMY`"
+				fi
 			else
 				AC_MSG_RESULT([found])
-				mpi_link_test="`${MPICC} -showme DUMMY.o -o DUMMY`"
+				mpi_link_test="`${MPICC} -show DUMMY.o -o DUMMY`"
+			fi
+			
+			if test ! "x${mpi_compile_test}" = "x"
+			then
+				
+				mpi_cc="`echo ${mpi_compile_test} | cut -d' ' -f1`"
+				mpi_compile_args="`echo ${mpi_compile_test} | cut -d' ' -f2-`"
+				mpi_link_args="`echo ${mpi_link_test} | cut -d' ' -f2-`"
+				
+				# remove -l* entries in CFLAGS
+				mpi_compile_args="`echo ${mpi_compile_args} | sed -e \"s/\-l@<:@^ @:>@*//g\" | tr -s ' '`"
+				
+				# remove DUMMY filenames
+				mpi_link_args="`echo ${mpi_link_args} | sed -e \"s/DUMMY.o//g\"`"
+				mpi_link_args="`echo ${mpi_link_args} | sed -e \"s/[']*-o[']* DUMMY//g\"`"
+				mpi_link_args="`echo ${mpi_link_args} | sed -e \"s/DUMMY.o -o DUMMY//g\"`"
+				
+				# remove -I from link - the @<:@ and @:>@ become [ and ] when m4sh is done
+	          	mpi_link_args="`echo ${mpi_link_args} | sed -e \"s/\-I@<:@^ @:>@*//g\"`"
+	          	mpi_ldflags="`echo ${mpi_link_args} | sed -e \"s/\-l@<:@^ @:>@*//g\"`"
+	          	mpi_libs="`(for i in ${mpi_link_args}; do echo $i | awk '/^-l/'; done) | tr '\n' ' '`"
+	          	
+	          	AC_MSG_CHECKING([compiler flags for MPI support])
+	          	MPICFLAGS="${mpi_compile_args}"
+	          	AC_MSG_RESULT([${MPICFLAGS}])
+	          	
+	          	AC_MSG_CHECKING([linker flags used by ${MPICC}])
+	          	MPILDFLAGS="${mpi_ldflags}"
+	          	AC_MSG_RESULT([${MPILDFLAGS}])
+	          	
+	          	AC_MSG_CHECKING([additional libs added by ${MPICC}])
+	          	MPILIBS="${mpi_libs}"
+	          	AC_MSG_RESULT([${MPILIBS}])
+	          	
+			else
+				AC_MSG_WARN([Unknown MPI compiler (${MPICC}). Will try default compiler.])
+				MPICC="none"
 			fi
 		else
-			AC_MSG_RESULT([found])
-			mpi_link_test="`${MPICC} -show DUMMY.o -o DUMMY`"
+			AC_MSG_RESULT([none found])
 		fi
-		
-		if test ! "x${mpi_compile_test}" = "x"
-		then
-			
-			mpi_cc="`echo ${mpi_compile_test} | cut -d' ' -f1`"
-			mpi_compile_args="`echo ${mpi_compile_test} | cut -d' ' -f2-`"
-			mpi_link_args="`echo ${mpi_link_test} | cut -d' ' -f2-`"
-			
-			# remove -l* entries in CFLAGS
-			mpi_compile_args="`echo ${mpi_compile_args} | sed -e \"s/\-l@<:@^ @:>@*//g\" | tr -s ' '`"
-			
-			# remove DUMMY filenames
-			mpi_link_args="`echo ${mpi_link_args} | sed -e \"s/DUMMY.o//g\"`"
-			mpi_link_args="`echo ${mpi_link_args} | sed -e \"s/[']*-o[']* DUMMY//g\"`"
-			mpi_link_args="`echo ${mpi_link_args} | sed -e \"s/DUMMY.o -o DUMMY//g\"`"
-			
-			# remove -I from link - the @<:@ and @:>@ become [ and ] when m4sh is done
-          	mpi_link_args="`echo ${mpi_link_args} | sed -e \"s/\-I@<:@^ @:>@*//g\"`"
-          	mpi_ldflags="`echo ${mpi_link_args} | sed -e \"s/\-l@<:@^ @:>@*//g\"`"
-          	mpi_libs="`(for i in ${mpi_link_args}; do echo $i | awk '/^-l/'; done) | tr '\n' ' '`"
-          	
-          	AC_MSG_CHECKING([compiler flags for MPI support])
-          	MPICFLAGS="${mpi_compile_args}"
-          	AC_MSG_RESULT([${MPICFLAGS}])
-          	
-          	AC_MSG_CHECKING([linker flags used by ${MPICC}])
-          	MPILDFLAGS="${mpi_ldflags}"
-          	AC_MSG_RESULT([${MPILDFLAGS}])
-          	
-          	AC_MSG_CHECKING([additional libs added by ${MPICC}])
-          	MPILIBS="${mpi_libs}"
-          	AC_MSG_RESULT([${MPILIBS}])
-          	
-		else
-			AC_MSG_WARN([Unknown MPI compiler (${MPICC}). Will try default compiler.])
-			MPICC="none"
-		fi
-	else
-		AC_MSG_RESULT([none found])
 	fi
 	
 	# if mpicc not found or unusable, check for libraries manually
