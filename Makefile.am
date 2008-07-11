@@ -69,7 +69,7 @@ test:
 endif
 
 check:
-	@echo "Please use "make test" to compile and run unit tests"
+	@echo -e "\n\nPlease use "make test" to compile and run unit tests"
 	
 doc: Doxyfile_user Doxyfile_developer_serial Doxyfile_developer_parallel
 	@( \
