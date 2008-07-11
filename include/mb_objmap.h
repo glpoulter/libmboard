@@ -1,6 +1,6 @@
 /* $Id$ */
 /*!
- * \file objmap.h
+ * \file mb_objmap.h
  * 
  * \code
  *      Author: Lee-Shawn Chin 

@@ -1,6 +1,6 @@
 /* $Id$ */
 /*!
- * \file pooled_list.h
+ * \file mb_pooled_list.h
  * 
  * \code
  *      Author: Lee-Shawn Chin 

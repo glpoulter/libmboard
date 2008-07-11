@@ -1,6 +1,6 @@
 /* $Id$ */
 /*!
- * \file commqueue.h
+ * \file mb_commqueue.h
  * \code
  *      Author: Lee-Shawn Chin 
  *      Date  : April 2008 

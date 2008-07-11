@@ -1,6 +1,6 @@
 /* $Id$ */
 /*!
- * \file syncqueue.h
+ * \file mb_syncqueue.h
  * \code
  *      Author: Lee-Shawn Chin 
  *      Date  : April 2008 
