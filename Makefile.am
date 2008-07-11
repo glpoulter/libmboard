@@ -59,10 +59,37 @@ if TESTS_CONFIGURED
 
 test: 
 	@(make && cd tests && make && make run)
-
+	
 else
 
 test:
 	@echo -e "\n\n** Building of tests was disabled during ./configure"
+	@echo "** To enable tests, make sure you have CUnit installed, then rerun ./configure"
 	
 endif
+
+check: 
+	make test
+	
+doc: Doxyfile_user Doxyfile_developer_serial Doxyfile_developer_parallel
+	@( \
+	DOXYVER=`doxygen --version 2>/dev/null`; \
+	if test ! $$? = 0; then \
+		echo "** Doxygen is required to build the documentation" >&2; \
+		echo "** It is available from http://www.doxygen.org" >&2; \
+		echo -e "\n"; \
+		exit 1; \
+	fi; \
+	echo -e "Found doxygen version $$DOXYVER\n"; \
+	)
+	@mkdir -p doc/developer &> /dev/null
+	@echo "Generating User documentation in ./doc/user"
+	@doxygen Doxyfile_user
+	@echo "Generating Developer documentation (serial code) in ./doc/developer/serial"
+	@doxygen Doxyfile_developer_serial
+	@echo "Generating Developer documentation (parallel code) in ./doc/developer/parallel"
+	@doxygen Doxyfile_developer_parallel
+
+vclean:
+	(cd tests; make clean)
+	make clean
