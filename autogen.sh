@@ -6,6 +6,9 @@
 # Date  : June 2008
 
 LOGFILE="autogen.log"
+AUTOMAKE_MINVER="1.8"
+AUTOCONF_MINVER="2.59"
+
 echo -e "$0 begins " `date` "\n" > $LOGFILE
 
 function complainAndQuit() {
@@ -14,6 +17,47 @@ function complainAndQuit() {
 	exit 1
 }
 
+# check automake version
+ver=`automake --version 2>/dev/null | sed -e '1s/[^0-9]*//' -e q`
+if test x$ver = x; then ver="0.0"; fi
+if test `expr "${ver} < ${AUTOMAKE_MINVER}"`; then
+    echo "ERROR: automake (version >= $AUTOMAKE_MINVER) is required" >&2
+    exit 1
+fi 
+
+# check autoconf version
+ver=`autoconf --version 2>/dev/null | sed -e '1s/[^0-9]*//' -e q`
+if test x$ver = x; then ver="0.0"; fi
+if test `expr "${ver} < ${AUTOCONF_MINVER}"`; then
+    echo "ERROR: autoconf (version >= $AUTOCONF_MINVER) is required" >&2
+    exit 1
+fi 
+
+# check for autoheader
+ver=`autoheader --version 2>/dev/null | sed -e '1s/[^0-9]*//' -e q`
+if test x$ver = x; then 
+    echo "ERROR: autoheader is required." >&2
+    echo "       Plese install autoheader and try again." >&2
+    exit 1
+fi
+
+# check for aclocal
+ver=`aclocal --version 2>/dev/null | sed -e '1s/[^0-9]*//' -e q`
+if test x$ver = x; then 
+    echo "ERROR: aclocal is required." >&2
+    echo "       Plese install aclocal and try again." >&2
+    exit 1
+fi
+
+# check for libtoolize
+ver=`libtoolize --version 2>/dev/null | sed -e '1s/[^0-9]*//' -e q`
+if test x$ver = x; then 
+    echo "ERROR: libtoolize is required." >&2
+    echo "       Plese install libtool and try again." >&2
+    exit 1
+fi
+
+# pre-create README file so automake doesn't complain
 touch README
 
 echo -n "Running libtoolize ... "

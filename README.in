@@ -43,8 +43,8 @@ For more details on installation, see the 'INSTALL' file.
 
 
 Apart from the requirements listed above, you will also need:
- * GNU Autoconf
- * GNU Automake
+ * GNU Autoconf (version >= 2.56)
+ * GNU Automake (version >= 1.8)
  
 
  
