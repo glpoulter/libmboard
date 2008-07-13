@@ -25,12 +25,24 @@ AC_CONFIG_HEADER([config.h])
 AC_PROG_CC
 AC_PROG_MAKE_SET
 
+# Allow users to manually specify path to MPI installation
+AC_ARG_WITH([expat],
+            [AC_HELP_STRING([--with-expat=EXPATDIR],
+                            [Specify path to libexpat installation])]
+           )
+if test ! x${with_expat} = x; then
+    CFLAGS="${CFLAGS} -I${with_expat}/include"
+    LDFLAGS="${LDFLAGS} -L${with_expat}/lib"
+fi
+
 ### Checks for libraries.
 
 # these should automatically append to LDFLAGS
 AC_SEARCH_LIBS([sqrt], [m], [], [AC_MSG_ERROR([sqrt() from libm is required])])
 AC_SEARCH_LIBS([XML_ParserCreate], [expat], [], [AC_MSG_ERROR([
-** libexpat is required. Please install that library and try again.])])
+** libexpat is required. Please install that library and try again.
+** If you do have libexpat installed, try specifying the installation path 
+   using --with-expat=EXPAT_DIR.])])
 
 # Check requirements for parallel build
 MBOARD_CHECK_PARALLEL
