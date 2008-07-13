@@ -61,6 +61,7 @@ fi
 	
 # Check that libmboard is installed
 save_LIBS="${LIBS}"
+LIBS=""
 AC_CHECK_LIB([mboard_s], [MB_Env_Init], [], [AC_MSG_ERROR([
 ** libmboard_s could not be found. If you have libmboard installed, try 
    specifying the installation path using --with-mboard=MBOARDDIR.])])
