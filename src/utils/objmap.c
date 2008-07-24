@@ -46,6 +46,10 @@ static void delete_map_data(mymap_t *ht);
  */
 MBIt_objmap* MBI_objmap_new(void) {
     
+#ifdef _PARALLEL
+	int rc;
+#endif /* _PARALLEL */
+	
     MBIt_objmap *mymap = NULL;
     
     mymap = (MBIt_objmap *)malloc(sizeof(MBIt_objmap));
@@ -60,6 +64,16 @@ MBIt_objmap* MBI_objmap_new(void) {
     
     /* ->map must be initialised to NULL as required by uthash */
     mymap->map  = NULL;
+    
+#ifdef _PARALLEL
+    rc = pthread_mutex_init(&(mymap->lock), NULL);
+    assert(0 == rc);
+    if (0 != rc)
+    {
+    	free(mymap);
+    	return NULL;
+    }
+#endif /* _PARALLEL */
     
     return mymap;
 }
@@ -85,6 +99,10 @@ MBIt_objmap* MBI_objmap_new(void) {
  */
 OM_key_t MBI_objmap_push(MBIt_objmap *map, void *obj) {
     
+#ifdef _PARALLEL
+	int rc;
+#endif /* _PARALLEL */
+	
     OM_key_t handle;
     mymap_t *entry;
     mymap_t *ht;
@@ -111,6 +129,12 @@ OM_key_t MBI_objmap_push(MBIt_objmap *map, void *obj) {
     
     entry->key = handle; /* assign handle as key */
     entry->obj = obj;    /* assign obj address   */
+    
+#ifdef _PARALLEL
+    /* capture mutex lock before proceeding */
+    rc = pthread_mutex_lock(&(map->lock));
+    assert(0 == rc);
+#endif /* _PARALLEL */
     
     /* add to ut_hashtable */
     HASH_ADD(hh, ht, key, sizeof(OM_key_t), entry);
@@ -149,6 +173,12 @@ OM_key_t MBI_objmap_push(MBIt_objmap *map, void *obj) {
     
 #endif
     
+#ifdef _PARALLEL
+	/* release mutex lock before proceeding */
+	rc = pthread_mutex_unlock(&(map->lock));
+	assert(0 == rc);
+#endif /* _PARALLEL */
+	    
     assert(map->top <= OM_MAX_INDEX); 
     if (map->top > OM_MAX_INDEX)
     {
@@ -185,13 +215,24 @@ void* MBI_objmap_getobj(MBIt_objmap *map, OM_key_t handle) {
     ht = (mymap_t *)(map->map);
     /* assert(ht); */
     
+#ifdef _PARALLEL
+    /* capture mutex lock before proceeding */
+    rc = pthread_mutex_lock(&(map->lock));
+    assert(0 == rc);
+#endif /* _PARALLEL */
+    
     /* retrieve item from ut_hashtable */
     HASH_FIND(hh, ht, &handle, sizeof(OM_key_t), entry);
     
-    /* if obj found, remove from ut_hashtable */
+#ifdef _PARALLEL
+	/* release mutex lock before proceeding */
+	rc = pthread_mutex_unlock(&(map->lock));
+	assert(0 == rc);
+#endif /* _PARALLEL */
+	
+    /* if obj found, get ptr to our object */
     if (entry != NULL)
     {
-        /* get ptr to our object */
         obj = entry->obj;
         assert(obj != NULL);
     }
@@ -217,6 +258,12 @@ void* MBI_objmap_pop(MBIt_objmap *map, OM_key_t handle) {
     
     if (!map) return NULL;
     
+#ifdef _PARALLEL
+    /* capture mutex lock before proceeding */
+    rc = pthread_mutex_lock(&(map->lock));
+    assert(0 == rc);
+#endif /* _PARALLEL */
+    
     /* get ref to hash table */
     ht = (mymap_t *)(map->map);
     /* assert(ht); */
@@ -239,6 +286,12 @@ void* MBI_objmap_pop(MBIt_objmap *map, OM_key_t handle) {
         free(entry);
     }
     
+#ifdef _PARALLEL
+	/* release mutex lock before proceeding */
+	rc = pthread_mutex_unlock(&(map->lock));
+	assert(0 == rc);
+#endif /* _PARALLEL */
+	
     return obj;
 }
 
@@ -261,6 +314,12 @@ void MBI_objmap_destroy(MBIt_objmap **map) {
     *map  = NULL;
     
     delete_map_data((mymap_t *)(mytmp->map));
+
+#ifdef _PARALLEL
+    /* destroy mutex obj */
+    pthread_mutex_destroy(&(mytmp->lock));
+#endif /* _PARALLEL */
+    
     free(mytmp);
     
     

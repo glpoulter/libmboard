@@ -15,6 +15,10 @@
 #ifndef OBJMAP_H_
 #define OBJMAP_H_
 
+#ifdef _PARALLEL
+#include <pthread.h>
+#endif /* _PARALLEL */
+
 #include <limits.h>
 
 
@@ -100,6 +104,15 @@ typedef struct {
     int type;
     /*! \brief Pointer to hashtable object */
     void *map;
+    
+#ifdef _PARALLEL
+    /*! \if paralleldoc
+     * \brief mutex lock
+     * \endif
+     */
+    pthread_mutex_t lock;
+#endif 
+    
 } MBIt_objmap;
 
 /* return a new object map */
