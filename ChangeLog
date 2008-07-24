@@ -1,3 +1,7 @@
+2008-07-24  Lee-Shawn Chin <L.S.Chin@rl.ac.uk>
+
+	* src/utils/*.c, src/serial/*.c: Further removal of checks to errno (missed out during previous update)
+
 2008-07-13  Lee-Shawn Chin <L.S.Chin@rl.ac.uk>
 
 	* autogen.sh, example/circles_mb/autogen.sh: Added version checks for automake and autoconf
@@ -23,7 +27,7 @@
 2008-06-27	Lee-Shawn Chin <L.S.Chin@rl.ac.uk>
 	
 	* comm.c, tests/testsuite_commroutines/test_cr1.c: update to solve bug with board->locked status being updated prematurely.
-	* src/parallel/*.c: removed checks on errno as they sometimes pick up values for non-blocking MPI routines.
+	* src/parallel/*.c: removed checks on errno as they sometimes pick up values from non-blocking MPI routines.
 	
 	* m4/check_parallel, m4/check_testing: properly define export *_LDFLAGS and *_LIBS
 	* configure.ac, */Makefile.am: now possible to override CFLAGS during 'make'

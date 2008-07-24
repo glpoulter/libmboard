@@ -73,10 +73,9 @@ int MB_Iterator_CreateFiltered(MBt_Board mb, MBt_Iterator *itr_ptr, \
     if (board->locked != MB_FALSE) return MB_ERR_LOCKED;
     
     /* Allocate Iterator object */
-    errno = 0;
     iter = (MBIt_Iterator*)malloc(sizeof(MBIt_Iterator));
     assert(iter != NULL);
-    if (errno != 0 || iter == NULL) return MB_ERR_MEMALLOC;
+    if (iter == NULL) return MB_ERR_MEMALLOC;
     
     /* assign mb handle to iterator */
     iter->mb = mb;

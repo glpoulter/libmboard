@@ -15,7 +15,6 @@
 #include "uthash.h"
 #include "mb_objmap.h"
 #include <assert.h>
-#include <errno.h>
 #include <stdlib.h>
 #include <limits.h>
 
@@ -48,11 +47,10 @@ static void delete_map_data(mymap_t *ht);
 MBIt_objmap* MBI_objmap_new(void) {
     
     MBIt_objmap *mymap = NULL;
-    errno = 0;
     
     mymap = (MBIt_objmap *)malloc(sizeof(MBIt_objmap));
     assert(mymap != NULL);
-    if (errno != 0 || mymap == NULL) /* on malloc error */
+    if (mymap == NULL) /* on malloc error */
     {
         return NULL;
     }
@@ -104,13 +102,12 @@ OM_key_t MBI_objmap_push(MBIt_objmap *map, void *obj) {
     ht = (mymap_t *)(map->map);
     /* assert(ht); */
     
-    errno = 0;
     handle = map->top; 
     
     /* allocate struct for hastable entry */
     entry = (mymap_t *)malloc(sizeof(mymap_t));
     assert(entry != NULL);
-    if (errno != 0 || entry == NULL) return OM_ERR_MEMALLOC;
+    if (entry == NULL) return OM_ERR_MEMALLOC;
     
     entry->key = handle; /* assign handle as key */
     entry->obj = obj;    /* assign obj address   */

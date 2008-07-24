@@ -19,7 +19,6 @@
  */
 
 #include "mb_pooled_list.h"
-#include <errno.h>
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -53,7 +52,6 @@ int pl_create(pooled_list **pl_ptr_loc, size_t elem_size, int pool_size) {
     
     /* set defaults before we begin */
     *pl_ptr_loc = NULL;
-    errno = 0;
    
     if ((int)elem_size <= 0 || (int)pool_size <= 0)
     {
@@ -66,7 +64,7 @@ int pl_create(pooled_list **pl_ptr_loc, size_t elem_size, int pool_size) {
     
     /* allocate required memory for PL object */
     new = (pooled_list *)malloc(sizeof(pooled_list));
-    if (errno != 0 || new == NULL) /* on error */
+    if (new == NULL) /* on error */
     {
         return PL_ERR_MALLOC;
     }
@@ -75,7 +73,7 @@ int pl_create(pooled_list **pl_ptr_loc, size_t elem_size, int pool_size) {
     /* allocate first memory block */
     mem_block = (void *)malloc((elem_size + PL_ADDRNODE_SIZE) * pool_size);
     assert(mem_block != NULL);
-    if (errno != 0 || mem_block == NULL) /* on malloc error */
+    if (mem_block == NULL) /* on malloc error */
     {
         free_pl_object(&new);
         return PL_ERR_MALLOC;
@@ -83,7 +81,7 @@ int pl_create(pooled_list **pl_ptr_loc, size_t elem_size, int pool_size) {
     
     /* allocate address list node */
     new->addr_list = (pl_address_node *)malloc(sizeof(pl_address_node));
-    if (errno != 0 || new->addr_list == NULL) /* on malloc error */
+    if (new->addr_list == NULL) /* on malloc error */
     {
         free_pl_object(&new);
         return PL_ERR_MALLOC;
@@ -140,7 +138,6 @@ int pl_newnode(pooled_list *pl, void **ptr_new) {
     void *prev_tail;
     pl_address_node *addr_node;
     pl_address_node *dh; /* datablock header */
-    errno = 0;
     
     /* reset pointers */
     *ptr_new = NULL;
@@ -205,7 +202,7 @@ int pl_newnode(pooled_list *pl, void **ptr_new) {
             /* allocate new address list node */
             addr_node = (pl_address_node *)malloc(sizeof(pl_address_node));
             assert(addr_node != NULL);
-            if (errno != 0 || addr_node == NULL)
+            if (addr_node == NULL)
             {
                 pl->next_free = NULL;/*trip assert if return code not handled*/
                 return PL_ERR_MALLOC;
@@ -217,7 +214,7 @@ int pl_newnode(pooled_list *pl, void **ptr_new) {
             addr_node->addr = malloc((size_t)((pl->elem_size + PL_ADDRNODE_SIZE) 
                                               * pl->elem_count));
             assert(addr_node->addr != NULL);
-            if (errno != 0 || addr_node->addr == NULL)
+            if (addr_node->addr == NULL)
             {
                 return PL_ERR_MALLOC;
             }
