@@ -1,7 +1,6 @@
 2008-07-24  Lee-Shawn Chin <L.S.Chin@rl.ac.uk>
 
 	* src/utils/*.c, src/serial/*.c: Further removal of checks to errno (missed out during previous update)
-
 	* src/utils/objmap.c, include/mb_objmap.h: ObjectMapper is now thread-safe
 	
 2008-07-13  Lee-Shawn Chin <L.S.Chin@rl.ac.uk>

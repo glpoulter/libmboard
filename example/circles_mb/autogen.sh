@@ -24,7 +24,7 @@ function checkMinVersion() {
 	#
 	# *_VERSION should be in the following format: x.y.z
 	#
-	# We can't use expr since a decimal compare or string compare
+	# We can't use expr as a decimal or string compare would be wrong
 	# e.g. Version 1.8 < version 1.10.1
 	#
 	#

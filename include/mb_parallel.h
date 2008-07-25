@@ -83,7 +83,7 @@ typedef struct {
 } MBIt_Board;
 
 /* constants for calculating MPI tags (for labelling communication) */
-#define MBI_TAG_BASE     (0x00100000)
+#define MBI_TAG_BASE     (0x01000000)
 #define MBI_TAG_FHDATA   (0x01000000)
 #define MBI_TAG_MSGDATA  (0x02000000)
 

@@ -205,7 +205,7 @@ inline static void processPendingComms(void) {
             case PROPAGATION:
                 rc = MBIt_Comm_CompletePropagation(node);
                 assert(rc == MB_SUCCESS);
-                break;
+                return; /* do not proceed with loop as CommQueue was modified */
             
             default: assert("Invalid state found!!" == "");
         }
