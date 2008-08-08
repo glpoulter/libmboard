@@ -13,15 +13,16 @@
  */
 
 #include "mb_memlog.h"
-
+#define MAX_FILENAME_LENGTH 128
 
 FILE *memlog_file;
-char memlog_filename[128];
+char memlog_filename[MAX_FILENAME_LENGTH];
 
 void memlog_init(void) {
         
     /* determine output filename */
-    sprintf(memlog_filename, "memlog-%d_of_%d.txt", MBI_CommRank, MBI_CommSize - 1);
+    snprintf(memlog_filename, MAX_FILENAME_LENGTH, "memlog-%d_of_%d.txt", 
+             MBI_CommRank, MBI_CommSize - 1);
     
     /* open file */
     memlog_file = fopen(memlog_filename, "w");
