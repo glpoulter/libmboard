@@ -30,6 +30,11 @@ MBIt_objmap *MBI_OM_iterator = NULL;
 /*! \brief reference to Function ObjectMap */
 MBIt_objmap *MBI_OM_function = NULL;   
 
+/*! \brief Dummy MPI Task ID */
+int MBI_CommRank;
+/*! \brief Dummy Number of MPI Tasks */
+int MBI_CommSize;
+
 /*!
  * \brief Initialises the libmboard environment
  * \ingroup MB_API
@@ -67,6 +72,10 @@ int MB_Env_Init(void) {
         MBI_OM_mboard   ->type = OM_TYPE_MBOARD;
         MBI_OM_iterator ->type = OM_TYPE_ITERATOR;
     }
+    
+    /* set dummy values */
+    MBI_CommSize = 1;
+    MBI_CommRank = 0;
     
     /* set initialised status and return */
     MBI_STATUS_initialised = MB_TRUE;

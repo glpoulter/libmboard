@@ -102,7 +102,7 @@ echo "DONE"
 
 echo -n "Running aclocal    ... "
 echo "(aclocal)" >> $LOGFILE
-(aclocal -I m4) >> $LOGFILE 2>> $LOGFILE
+aclocal -I m4 >> $LOGFILE 2>> $LOGFILE
 if test ! $? = 0; then complainAndQuit; fi
 echo "DONE"
 

@@ -3,14 +3,11 @@
  * \file parallel/commthread.c
  * \code
  *      Author: Lee-Shawn Chin 
- *      Date  : April 2008 
+ *      Date  : July 2008 
  *      Copyright (c) 2008 STFC Rutherford Appleton Laboratory
  * \endcode
  * 
  * \brief Main routine run by communication thread
- * 
- * (more ...)
- * 
  * 
  */
 #include "mb_parallel.h"
@@ -27,9 +24,21 @@ inline static void processSyncRequests(void);
 inline static void processPendingComms(void);
 inline static void initiate_board_sync(MBt_Board mb);
 inline static void commthread_sendTerminationSignal(void);
+inline static void complain_and_terminate(int rc, char* stage);
 #define TermFlagSet() (0 != TERMINATE)
 
-/* initialise and start communication thread */
+/*! 
+ * \brief initialise and start communication thread
+ * \return Return Code
+ * 
+ * This routine should only be called once during the initialisation
+ * of the message board environment.
+ * 
+ * It initialises the Sync Queue and Comm Queue, then spawns the
+ * communication thread. The new thread initialises with the
+ * commthread_main() routine.
+ * 
+ */
 int MBI_CommThread_Init(void) {
     
     int rc; 
@@ -52,7 +61,16 @@ int MBI_CommThread_Init(void) {
     return MB_SUCCESS;
 }
 
-/* join comm thread and clean up */
+/* 
+ * \brief joins communication thread and clean up
+ * \return Return code
+ * 
+ * Send the termination signal to the communication thread, then
+ * wait for it to end.
+ * 
+ * Then, delete the Sync Queue and Comm Queue.
+ * 
+ */
 int MBI_CommThread_Finalise(void) {
     
     int rc;
@@ -80,7 +98,16 @@ int MBI_CommThread_Finalise(void) {
     return MB_SUCCESS;
 }
 
-/* main function run by communication thread */
+/* 
+ * \brief main function run by communication thread
+ * \param[in] params Dummy argument (required by pthreads)
+ * \return \c NULL
+ * 
+ * Continuously process the Sync Queue and Comm Queue until terminated.
+ * 
+ * If both queues are empty, sleep until woken up by signal (issued
+ * by MBI_SyncQueue_Push() ).
+ */
 static void *commthread_main(void *params) {
     
     int rc;
@@ -135,7 +162,11 @@ static void *commthread_main(void *params) {
     return NULL;
 }
 
-/* sets termination flag and wakes comm thread up if sleeping */
+/* 
+ * \brief issue termination request to communication thread 
+ * 
+ * Sets termination flag and wakes comm thread up if sleeping 
+ */
 inline static void commthread_sendTerminationSignal(void) {
     
     int rc;
@@ -148,7 +179,13 @@ inline static void commthread_sendTerminationSignal(void) {
     assert(0 == rc);
 }
 
-/* process pending sync requests */
+/*
+ * \brief process pending sync requests
+ * 
+ * For each node in Sync Queue, pop from queue and process using
+ * init_board_sync().
+ *  
+ */
 inline static void processSyncRequests(void) {
     
     int rc;
@@ -168,7 +205,20 @@ inline static void processSyncRequests(void) {
     }
 }
 
-/* process pending communications */
+/* 
+ * \brief process pending communications
+ * 
+ * For each node in Comm queue, run the appropriate transition function.
+ * 
+ * The whole simulation should be aborted if the transition function returns
+ * with an error. 
+ * 
+ * If transition routine returns ::MB_SUCCESS_2, do not proceed with travesal
+ * as the queue would have been modified and the data structures may have 
+ * changed. Return immediately (the other nodes will be processed on the 
+ * next pass)
+ * 
+ */
 inline static void processPendingComms(void) {
     int rc;
     struct MBIt_commqueue *node, *next;
@@ -184,28 +234,37 @@ inline static void processPendingComms(void) {
         {
             case PRE_TAGGING:
                 rc = MBIt_Comm_InitTagging(node);
-                assert(rc == MB_SUCCESS);
+                if (rc != MB_SUCCESS) complain_and_terminate(rc, "PRE_TAGGING");
                 break;
                 
             case TAGINFO_SENT:
                 rc = MBIt_Comm_WaitTagInfo(node);
-                assert(rc == MB_SUCCESS);
+                if (rc != MB_SUCCESS) complain_and_terminate(rc, "TAGINFO_SENT");
                 break;
                 
             case TAGGING:
                 rc = MBIt_Comm_TagMessages(node);
-                assert(rc == MB_SUCCESS);
+                if (rc != MB_SUCCESS) complain_and_terminate(rc, "TAGGING");
                 break;
                 
             case PRE_PROPAGATION:
                 rc = MBIt_Comm_InitPropagation(node);
-                assert(rc == MB_SUCCESS);
+                if (rc != MB_SUCCESS) complain_and_terminate(rc, "PRE_PROPAGATION");
                 break;
             
             case PROPAGATION:
                 rc = MBIt_Comm_CompletePropagation(node);
-                assert(rc == MB_SUCCESS);
-                return; /* do not proceed with loop as CommQueue was modified */
+                if (rc != MB_SUCCESS)
+                {
+                    if (rc == MB_SUCCESS_2)
+                    {
+                        /* Comm queue has been modified. Don't proceed with traversal */
+                        return;
+                    }
+                    
+                    complain_and_terminate(rc, "PROPAGATION");
+                }
+                break; 
             
             default: assert("Invalid state found!!" == "");
         }
@@ -213,7 +272,17 @@ inline static void processPendingComms(void) {
 
 }
 
-/* initiate synchronisation of a board */
+/* 
+ * \brief initiate synchronisation of a board 
+ * 
+ * If the board has a filter function attached, put it in the ::PRE_TAGGING
+ * state, else, skip the tagging phase and go straight into the 
+ * ::PRE_PROPAGATION state.
+ * 
+ * The board is then added to the Comm Queue for processing by 
+ * processPendingComms().
+ * 
+ */
 inline static void initiate_board_sync(MBt_Board mb) { 
     
     int rc;
@@ -221,19 +290,57 @@ inline static void initiate_board_sync(MBt_Board mb) {
     MBIt_Board *board;
     
     board = (MBIt_Board*)MBI_getMBoardRef(mb);
+    assert(board != NULL);
     
     /* check if info for tagging messages is available */
-    if (board->fh == MB_NULL_FUNCTION)
+    if (board->fh != MB_NULL_FUNCTION)
     {
-        startstage = PRE_PROPAGATION;
+        startstage = PRE_TAGGING;
     }
     else
     {
-        startstage = PRE_TAGGING;
+        startstage = PRE_PROPAGATION;
     }
     
     /* push board into communication queue */
     rc = MBI_CommQueue_Push(mb, startstage);
     assert(rc == MB_SUCCESS);
 
+}
+
+/* 
+ * \brief complain then terminate simulation
+ * 
+ * Print out some information to stderr, then abort the whole simulation.
+ * 
+ */
+inline static void complain_and_terminate(int rc, char* stage) {
+    
+    char *reason = NULL;
+    
+    switch(rc) {
+        case MB_ERR_MEMALLOC:
+            reason = "Failed to allocate required memory";
+            break;
+        
+        case MB_ERR_INTERNAL:
+            reason = "Internal error (possibly a bug)";
+            break;
+            
+        case MB_ERR_MPI:
+            reason = "An MPI routine call failed";
+            break;
+    }
+    
+    fprintf(stderr, "=== ERROR (libmboard communication thread) ===\n");
+    fprintf(stderr, " * Processor %d has terminated this simulation while processing\n", MBI_CommRank);
+    fprintf(stderr, "   sync of boards (stage=%s).\n", stage);
+    fprintf(stderr, " * Reason: %s\n\n", reason);
+#ifndef _EXTRA_CHECKS
+    fprintf(stderr, "For more information on where the error occured, please use the\n");
+    fprintf(stderr, "debug version of libmboard\n");
+#endif
+    
+    /* abort the simulation */
+    MPI_Abort(MBI_CommWorld, 1);
 }

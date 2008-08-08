@@ -17,6 +17,7 @@
 #include "mboard.h"
 #include "mb_utils.h"
 #include "mb_common.h"
+#include "mb_tag_table.h"
 
 #include <mpi.h>
 #include <pthread.h>
@@ -27,25 +28,7 @@
 /* #define MB_CONFIG_NOCHECKS */
 
 /*! \brief Data structure for managing message tagging  */
-typedef struct {
-    /*! \brief number of MPI Tasks */
-    int pcount; 
-    /*! \brief number of messages in board */
-    int mcount; 
-    /*! \brief Tagging status store as binary table 
-     * 
-     * \c tt[msg] will store a list of binary values representing
-     * tags per MPI task. Bit X set to '1' if message tagged for 
-     * process X, '0' otherwise.
-     * 
-     * List of binary values will be access in blocks of 1 byte:
-     * tt[msg][block] = 0x00000000 
-     */
-    void *tt; 
-    /*! \brief Array storing number of messages tagged per proc */ 
-    int *tagged;
-    
-} MBIt_TagTable;
+typedef tag_table MBIt_TagTable;
 
 /*! \brief Data structure of a MessageBoard instance  */
 typedef struct {
@@ -83,9 +66,23 @@ typedef struct {
 } MBIt_Board;
 
 /* constants for calculating MPI tags (for labelling communication) */
-#define MBI_TAG_BASE     (0x01000000)
-#define MBI_TAG_FHDATA   (0x01000000)
-#define MBI_TAG_MSGDATA  (0x02000000)
+/* LAM MPI supports a rather small MAX TAG value, and does not have the 
+ * courtesy to set the MPI_TAG_UB. Boooo!
+ * Let's be conservative with our values
+ */
+/* We use up to 15 bits. First 12 bits for boards (so we support 4092
+ * boards), and the remaining 3 for communication type (max 8)
+ */ 
+#define MBI_TAG_MAX      (0x7fff)
+#define MBI_TAG_BASE     (0x0fff)
+#define MBI_TAG_FHDATA   (0x1000)
+#define MBI_TAG_MSGDATA  (0x2000)
+/* max MBI_TAG_*DATA = (0x7000) */
+
+/* The number of available simulataneous comms limits the number of 
+ * boards we can have
+ */
+#define MBI_MAX_BOARDS MBI_TAG_MAX
 
 /* datatypes for storing params for pending creates */
 typedef struct t_MBIt_pendingCreate_node {
@@ -100,8 +97,6 @@ typedef struct t_MBIt_pendingCreate_node {
 
 /* global variables (initialised and documented in env_init.c) */
 extern MPI_Comm MBI_CommWorld;
-extern int MBI_CommRank;
-extern int MBI_CommSize;
 
 /* Communication thread routines */
 /* ... see commthread.c ... */

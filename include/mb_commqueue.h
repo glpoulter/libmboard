@@ -11,8 +11,12 @@
  * 
  */
 
-#ifndef COMMQUEUE_H
-#define COMMQUEUE_H
+#ifndef MB_COMMQUEUE_H
+#define MB_COMMQUEUE_H
+
+#ifdef HAVE_CONFIG_H
+#include "mb_config.h"
+#endif
 
 #include "mboard.h"
 #include "uthash.h"
@@ -52,7 +56,7 @@ struct MBIt_commqueue {
     /*! \brief Number of pending sends */
     unsigned int pending_out;
     
-    /*! \brief Array of number messages to expect from remote boards */
+    /*! \brief Array of number of messages to expect from remote boards */
     int *incount;
     
     /*! \brief Array of input buffers */
@@ -87,4 +91,4 @@ int MBIt_Comm_TagMessages(struct MBIt_commqueue *node);
 int MBIt_Comm_InitPropagation(struct MBIt_commqueue *node);
 int MBIt_Comm_CompletePropagation(struct MBIt_commqueue *node);
 
-#endif /*COMMQUEUE_H*/
+#endif /*MB_COMMQUEUE_H*/

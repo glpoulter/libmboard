@@ -40,6 +40,9 @@ int MB_Create(MBt_Board *mb_ptr, size_t msgsize) {
     assert(rc == MB_SUCCESS);
     *mb_ptr = mb;
     
+    assert((int)mb <= MBI_MAX_BOARDS);
+    if ((int)mb > MBI_MAX_BOARDS) return MB_ERR_OVERFLOW;
+    
     /* debug: make sure same mb on all procs */
 #ifdef _EXTRA_CHECKS
     check_all_mb_equal(mb, msgsize);

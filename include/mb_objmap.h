@@ -12,11 +12,20 @@
  * 
  */
 
-#ifndef OBJMAP_H_
-#define OBJMAP_H_
+#ifndef MB_OBJMAP_H_
+#define MB_OBJMAP_H_
+
+#ifdef HAVE_CONFIG_H
+#include "mb_config.h"
+#endif
 
 #ifdef _PARALLEL
+#ifdef HAVE_PTHREAD
+
 #include <pthread.h>
+#define MB_THREADSAFE
+
+#endif /* MB_THREADSAFE */
 #endif /* _PARALLEL */
 
 #include <limits.h>
@@ -63,13 +72,13 @@
  *     #define OM_KEY_MAX UINT_MAX
  * \endcode
  */
-typedef unsigned long OM_key_t;
+typedef unsigned int OM_key_t;
 
 /*! \brief maximum possible value for key type 
  * 
  * Definition of \c ULONG_MAX taken from \c limits.h
  * */
-#define OM_KEY_MAX ULONG_MAX
+#define OM_KEY_MAX UINT_MAX
 
 /* return values */
 /*! \brief Null handle */
@@ -105,13 +114,18 @@ typedef struct {
     /*! \brief Pointer to hashtable object */
     void *map;
     
-#ifdef _PARALLEL
+#ifdef OBJMAP_CYCLE_KEY
+    /*! \bried flag indicating key values have wrapped round */
+    int key_wrapped;
+#endif
+    
+#ifdef MB_THREADSAFE
     /*! \if paralleldoc
      * \brief mutex lock
      * \endif
      */
     pthread_mutex_t lock;
-#endif 
+#endif /* MB_THREADSAFE */
     
 } MBIt_objmap;
 
@@ -131,4 +145,4 @@ void* MBI_objmap_pop(MBIt_objmap *map, OM_key_t handle);
 void MBI_objmap_destroy(MBIt_objmap **map);
 
 /*! @} */
-#endif /*OBJMAP_H_*/
+#endif /*MB_OBJMAP_H_*/

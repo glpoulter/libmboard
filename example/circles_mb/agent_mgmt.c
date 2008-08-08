@@ -273,6 +273,7 @@ int propagate_agents(void) {
         /* is agent still in partition? */
         if (x >= xmin && x < xmax && y >= ymin && y < ymax) 
         {
+            prev = current;
             current = current->next;
             continue;
         }
@@ -284,8 +285,7 @@ int propagate_agents(void) {
         if (prev == NULL) agent_list = current->next;
         else prev->next = current->next;
         
-        /* select next node for following iteration */
-        prev = current;
+        /* select next node for following iteration */   
         current = current->next;
         
         /* determine which partition agent has to be sent to */
@@ -323,13 +323,16 @@ int propagate_agents(void) {
             continue;
         }
         
+        if (i == env_rank) return FAIL;
+        
         /* allocate memory for incoming data */
+        
         bufsize = sizeof(struct agent_obj) * inbox_count[i];
         inbuf[i] = (void *)malloc(bufsize);
         
         /* post non-blocking receive */
         MPI_Irecv(inbuf[i], bufsize, MPI_BYTE, i, PROP_AGENT_TAG, 
-                  MPI_COMM_WORLD, &in_req[i]);
+                  MPI_COMM_WORLD, &(in_req[i]));
         
         recv_count++;
     }
@@ -344,6 +347,9 @@ int propagate_agents(void) {
             continue;
         }
         
+        
+        
+        
         /* allocate memory for outgoing data */
         bufsize = sizeof(struct agent_obj) * outbox_count[i];
         outbuf[i] = (void *)malloc(bufsize);
@@ -355,16 +361,18 @@ int propagate_agents(void) {
         while(current)
         {
             /* copy agent data */
-            memcpy((char *)outbuf[i] + (j * sizeof(struct agent_obj)),
-                   current->agent, sizeof(struct agent_obj));
+            memcpy((void*)((char *)outbuf[i] + (j * sizeof(struct agent_obj))),
+                   (void*)current->agent, sizeof(struct agent_obj));
             j++;
+            if (j >= outbox_count) return FAIL;
             
             /* free node and proceed */
             prev = current;
             current = current->next;
+            free(prev->agent);
             free(prev);
         }
-            
+        
         /* post non-blocking synchronous send */
         MPI_Issend(outbuf[i], bufsize, MPI_BYTE, i, PROP_AGENT_TAG, 
                    MPI_COMM_WORLD, &out_req[i]);

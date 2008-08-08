@@ -20,12 +20,6 @@
  * \todo When in debug mode, print useful messages if we know what is wrong
  *       instead of just using \c assert()
  * \todo Make the library thread-safe
- * \todo Debug parallel version
- * \todo Use automake/autoconf instead of custom Makefiles
- * \todo \c CUnit should be a dependency, not bundled with libmboard. Also add \c MPI 
- *       as dependency \c libmboard_p.
- * \todo Split library generation to DEBUG and PRODUCTION versions, with all debug
- *       options turned on for DEBUG version. 
  */
 
 /*!\ifnot userdoc 
@@ -277,7 +271,7 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * 
  * An MPI related error has occured. 
  */
-#define MB_ERR_MPI 4
+#define MB_ERR_MPI      4
 
 /*!
  * \def MB_ERR_ENV
@@ -290,6 +284,18 @@ int MB_Function_Free(MBt_Function *fh_ptr);
 #define MB_ERR_ENV      5 
 
 /*!
+ * \def MB_ERR_OVERFLOW
+ * \ingroup MB_API
+ * \ingroup RC
+ * \brief Return Code: Overflow Error
+ * 
+ * Specifies error due overflow in intenal variable or storage.
+ * 
+ * To identify the problem, use the debug version of libmboard.
+ */
+#define MB_ERR_OVERFLOW     6
+
+/*!
  * \def MB_ERR_INTERNAL
  * \ingroup MB_API
  * \ingroup RC
@@ -297,10 +303,9 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * 
  * Specifies internal implementation error. 
  * 
- * To identify the problem, try recompiling libmboard in debug mode, relink
- * your application, and check and assertion 
+ * To identify the problem, use the debug version of libmboard.
  */
-#define MB_ERR_INTERNAL 6   
+#define MB_ERR_INTERNAL     7
 
 /*!
  * \def MB_ERR_USER
@@ -311,7 +316,17 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * Specifies error due to something the user has done (or not done). See 
  * documentation or any output message for details.
  */
-#define MB_ERR_USER 7   
+#define MB_ERR_USER     8
+
+/*!
+ * \def MB_SUCCESS_2
+ * \ingroup MB_API
+ * \ingroup RC
+ * \brief Return Code: Success 
+ * 
+ * Specifies a successful execution (but with routine specific connotations).
+ */
+#define MB_SUCCESS_2    100
 
 /*!
  * \def MB_ERR_NOT_IMPLEMENTED
@@ -322,7 +337,7 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * Requested operation has not been implemented
  * 
  */
-#define MB_ERR_NOT_IMPLEMENTED 100
+#define MB_ERR_NOT_IMPLEMENTED      111
 
 
 
@@ -420,6 +435,7 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  *  - ::MB_SUCCESS
  *  - ::MB_ERR_INVALID (\c msgsize is invalid)
  *  - ::MB_ERR_MEMALLOC (unable to allocate required memory)
+ *  - ::MB_ERR_OVERFLOW (too many boards created. See ::MBI_MAX_BOARDS for max size)
  *  - ::MB_ERR_INTERNAL (internal error, possibly a bug)
  *  - ::MB_ERR_ENV (MessageBoard environment not yet initialised)
  * 
@@ -914,7 +930,7 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \ingroup FUNC
  * \brief Assigns function handle to a message board
  * 
- * For efficiency, boards must be assigned with the same \c fh and \c param_size on all
+ * For efficiency, boards must be assigned with the same \c fh on all
  * MPI processes. It is left to the user to ensure that this is so.
  * (this limitation may be removed or changed in the future if there is
  * a compelling reason to do so).
@@ -923,6 +939,9 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * function that it was previously assigned with.
  * 
  * If \c params is \c NULL, \c param_size will be ignored.
+ * 
+ * If \c params is set to \c NULL, then it has to be \c NULL as well on all
+ * MPI processes.
  * 
  * It is the users' responsibility to ensure that \c params is valid and
  * populated with the right data before board synchronisation, and not

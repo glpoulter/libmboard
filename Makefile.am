@@ -10,11 +10,13 @@ DIST_SUBDIRS = $(SUBDIRS) tests
 INCLUDEDIR = $(top_srcdir)/include
 
 include_HEADERS = $(INCLUDEDIR)/mboard.h \
+                  $(INCLUDEDIR)/mb_config.h \
 			      $(INCLUDEDIR)/mb_objmap.h
 noinst_HEADERS  = $(INCLUDEDIR)/mb_common.h \
 			      $(INCLUDEDIR)/mb_serial.h \
 			      $(INCLUDEDIR)/mb_parallel.h \
 			      $(INCLUDEDIR)/mb_utils.h \
+			      $(INCLUDEDIR)/mb_memlog.h \
 			      $(INCLUDEDIR)/mb_syncqueue.h \
 			      $(INCLUDEDIR)/mb_commqueue.h \
 			      $(INCLUDEDIR)/mb_pooled_list.h \
@@ -36,11 +38,11 @@ libmboard_sd_la_LIBADD  = src/utils/lib_utils_d.la src/serial/lib_mb_sd.la
 if COMPILE_PARALLEL
 libmboard_p_la_SOURCES  =
 libmboard_p_la_LDFLAGS  = @MB_PARALLEL_LDFLAGS@
-libmboard_p_la_LIBADD   = src/utils/lib_utils.la src/parallel/lib_mb_p.la @MB_PARALLEL_LIBS@
+libmboard_p_la_LIBADD   = src/utils/lib_utils_p.la src/parallel/lib_mb_p.la @MB_PARALLEL_LIBS@
 
 libmboard_pd_la_SOURCES =
 libmboard_pd_la_LDFLAGS = @MB_PARALLEL_LDFLAGS@
-libmboard_pd_la_LIBADD  = src/utils/lib_utils_d.la src/parallel/lib_mb_pd.la @MB_PARALLEL_LIBS@
+libmboard_pd_la_LIBADD  = src/utils/lib_utils_pd.la src/parallel/lib_mb_pd.la @MB_PARALLEL_LIBS@
 endif
 
 EXTRA_DIST = \
@@ -90,6 +92,42 @@ doc: Doxyfile_user Doxyfile_developer_serial Doxyfile_developer_parallel
 	@echo "Generating Developer documentation (parallel code) in ./doc/developer/parallel"
 	@doxygen Doxyfile_developer_parallel
 
+	@touch Doxyfile_user
+	@touch Doxyfile_developer_serial
+	@touch Doxyfile_developer_parallel
+	
 vclean:
 	(cd tests; make clean)
 	make clean
+
+# Options for splint
+# -D__sigset_t=int hides problems with splint trying to parse headers
+# used by pthread.h
+SPLINT_OPTIONS = -weak -D__sigset_t=int
+
+splint:
+	@( \
+	SPLINT=`splint --help 2>/dev/null`; \
+	if test ! $$? = 0; then \
+		echo "** 'splint' command not found" >&2; \
+		echo "** It is available from http://www.splint.org/" >&2; \
+		echo -e "\n"; \
+		exit 1; \
+	fi; \
+	)
+	@echo -e "\n----- (Checking src/utils/*.c)"
+	@splint $(SPLINT_OPTIONS) -I$(INCLUDEDIR) src/utils/*.c 
+	@echo -e "\n----- (Checking src/serial/*.c)"
+	@splint $(SPLINT_OPTIONS) -I$(INCLUDEDIR) src/serial/*.c 
+if COMPILE_PARALLEL
+	@( \
+	iflags=""; \
+	for i in dummy @MB_PARALLEL_CFLAGS@; do f=`echo $${i} | grep '^-I'`; iflags="$${iflags} $${f}"; done; \
+	echo -e "\n----- (Checking src/parallel/*.c)"; \
+	splint $(SPLINT_OPTIONS) $${iflags} -I$(INCLUDEDIR) src/parallel/*.c; \
+	) 
+endif
+if TESTS_CONFIGURED
+	@echo -e "\n ----- (Entering test directory: ./tests) "
+	(cd tests && make splint)
+endif

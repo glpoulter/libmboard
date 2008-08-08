@@ -85,10 +85,18 @@
  * @{
  * */
 
-#ifndef POOLED_LIST_H_
-#define POOLED_LIST_H_
+#ifndef MB_POOLED_LIST_H_
+#define MB_POOLED_LIST_H_
+
+#ifdef HAVE_CONFIG_H
+#include "mb_config.h"
+#endif
 
 #include <stddef.h>
+#include <assert.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
 
 /*! \brief Return Code: Success */
 #define PL_SUCCESS     0 
@@ -119,18 +127,8 @@ typedef struct pl_address_node pl_address_node;
 /* \brief datatype used as handle for traversing linked list */
 typedef pl_address_node pl_iterator;
 
-/*! \brief Address node size used for calculating total block size */
-#define PL_ADDRNODE_SIZE sizeof(pl_address_node)
 
-/*! \brief macro retrieve data block address from data header */
-#define PL_NODEDATA(node) (((pl_address_node *)node)->addr)
-
-/*! \brief macro retrieve first data header in pooled list */
-#define PL_ITERATOR(obj) ((pl_address_node *)obj->head)
-
-
-
-/*! \brief a Pooled List object */
+/*! \brief Pooled List object */
 typedef struct {
     
     /* blocksize = (elem_size + PL_ADDRNODE_SIZE )* elem_count */
@@ -169,6 +167,18 @@ typedef struct {
     
 } pooled_list;
 
+
+/* ----- Macros ----- */
+/*! \brief Address node size used for calculating total block size */
+#define PL_ADDRNODE_SIZE sizeof(pl_address_node)
+
+/*! \brief macro retrieve data block address from data header */
+#define PL_NODEDATA(node) (((pl_address_node *)node)->addr)
+
+/*! \brief macro retrieve first data header in pooled list */
+#define PL_ITERATOR(obj) ((pl_address_node *)obj->head)
+
+
 /* ----- Function Prototypes ----- */
 int pl_create(pooled_list **pl_ptr_loc, size_t elem_size, int pool_size);
 int pl_delete(pooled_list **pl_ptr_loc);
@@ -180,4 +190,4 @@ int pl_reset(pooled_list *pl);
 int pl_getnode(pooled_list *pl, int index, void **ptr);
 
 /*! @} */
-#endif /*POOLED_LIST_H_*/
+#endif /*MB_POOLED_LIST_H_*/

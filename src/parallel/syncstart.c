@@ -48,8 +48,16 @@ int MB_SyncStart(MBt_Board mb) {
     
     /* lock the board */
     board->locked = MB_TRUE;
-    board->syncCompleted = MB_FALSE;
     
+    /* nothing to do if we're not running in parallel */
+    if (MBI_CommSize == 1)
+    {
+        board->syncCompleted = MB_TRUE;
+        return MB_SUCCESS;
+    }
+    
+    board->syncCompleted = MB_FALSE;
+     
     /* Submit sync request to comm thread */
     return MBI_SyncQueue_Push(mb);
     

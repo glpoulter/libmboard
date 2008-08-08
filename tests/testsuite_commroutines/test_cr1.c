@@ -153,10 +153,18 @@ int clean_cr(void) {
 /* testing MBIt_Comm_InitTagging() */
 void test_cr_inittagging(void) {
     
-    int i, rc, value;
+    int i, rc;
 
+    if (MBI_CommSize == 1)
+    {
+        CU_PASS("This routine will never be called when NP=1")
+        return;
+    }
+    
     /* first, test for board with fparams == NULL */
     CU_ASSERT_EQUAL_FATAL(node_e->stage, PRE_TAGGING);
+    
+
     CU_ASSERT_EQUAL_FATAL(node_e->mb, mb_e);
     rc = MBIt_Comm_InitTagging(node_e);
     CU_ASSERT_EQUAL(rc, MB_SUCCESS);
@@ -173,13 +181,9 @@ void test_cr_inittagging(void) {
     rc = MBIt_Comm_InitTagging(node_m);
     
     CU_ASSERT_EQUAL(rc, MB_SUCCESS);
-    CU_ASSERT_PTR_NOT_NULL(node_m->outbuf);
-    CU_ASSERT_PTR_NOT_NULL(node_m->outbuf[0]);
-    value = *(int *)(node_m->outbuf[0]);
-    CU_ASSERT_EQUAL(value, function_param);
-    CU_ASSERT_PTR_NOT_NULL(node_m->sendreq);
-    CU_ASSERT_PTR_NOT_NULL(node_m->recvreq);
-    CU_ASSERT_PTR_NOT_NULL(node_m->inbuf);
+    CU_ASSERT_PTR_NOT_NULL_FATAL(node_m->sendreq);
+    CU_ASSERT_PTR_NOT_NULL_FATAL(node_m->recvreq);
+    CU_ASSERT_PTR_NOT_NULL_FATAL(node_m->inbuf);
     CU_ASSERT_EQUAL(node_m->stage, TAGINFO_SENT);
     
     for (i = 0; i < MBI_CommSize; i++)
@@ -188,15 +192,17 @@ void test_cr_inittagging(void) {
         {
             CU_ASSERT_PTR_NULL(node_m->inbuf[i]);
             CU_ASSERT_EQUAL(node_m->sendreq[i], MPI_REQUEST_NULL);
-            CU_ASSERT_EQUAL(node_m->sendreq[i], MPI_REQUEST_NULL);
+            CU_ASSERT_EQUAL(node_m->recvreq[i], MPI_REQUEST_NULL);
         }
         else
         {
             CU_ASSERT_PTR_NOT_NULL(node_m->inbuf[i]);
             CU_ASSERT_NOT_EQUAL(node_m->sendreq[i], MPI_REQUEST_NULL);
-            CU_ASSERT_NOT_EQUAL(node_m->sendreq[i], MPI_REQUEST_NULL);
+            CU_ASSERT_NOT_EQUAL(node_m->recvreq[i], MPI_REQUEST_NULL);
         }
     }
+    
+    MPI_Barrier(MBI_CommWorld);
 }
 
 /* testing MBIt_Comm_WaitTagInfo() */
@@ -204,6 +210,13 @@ void test_cr_waittaginfo(void) {
     
     int rc;
     struct MBIt_commqueue *node;
+    
+
+    if (MBI_CommSize == 1)
+    {
+        CU_PASS("This routine will never be called when NP=1")
+        return;
+    }
     
     CU_ASSERT_EQUAL_FATAL(node_m->stage, TAGINFO_SENT);
     
@@ -214,14 +227,14 @@ void test_cr_waittaginfo(void) {
         rc = MBIt_Comm_WaitTagInfo(node);
         if (rc != MB_SUCCESS) CU_FAIL("MBIt_Comm_WaitTagInfo() call failed");
         
-        /* comm not done, sleep for a bit */
-        if (node->stage == TAGINFO_SENT) sleep(1);
     }
     
     CU_ASSERT_PTR_NULL(node->sendreq);
     CU_ASSERT_PTR_NULL(node->recvreq);
-    CU_ASSERT_PTR_NULL(node->outbuf);
+    
     CU_ASSERT_EQUAL(node->stage, TAGGING);
+    
+    MPI_Barrier(MBI_CommWorld);
 }
 
 /* testing MBIt_Comm_TagMessages() */
@@ -231,21 +244,29 @@ void test_cr_tagmessages(void) {
     MBIt_Board *board;
     struct MBIt_commqueue *node;
     
+    if (MBI_CommSize == 1)
+    {
+        CU_PASS("This routine will never be called when NP=1")
+        return;
+    }
+    
+    
     CU_ASSERT_EQUAL_FATAL(node_e->stage, TAGGING);
     CU_ASSERT_EQUAL_FATAL(node_m->stage, TAGGING);
+
     
     /* tag messages with even values */
     node = node_e;
     rc = MBIt_Comm_TagMessages(node);
+    
     CU_ASSERT_EQUAL(rc, MB_SUCCESS);
     CU_ASSERT_PTR_NULL(node->inbuf);
     CU_ASSERT_EQUAL(node->stage, PRE_PROPAGATION);
     board = (MBIt_Board *)MBI_getMBoardRef(node->mb);
     CU_ASSERT_PTR_NOT_NULL_FATAL(board);
     CU_ASSERT_PTR_NOT_NULL(board->tt);
-    CU_ASSERT_PTR_NOT_NULL(board->tt->tt);
-    CU_ASSERT_PTR_NOT_NULL(board->tt->tagged);
-    CU_ASSERT_EQUAL(board->tt->pcount, MBI_CommSize);
+    CU_ASSERT_PTR_NOT_NULL(board->tt->table);
+    CU_ASSERT_EQUAL(board->tt->cols, MBI_CommSize);
     
     /* tag messages with values > (MBI_CommRank * TCR_MCOUNT) */
     node = node_m;
@@ -256,10 +277,10 @@ void test_cr_tagmessages(void) {
     board = (MBIt_Board *)MBI_getMBoardRef(node->mb);
     CU_ASSERT_PTR_NOT_NULL_FATAL(board);
     CU_ASSERT_PTR_NOT_NULL(board->tt);
-    CU_ASSERT_PTR_NOT_NULL(board->tt->tt);
-    CU_ASSERT_PTR_NOT_NULL(board->tt->tagged);
-    CU_ASSERT_EQUAL(board->tt->pcount, MBI_CommSize);
+    CU_ASSERT_PTR_NOT_NULL(board->tt->table);
+    CU_ASSERT_EQUAL(board->tt->cols, MBI_CommSize);
     
+    MPI_Barrier(MBI_CommWorld);
 }
 
 /* testing MBIt_Comm_InitPropagation() */
@@ -269,10 +290,17 @@ void test_cr_initpropagation(void) {
     MBIt_Board *board;
     struct MBIt_commqueue *node;
 
+    if (MBI_CommSize == 1)
+    {
+        CU_PASS("This routine will never be called when NP=1")
+        return;
+    }
+    
     CU_ASSERT_EQUAL_FATAL(node_e->stage, PRE_PROPAGATION);
     CU_ASSERT_EQUAL_FATAL(node_m->stage, PRE_PROPAGATION);
     CU_ASSERT_EQUAL_FATAL(node_x->stage, PRE_PROPAGATION);
 
+    
     /* for board with no tagging */
     node = node_x;
     board = (MBIt_Board *)MBI_getMBoardRef(node->mb);
@@ -286,49 +314,40 @@ void test_cr_initpropagation(void) {
     
     CU_ASSERT_PTR_NULL(board->tt);
     
-    if (MBI_CommSize > 1)
+
+    CU_ASSERT_PTR_NOT_NULL(node->incount);
+    CU_ASSERT_PTR_NOT_NULL(node->inbuf);
+    CU_ASSERT_PTR_NOT_NULL(node->outbuf);
+    CU_ASSERT_PTR_NOT_NULL(node->sendreq);
+    CU_ASSERT_PTR_NOT_NULL(node->recvreq);
+    for (i = 0; i < MBI_CommSize; i++)
     {
-        CU_ASSERT_PTR_NOT_NULL(node->incount);
-        CU_ASSERT_PTR_NOT_NULL(node->inbuf);
-        CU_ASSERT_PTR_NOT_NULL(node->outbuf);
-        CU_ASSERT_PTR_NOT_NULL(node->sendreq);
-        CU_ASSERT_PTR_NOT_NULL(node->recvreq);
-        for (i = 0; i < MBI_CommSize; i++)
+        if (MBI_CommSize != 1)
         {
-            if (MBI_CommSize != 1)
+            if (i == 0)
             {
-                if (i == 0)
-                {
-                    CU_ASSERT_PTR_NOT_NULL(node->outbuf[i]);
-                }
-                else
-                {
-                    CU_ASSERT_PTR_NULL(node->outbuf[i]);
-                }
-            }
-            
-            if (i == MBI_CommRank)
-            {
-                CU_ASSERT_PTR_NULL(node->inbuf[i]);
-                CU_ASSERT_EQUAL(node->sendreq[i], MPI_REQUEST_NULL);
-                CU_ASSERT_EQUAL(node->recvreq[i], MPI_REQUEST_NULL);
+                CU_ASSERT_PTR_NOT_NULL(node->outbuf[i]);
             }
             else
             {
-                CU_ASSERT_PTR_NOT_NULL(node->inbuf[i]);
-                CU_ASSERT_NOT_EQUAL(node->sendreq[i], MPI_REQUEST_NULL);
-                CU_ASSERT_NOT_EQUAL(node->recvreq[i], MPI_REQUEST_NULL);
+                CU_ASSERT_PTR_NULL(node->outbuf[i]);
             }
         }
+        
+        if (i == MBI_CommRank)
+        {
+            CU_ASSERT_PTR_NULL(node->inbuf[i]);
+            CU_ASSERT_EQUAL(node->sendreq[i], MPI_REQUEST_NULL);
+            CU_ASSERT_EQUAL(node->recvreq[i], MPI_REQUEST_NULL);
+        }
+        else
+        {
+            CU_ASSERT_PTR_NOT_NULL(node->inbuf[i]);
+            CU_ASSERT_NOT_EQUAL(node->sendreq[i], MPI_REQUEST_NULL);
+            CU_ASSERT_NOT_EQUAL(node->recvreq[i], MPI_REQUEST_NULL);
+        }
     }
-    else
-    {
-        CU_ASSERT_PTR_NULL(node->incount);
-        CU_ASSERT_PTR_NULL(node->inbuf);
-        CU_ASSERT_PTR_NULL(node->outbuf);
-        CU_ASSERT_PTR_NULL(node->sendreq);
-        CU_ASSERT_PTR_NULL(node->recvreq);
-    }
+
 
     /* for board with even messages tagged */
     node = node_e;
@@ -339,15 +358,87 @@ void test_cr_initpropagation(void) {
     rc = MBIt_Comm_InitPropagation(node);
     CU_ASSERT_EQUAL(rc, MB_SUCCESS);
     CU_ASSERT_EQUAL(node->stage, PROPAGATION);
+    
+
     CU_ASSERT_PTR_NULL(board->tt);
-    if (MBI_CommSize > 1)
+    CU_ASSERT_PTR_NOT_NULL(node->incount);
+    CU_ASSERT_PTR_NOT_NULL(node->inbuf);
+    CU_ASSERT_PTR_NOT_NULL(node->outbuf);
+    CU_ASSERT_PTR_NOT_NULL(node->sendreq);
+    CU_ASSERT_PTR_NOT_NULL(node->recvreq);
+    for (i = 0; i < MBI_CommSize; i++)
+    {
+        if (node->outbuf[i] == NULL) 
+        {
+            CU_ASSERT_EQUAL(node->sendreq[i], MPI_REQUEST_NULL);
+        }
+        else 
+        {
+            CU_ASSERT_NOT_EQUAL(node->sendreq[i], MPI_REQUEST_NULL);
+        }
+        
+        if (i == MBI_CommRank)
+        {
+            CU_ASSERT_PTR_NULL(node->inbuf[i]);
+            CU_ASSERT_EQUAL(node->recvreq[i], MPI_REQUEST_NULL);
+        }
+        else
+        {
+            if (node->incount[i] > 0)
+            {
+                CU_ASSERT_PTR_NOT_NULL(node->inbuf[i]);
+                CU_ASSERT_NOT_EQUAL(node->recvreq[i], MPI_REQUEST_NULL);
+            }
+            else
+            {
+                CU_ASSERT_PTR_NULL(node->inbuf[i]);
+                CU_ASSERT_EQUAL(node->recvreq[i], MPI_REQUEST_NULL);
+            }
+            
+        }
+    }
+
+    
+    /* for board with messages of value > (MBI_CommRank * TCR_MCOUNT) tagged */
+    node = node_m;
+    board = (MBIt_Board *)MBI_getMBoardRef(node->mb);
+    CU_ASSERT_PTR_NOT_NULL_FATAL(board);
+    CU_ASSERT_EQUAL(board->tagging, MB_TRUE);
+    
+    rc = MBIt_Comm_InitPropagation(node);
+    CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+    CU_ASSERT_EQUAL(node->stage, PROPAGATION);
+    
+
+    CU_ASSERT_PTR_NULL(board->tt);
+    
+    if (node->pending_in > 0)
     {
         CU_ASSERT_PTR_NOT_NULL(node->incount);
         CU_ASSERT_PTR_NOT_NULL(node->inbuf);
+        CU_ASSERT_PTR_NOT_NULL(node->recvreq);
+    }
+    else
+    {
+        CU_ASSERT_PTR_NULL(node->incount);
+        CU_ASSERT_PTR_NULL(node->inbuf);
+        CU_ASSERT_PTR_NULL(node->recvreq);
+    }
+    
+    if (node->pending_out > 0)
+    {
         CU_ASSERT_PTR_NOT_NULL(node->outbuf);
         CU_ASSERT_PTR_NOT_NULL(node->sendreq);
-        CU_ASSERT_PTR_NOT_NULL(node->recvreq);
-        for (i = 0; i < MBI_CommSize; i++)
+    }
+    else
+    {
+        CU_ASSERT_PTR_NULL(node->outbuf);
+        CU_ASSERT_PTR_NULL(node->sendreq);
+    }
+    
+    for (i = 0; i < MBI_CommSize; i++)
+    {
+        if (node->pending_out > 0)
         {
             if (node->outbuf[i] == NULL) 
             {
@@ -357,7 +448,10 @@ void test_cr_initpropagation(void) {
             {
                 CU_ASSERT_NOT_EQUAL(node->sendreq[i], MPI_REQUEST_NULL);
             }
-            
+        }
+        
+        if (node->pending_in > 0)
+        {
             if (i == MBI_CommRank)
             {
                 CU_ASSERT_PTR_NULL(node->inbuf[i]);
@@ -379,97 +473,9 @@ void test_cr_initpropagation(void) {
             }
         }
     }
-    else
-    {
-        CU_ASSERT_PTR_NULL(node->incount);
-        CU_ASSERT_PTR_NULL(node->inbuf);
-        CU_ASSERT_PTR_NULL(node->outbuf);
-        CU_ASSERT_PTR_NULL(node->sendreq);
-        CU_ASSERT_PTR_NULL(node->recvreq);
-    }
+
     
-    /* for board with messages of value > (MBI_CommRank * TCR_MCOUNT) tagged */
-    node = node_m;
-    board = (MBIt_Board *)MBI_getMBoardRef(node->mb);
-    CU_ASSERT_PTR_NOT_NULL_FATAL(board);
-    CU_ASSERT_EQUAL(board->tagging, MB_TRUE);
-    
-    rc = MBIt_Comm_InitPropagation(node);
-    CU_ASSERT_EQUAL(rc, MB_SUCCESS);
-    CU_ASSERT_EQUAL(node->stage, PROPAGATION);
-    CU_ASSERT_PTR_NULL(board->tt);
-    if (MBI_CommSize > 1)
-    {
-        if (node->pending_in > 0)
-        {
-            CU_ASSERT_PTR_NOT_NULL(node->incount);
-            CU_ASSERT_PTR_NOT_NULL(node->inbuf);
-            CU_ASSERT_PTR_NOT_NULL(node->recvreq);
-        }
-        else
-        {
-            CU_ASSERT_PTR_NULL(node->incount);
-            CU_ASSERT_PTR_NULL(node->inbuf);
-            CU_ASSERT_PTR_NULL(node->recvreq);
-        }
-        
-        if (node->pending_out > 0)
-        {
-            CU_ASSERT_PTR_NOT_NULL(node->outbuf);
-            CU_ASSERT_PTR_NOT_NULL(node->sendreq);
-        }
-        else
-        {
-            CU_ASSERT_PTR_NULL(node->outbuf);
-            CU_ASSERT_PTR_NULL(node->sendreq);
-        }
-        
-        for (i = 0; i < MBI_CommSize; i++)
-        {
-            if (node->pending_out > 0)
-            {
-                if (node->outbuf[i] == NULL) 
-                {
-                    CU_ASSERT_EQUAL(node->sendreq[i], MPI_REQUEST_NULL);
-                }
-                else 
-                {
-                    CU_ASSERT_NOT_EQUAL(node->sendreq[i], MPI_REQUEST_NULL);
-                }
-            }
-            
-            if (node->pending_in > 0)
-            {
-                if (i == MBI_CommRank)
-                {
-                    CU_ASSERT_PTR_NULL(node->inbuf[i]);
-                    CU_ASSERT_EQUAL(node->recvreq[i], MPI_REQUEST_NULL);
-                }
-                else
-                {
-                    if (node->incount[i] > 0)
-                    {
-                        CU_ASSERT_PTR_NOT_NULL(node->inbuf[i]);
-                        CU_ASSERT_NOT_EQUAL(node->recvreq[i], MPI_REQUEST_NULL);
-                    }
-                    else
-                    {
-                        CU_ASSERT_PTR_NULL(node->inbuf[i]);
-                        CU_ASSERT_EQUAL(node->recvreq[i], MPI_REQUEST_NULL);
-                    }
-                    
-                }
-            }
-        }
-    }
-    else
-    {
-        CU_ASSERT_PTR_NULL(node->incount);
-        CU_ASSERT_PTR_NULL(node->inbuf);
-        CU_ASSERT_PTR_NULL(node->outbuf);
-        CU_ASSERT_PTR_NULL(node->sendreq);
-        CU_ASSERT_PTR_NULL(node->recvreq);
-    }
+    MPI_Barrier(MBI_CommWorld);
 }
 
 /* testing MBIt_Comm_CompletePropagation() */
@@ -483,9 +489,17 @@ void test_cr_completepropagation(void) {
     tcr_msg_t *mptr;
     struct MBIt_commqueue *node;
     
+    
+    if (MBI_CommSize == 1)
+    {
+        CU_PASS("This routine will never be called when NP=1")
+        return;
+    }
+    
     CU_ASSERT_EQUAL_FATAL(node_e->stage, PROPAGATION);
     CU_ASSERT_EQUAL_FATAL(node_m->stage, PROPAGATION);
     CU_ASSERT_EQUAL_FATAL(node_x->stage, PROPAGATION);
+    
     
     /* start with board with no tagging (full replication) */
     node = node_x;
@@ -503,7 +517,14 @@ void test_cr_completepropagation(void) {
         rc = MBIt_Comm_CompletePropagation(node);
         
         /* if still not completed */
-        if (board->syncCompleted == MB_FALSE) sleep(1);
+        if (board->syncCompleted == MB_FALSE)
+        {
+            if (rc != MB_SUCCESS) CU_FAIL("wrong return code");
+        }
+        else
+        {
+            if (rc != MB_SUCCESS_2) CU_FAIL("wrong return code");
+        }
     }
     CU_ASSERT_EQUAL(board->syncCompleted, MB_TRUE);
     
@@ -552,7 +573,14 @@ void test_cr_completepropagation(void) {
         rc = MBIt_Comm_CompletePropagation(node);
         
         /* if still not completed */
-        if (board->syncCompleted == MB_FALSE) sleep(1);
+        if (board->syncCompleted == MB_FALSE)
+        {
+            if (rc != MB_SUCCESS) CU_FAIL("wrong return code");
+        }
+        else
+        {
+            if (rc != MB_SUCCESS_2) CU_FAIL("wrong return code");
+        }
     }
     CU_ASSERT_EQUAL(board->syncCompleted, MB_TRUE);
     
@@ -611,7 +639,15 @@ void test_cr_completepropagation(void) {
         rc = MBIt_Comm_CompletePropagation(node);
         
         /* if still not completed */
-        if (board->syncCompleted == MB_FALSE) sleep(1);
+        if (board->syncCompleted == MB_FALSE)
+        {
+            if (rc != MB_SUCCESS) CU_FAIL("wrong return code");
+        }
+        else
+        {
+            if (rc != MB_SUCCESS_2) CU_FAIL("wrong return code");
+        }
+        
     };
     CU_ASSERT_EQUAL(board->syncCompleted, MB_TRUE);
     
@@ -649,7 +685,9 @@ void test_cr_completepropagation(void) {
     
     /* comm queue should now be empty */
     CU_ASSERT(MBI_CommQueue_isEmpty());
-
+    
+    MPI_Barrier(MBI_CommWorld);
+    
 }
 
 

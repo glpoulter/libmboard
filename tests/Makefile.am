@@ -15,6 +15,7 @@ SUBDIRS = testsuite_commqueue \
           testsuite_mb_parallel \
           testsuite_mb_serial \
           testsuite_objmap \
+          testsuite_tag_table \
           testsuite_pooled_list \
           testsuite_syncqueue
           
@@ -57,6 +58,7 @@ run_test_utils_LDFLAGS  = @CUNITLDFLAGS@
 run_test_utils_CFLAGS   = -I$(INCLUDEDIR) @CUNITCFLAGS@ @DEBUG_CFLAGS@
 run_test_utils_LDADD    = $(testcode_dir)/testsuite_objmap/lib_t_objmap.la \
                           $(testcode_dir)/testsuite_pooled_list/lib_t_pooled_list.la \
+                          $(testcode_dir)/testsuite_tag_table/lib_t_tag_table.la \
 						  $(top_srcdir)/src/utils/lib_utils.la \
 						  @CUNITLIBS@
 
@@ -83,11 +85,58 @@ if COMPILE_PARALLEL
 	@echo -e "\n\n"
 endif
 
+# Options for splint
+# -D__sigset_t=int hides problems with splint trying to parse headers
+# used by pthread.h
+SPLINT_OPTIONS = -weak -D__sigset_t=int -warnposix
+SERIAL_TESTSUITES = objmap tag_table pooled_list mb_serial
+PARALLEL_TESTSUITES = syncqueue commqueue commroutines mb_parallel 
+
+splint:
+	@( \
+	SPLINT=`splint --help 2>/dev/null`; \
+	if test ! $$? = 0; then \
+		echo "** 'splint' command not found" >&2; \
+		echo "** It is available from http://www.splint.org/" >&2; \
+		echo -e "\n"; \
+		exit 1; \
+	fi; \
+	)
+	@echo -e "\n----- (in ./tests: Checking ./*.c)"
+	@splint $(SPLINT_OPTIONS) -I$(INCLUDEDIR) -I/usr/local/include *.c 
+	@( \
+	iflags=""; \
+	for i in dummy @MB_PARALLEL_CFLAGS@ @CUNITCFLAGS@ ; do \
+		f=`echo $${i} | grep '^-I'`; \ 
+		iflags="$${iflags} $${f}"; \
+	done; \
+	for ts in $(SERIAL_TESTSUITES); do \
+		echo -e "\n----- (in ./tests: Checking ./testsuite_$${ts}/*.c)"; \
+		splint $(SPLINT_OPTIONS) $${iflags} -I$(INCLUDEDIR) -I/usr/local/include testsuite_$${ts}/*.c; \
+	done; \
+	) 
+if COMPILE_PARALLEL
+	@( \
+	iflags=""; \
+	for i in dummy @MB_PARALLEL_CFLAGS@ @CUNITCFLAGS@ ; do \
+	f=`echo $${i} | grep '^-I'`; \ 
+	iflags="$${iflags} $${f}"; \
+	done; \
+	for ts in $(PARALLEL_TESTSUITES); do \
+		echo -e "\n----- (in ./tests: Checking ./testsuite_$${ts}/*.c)"; \
+		splint $(SPLINT_OPTIONS) $${iflags} -I$(INCLUDEDIR) -I/usr/local/include testsuite_$${ts}/*.c; \
+	done; \
+	)  
+endif
+
 else
 
 all: run
+splint: run
 
 run:
 	@echo -e "\n\n** Building of tests was disabled during ./configure"
 	
 endif
+
+

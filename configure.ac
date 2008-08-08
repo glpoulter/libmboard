@@ -8,7 +8,7 @@ AM_INIT_AUTOMAKE
 #AM_MAINTAINER_MODE
 
 AC_CONFIG_SRCDIR([src/serial/env_init.c])
-AC_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADER([include/mb_config.h])
 
 # Checks for programs.
 AC_PROG_CC
@@ -64,11 +64,25 @@ AC_C_INLINE
 AC_TYPE_SIZE_T
 
 # Checks for library functions.
-AC_FUNC_MALLOC
+#AC_FUNC_MALLOC
 #AC_CHECK_FUNCS([memset],[],[AC_MSG_ERROR(memset() is required)])
 #AC_CHECK_FUNCS([memcpy],[],[AC_MSG_ERROR(memcpy() is required)])
 #AC_CHECK_FUNCS([sqrt],[],[AC_MSG_ERROR(sqrt() is required)])
 #AC_CHECK_FUNCS([floor],[],[AC_MSG_ERROR(floor() is required)])
+
+
+# Allow users to enable instrumentation of memory usage
+AC_ARG_ENABLE([memlog], 
+              [AC_HELP_STRING([--enable-memlog],
+                              [Enable instrumentation of memory usage])],
+              [want_memlog=yes],
+              [want_memlog=no]
+             )
+if test "x${want_memlog}" = xyes;
+then
+	PRODUCTION_CFLAGS="-D_LOG_MEMORY_USAGE ${PRODUCTION_CFLAGS}"
+	DEBUG_CFLAGS="-D_LOG_MEMORY_USAGE ${DEBUG_CFLAGS}"
+fi
 
 # files to create
 
@@ -88,6 +102,7 @@ tests/testsuite_commroutines/Makefile
 tests/testsuite_mb_parallel/Makefile
 tests/testsuite_mb_serial/Makefile
 tests/testsuite_objmap/Makefile
+tests/testsuite_tag_table/Makefile
 tests/testsuite_pooled_list/Makefile
 tests/testsuite_syncqueue/Makefile
 ])dnl

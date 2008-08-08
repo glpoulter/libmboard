@@ -46,9 +46,9 @@ static void delete_map_data(mymap_t *ht);
  */
 MBIt_objmap* MBI_objmap_new(void) {
     
-#ifdef _PARALLEL
+#ifdef MB_THREADSAFE
 	int rc;
-#endif /* _PARALLEL */
+#endif /* MB_THREADSAFE */
 	
     MBIt_objmap *mymap = NULL;
     
@@ -62,10 +62,14 @@ MBIt_objmap* MBI_objmap_new(void) {
     mymap->top  = 0;
     mymap->type = 0;
     
+#ifdef OBJMAP_CYCLE_KEY
+    mymap->key_wrapped = 0;
+#endif
+    
     /* ->map must be initialised to NULL as required by uthash */
     mymap->map  = NULL;
     
-#ifdef _PARALLEL
+#ifdef MB_THREADSAFE
     rc = pthread_mutex_init(&(mymap->lock), NULL);
     assert(0 == rc);
     if (0 != rc)
@@ -73,7 +77,7 @@ MBIt_objmap* MBI_objmap_new(void) {
     	free(mymap);
     	return NULL;
     }
-#endif /* _PARALLEL */
+#endif /* MB_THREADSAFE */
     
     return mymap;
 }
@@ -99,9 +103,9 @@ MBIt_objmap* MBI_objmap_new(void) {
  */
 OM_key_t MBI_objmap_push(MBIt_objmap *map, void *obj) {
     
-#ifdef _PARALLEL
+#ifdef MB_THREADSAFE
 	int rc;
-#endif /* _PARALLEL */
+#endif /* MB_THREADSAFE */
 	
     OM_key_t handle;
     mymap_t *entry;
@@ -109,32 +113,30 @@ OM_key_t MBI_objmap_push(MBIt_objmap *map, void *obj) {
 
 #ifdef OBJMAP_CYCLE_KEY
     mymap_t *temp;
-    static int key_wrapped = 0;
 #endif
     
     /* return error code if NULL arguments given */
     if (!map) return OM_ERR_INVALID;
     if (!obj) return OM_ERR_INVALID;
+        
+    /* allocate struct for hastable entry */
+    entry = (mymap_t *)malloc(sizeof(mymap_t));
+    assert(entry != NULL);
+    if (entry == NULL) return OM_ERR_MEMALLOC;
+    
+#ifdef MB_THREADSAFE
+    /* capture mutex lock before proceeding */
+    rc = pthread_mutex_lock(&(map->lock));
+    assert(0 == rc);
+#endif /* MB_THREADSAFE */
     
     /* get ref to hash table */
     ht = (mymap_t *)(map->map);
     /* assert(ht); */
     
     handle = map->top; 
-    
-    /* allocate struct for hastable entry */
-    entry = (mymap_t *)malloc(sizeof(mymap_t));
-    assert(entry != NULL);
-    if (entry == NULL) return OM_ERR_MEMALLOC;
-    
     entry->key = handle; /* assign handle as key */
     entry->obj = obj;    /* assign obj address   */
-    
-#ifdef _PARALLEL
-    /* capture mutex lock before proceeding */
-    rc = pthread_mutex_lock(&(map->lock));
-    assert(0 == rc);
-#endif /* _PARALLEL */
     
     /* add to ut_hashtable */
     HASH_ADD(hh, ht, key, sizeof(OM_key_t), entry);
@@ -148,14 +150,14 @@ OM_key_t MBI_objmap_push(MBIt_objmap *map, void *obj) {
     if (map->top > OM_MAX_INDEX)
     {
         /* wrap back to starting index */
-        key_wrapped = 1;
+        map->key_wrapped = 1;
         map->top = 0;
     }
     
     /* if key has wrapped round, we must always check if key is already
      * being used 
      */
-    if (1 == key_wrapped)
+    if (1 == map->key_wrapped)
     {
         while (1 == 1) /* infinite loop. Wheeeeee! */
         {
@@ -167,24 +169,31 @@ OM_key_t MBI_objmap_push(MBIt_objmap *map, void *obj) {
             map->top++;
             
             /* have we run out of keys?? */
-            if (map->top > OM_MAX_INDEX) return OM_ERR_OVERFLOW;
+            if (map->top > OM_MAX_INDEX) 
+            {
+                handle = OM_ERR_OVERFLOW;
+                break;
+            }
         }
+    }
+
+#else
+    
+    assert(map->top <= OM_MAX_INDEX); 
+    if (map->top > OM_MAX_INDEX)
+    {
+        /* return error code */
+        handle = OM_ERR_OVERFLOW;
     }
     
 #endif
     
-#ifdef _PARALLEL
+#ifdef MB_THREADSAFE
 	/* release mutex lock before proceeding */
 	rc = pthread_mutex_unlock(&(map->lock));
 	assert(0 == rc);
-#endif /* _PARALLEL */
+#endif /* MB_THREADSAFE */
 	    
-    assert(map->top <= OM_MAX_INDEX); 
-    if (map->top > OM_MAX_INDEX)
-    {
-        return OM_ERR_OVERFLOW;
-    }
-    
     return handle;
 }
 
@@ -209,26 +218,30 @@ void* MBI_objmap_getobj(MBIt_objmap *map, OM_key_t handle) {
     void  *obj   = NULL;
     mymap_t *ht;
     
+#ifdef MB_THREADSAFE 
+    int rc;
+#endif
+    
     if (!map) return NULL;
+    
+#ifdef MB_THREADSAFE
+    /* capture mutex lock before proceeding */
+    rc = pthread_mutex_lock(&(map->lock));
+    assert(0 == rc);
+#endif /* MB_THREADSAFE */
     
     /* get ref to hash table */
     ht = (mymap_t *)(map->map);
     /* assert(ht); */
     
-#ifdef _PARALLEL
-    /* capture mutex lock before proceeding */
-    rc = pthread_mutex_lock(&(map->lock));
-    assert(0 == rc);
-#endif /* _PARALLEL */
-    
     /* retrieve item from ut_hashtable */
     HASH_FIND(hh, ht, &handle, sizeof(OM_key_t), entry);
     
-#ifdef _PARALLEL
+#ifdef MB_THREADSAFE
 	/* release mutex lock before proceeding */
 	rc = pthread_mutex_unlock(&(map->lock));
 	assert(0 == rc);
-#endif /* _PARALLEL */
+#endif /* MB_THREADSAFE */
 	
     /* if obj found, get ptr to our object */
     if (entry != NULL)
@@ -256,13 +269,17 @@ void* MBI_objmap_pop(MBIt_objmap *map, OM_key_t handle) {
     void  *obj   = NULL;
     mymap_t *ht;
     
+#ifdef MB_THREADSAFE 
+    int rc;
+#endif
+    
     if (!map) return NULL;
     
-#ifdef _PARALLEL
+#ifdef MB_THREADSAFE
     /* capture mutex lock before proceeding */
     rc = pthread_mutex_lock(&(map->lock));
     assert(0 == rc);
-#endif /* _PARALLEL */
+#endif /* MB_THREADSAFE */
     
     /* get ref to hash table */
     ht = (mymap_t *)(map->map);
@@ -286,11 +303,11 @@ void* MBI_objmap_pop(MBIt_objmap *map, OM_key_t handle) {
         free(entry);
     }
     
-#ifdef _PARALLEL
+#ifdef MB_THREADSAFE
 	/* release mutex lock before proceeding */
 	rc = pthread_mutex_unlock(&(map->lock));
 	assert(0 == rc);
-#endif /* _PARALLEL */
+#endif /* MB_THREADSAFE */
 	
     return obj;
 }
@@ -315,10 +332,10 @@ void MBI_objmap_destroy(MBIt_objmap **map) {
     
     delete_map_data((mymap_t *)(mytmp->map));
 
-#ifdef _PARALLEL
+#ifdef MB_THREADSAFE
     /* destroy mutex obj */
     pthread_mutex_destroy(&(mytmp->lock));
-#endif /* _PARALLEL */
+#endif /* MB_THREADSAFE */
     
     free(mytmp);
     
@@ -331,7 +348,7 @@ void MBI_objmap_destroy(MBIt_objmap **map) {
  * \brief Deletes all memory associated to object hashtable
  * \param[in] ht pointer to hashtable
  * 
- * Treats \ht as a linked-list (which is possible with \c uthash)
+ * Treats \c ht as a linked-list (which is possible with \c uthash)
  * and delete all nodes as we traverse the list
  */
 static void delete_map_data(mymap_t *ht) {

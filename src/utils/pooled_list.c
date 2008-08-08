@@ -19,10 +19,6 @@
  */
 
 #include "mb_pooled_list.h"
-#include <assert.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
 
 /* function prototypes for routines local to this file */
 static void free_pl_object(pooled_list **pl_ptr_loc);
@@ -50,17 +46,13 @@ int pl_create(pooled_list **pl_ptr_loc, size_t elem_size, int pool_size) {
     void *mem_block;
     pooled_list *new;
     
-    /* set defaults before we begin */
+    /* set return ptr to NULL before we begin, in case of errors */
     *pl_ptr_loc = NULL;
    
     if ((int)elem_size <= 0 || (int)pool_size <= 0)
     {
         return PL_ERR_INVALID;
     }
-    
-    /* check input values */
-    assert(elem_size > 0);
-    assert(pool_size > 0);
     
     /* allocate required memory for PL object */
     new = (pooled_list *)malloc(sizeof(pooled_list));
@@ -71,7 +63,7 @@ int pl_create(pooled_list **pl_ptr_loc, size_t elem_size, int pool_size) {
     assert(new != NULL);
     
     /* allocate first memory block */
-    mem_block = (void *)malloc((elem_size + PL_ADDRNODE_SIZE) * pool_size);
+    mem_block = (void *)malloc((elem_size + PL_ADDRNODE_SIZE) * pool_size); 
     assert(mem_block != NULL);
     if (mem_block == NULL) /* on malloc error */
     {
@@ -81,12 +73,14 @@ int pl_create(pooled_list **pl_ptr_loc, size_t elem_size, int pool_size) {
     
     /* allocate address list node */
     new->addr_list = (pl_address_node *)malloc(sizeof(pl_address_node));
+    assert(new->addr_list != NULL);
     if (new->addr_list == NULL) /* on malloc error */
     {
+        free(mem_block);
         free_pl_object(&new);
         return PL_ERR_MALLOC;
     }  
-    assert(new->addr_list != NULL);
+    
     
     /* assign first memory block to out address list */
     new->addr_list->addr = mem_block;
@@ -213,6 +207,7 @@ int pl_newnode(pooled_list *pl, void **ptr_new) {
             /* allocate memory block */
             addr_node->addr = malloc((size_t)((pl->elem_size + PL_ADDRNODE_SIZE) 
                                               * pl->elem_count));
+
             assert(addr_node->addr != NULL);
             if (addr_node->addr == NULL)
             {
@@ -255,7 +250,6 @@ int pl_newnode(pooled_list *pl, void **ptr_new) {
 int pl_delete(pooled_list **pl_ptr_loc) {
     
     if (*pl_ptr_loc == NULL) return PL_ERR_INVALID;
-    assert(*pl_ptr_loc != NULL);
     
     free_pl_object(pl_ptr_loc);
     
@@ -450,11 +444,10 @@ static void free_pl_object(pooled_list **pl_ptr_loc) {
         obj->addr_list = obj->addr_list->next;
         
         /* free referenced memory block */
-        assert(willy->addr != NULL);
-        free(willy->addr);
+        if (willy->addr) free(willy->addr);
         
         /* free address node */
-        free(willy);
+        if (willy) free(willy);
     }
     
     /* free memory associated with pl object */

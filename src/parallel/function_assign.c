@@ -14,13 +14,11 @@
 #include "mb_parallel.h"
 
 #ifdef _EXTRA_CHECKS
-    static void check_all_fparamsize_equal(MBt_Function fh, size_t size);
-    
-    struct fpdata_t {
+    static void check_all_fh_equal(MBt_Function fh, void *params);
+    struct fh_data {
         MBt_Function fh;
-        size_t size;
+        void *params;
     };
-    
 #endif /*_EXTRA_CHECKS*/
     
 /* Assign function handle to a message board */
@@ -52,7 +50,7 @@ int MB_Function_Assign(MBt_Board mb, MBt_Function fh,
     
     /* debug: make sure same fparam size on all procs */
 #ifdef _EXTRA_CHECKS
-    check_all_fparamsize_equal(fh, param_size);
+    check_all_fh_equal(fh, params);
 #endif /*_EXTRA_CHECKS*/
     
     /* assign fh and params to board */
@@ -67,7 +65,7 @@ int MB_Function_Assign(MBt_Board mb, MBt_Function fh,
     {
         board->fh = fh;
         board->fparams = params;
-        board->fparams_size = param_size;
+        board->fparams_size = (params == NULL) ? 0 : param_size;
         board->tagging = MB_TRUE;
     }
     
@@ -76,20 +74,23 @@ int MB_Function_Assign(MBt_Board mb, MBt_Function fh,
 
 
 #ifdef _EXTRA_CHECKS
-    static void check_all_fparamsize_equal(MBt_Function fh, size_t size) {
+    static void check_all_fh_equal(MBt_Function fh, void *params) {
         
         int rc;
-        struct fpdata_t fpdata; 
+        struct fh_data fh_ext;
         
-        if (MASTERNODE)
+        if (MASTERNODE) 
         {
-            fpdata.fh   = fh;
-            fpdata.size = size;
+            fh_ext.fh = fh;
+            fh_ext.params = params;
         }
         
-        rc = MPI_Bcast(&fpdata, (int)sizeof(struct fpdata_t), MPI_BYTE, 0, MBI_CommWorld);
+        rc = MPI_Bcast(&fh_ext, (int)sizeof(struct fh_data), MPI_BYTE, 0, MBI_CommWorld);
         assert(rc == MPI_SUCCESS);
-        assert(fpdata.fh == fh);
-        assert(fpdata.size == size);
+        assert(fh_ext.fh == fh);
+        if (params == NULL)
+        {
+            assert(fh_ext.params == NULL);
+        }
     }
 #endif /*_EXTRA_CHECKS*/

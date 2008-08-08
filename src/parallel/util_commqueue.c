@@ -64,7 +64,7 @@ int MBI_CommQueue_Init(void) {
  */
 int MBI_CommQueue_Pop(MBt_Board mb) {
     
-    struct MBIt_commqueue *node;
+    struct MBIt_commqueue *node = NULL;
     
     /* retrieve obj from hashtable */
     HASH_FIND(hh, CommQ, &mb, sizeof(MBt_Board), node);
@@ -123,6 +123,7 @@ int MBI_CommQueue_Push(MBt_Board mb, enum MBIt_CommStage startstage) {
     
     /* initialise values */
     node->mb = mb;
+    node->incount = NULL;
     node->inbuf   = NULL;
     node->outbuf  = NULL;
     node->sendreq = NULL;

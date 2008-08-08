@@ -101,16 +101,17 @@ int main(int argc, char ** argv) {
         
         MB_Clear(b_Location);
         
-
         
         /* Update position */
         LOOP_THRU_AGENTS { af_updatePosition(); }
+
+        
+        /* gather stats */
+        MB_SyncComplete(b_Force); /* "Force" message required soon */
         
         /* propagate agents */
         propagate_agents();
         
-        /* gather stats */
-        MB_SyncComplete(b_Force); /* "Force" message required soon */
         MB_Iterator_Create(b_Force, &i_Force);
         calculate_stats();
         MB_Iterator_Delete(&i_Force);

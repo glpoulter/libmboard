@@ -14,6 +14,10 @@
 #ifndef MB_COMMON_H_
 #define MB_COMMON_H_
 
+#ifdef HAVE_CONFIG_H
+#include "mb_config.h"
+#endif
+
 #include "mb_objmap.h"
 #include "mb_pooled_list.h"
 #include <assert.h>
@@ -35,6 +39,9 @@ extern int MBI_STATUS_finalised;
 #define MB_CONFIG_SERIAL_POOLSIZE    MB_CONFIG_POOLSIZE
 #define MB_CONFIG_PARALLEL_POOLSIZE  MB_CONFIG_POOLSIZE
 
+/* global variables (initialised and documented in env_init.c) */
+extern int MBI_CommRank;
+extern int MBI_CommSize;
 
 /*! \brief Data structure of an Iterator instance */
 typedef struct {
@@ -70,11 +77,11 @@ typedef struct {
 
 /* ---- Object Maps ----- */
 /*! \brief Constant representing Object Type: MessageBoard */
-#define OM_TYPE_MBOARD    (0x0a000001)
+#define OM_TYPE_MBOARD    (0x0a01)
 /*! \brief Constant representing Object Type: Iterator */
-#define OM_TYPE_ITERATOR  (0x0a000002)
+#define OM_TYPE_ITERATOR  (0x0a02)
 /*! \brief Constant representing Object Type: Function */
-#define OM_TYPE_FUNCTION  (0x0a000003)
+#define OM_TYPE_FUNCTION  (0x0a03)
 
 /* (initialised and documented in env_init.c) */
 extern MBIt_objmap *MBI_OM_mboard;

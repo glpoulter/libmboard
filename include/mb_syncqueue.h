@@ -11,9 +11,12 @@
  * 
  */
 
-#ifndef SYNCQUEUE_H
-#define SYNCQUEUE_H
+#ifndef MB_SYNCQUEUE_H
+#define MB_SYNCQUEUE_H
 
+#ifdef HAVE_CONFIG_H
+#include "mb_config.h"
+#endif
 
 #include "mboard.h"
 #include <pthread.h>
@@ -28,4 +31,4 @@ int MBI_SyncQueue_Delete(void);
 int MBI_SyncQueue_Push(MBt_Board mb);
 int MBI_SyncQueue_Pop(MBt_Board *mb);
 
-#endif /*SYNCQUEUE_H*/
+#endif /*MB_SYNCQUEUE_H*/

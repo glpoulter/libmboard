@@ -39,6 +39,7 @@ common_sources   = 	addmessage.c \
                     $(INCLUDEDIR)/mb_objmap.h \
                     $(INCLUDEDIR)/mb_commqueue.h \
                     $(INCLUDEDIR)/mb_syncqueue.h \
+                    $(INCLUDEDIR)/mb_tag_table.h \
                     $(INCLUDEDIR)/mb_pooled_list.h \
                     $(INCLUDEDIR)/mboard.h \
                     $(INCLUDEDIR)/mb_utils.h \

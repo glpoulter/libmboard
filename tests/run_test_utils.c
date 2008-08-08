@@ -42,7 +42,9 @@ int main(int argc, char ** argv) {
     /* Test Object Map ADT */
     if(testsuite_om() != CUE_SUCCESS) return clean_quit();
     
-        
+    /* Test Tag Table ADT */
+    if(testsuite_tt() != CUE_SUCCESS) return clean_quit();
+    
     /* -------------------------------------------------------------- */
     
     
