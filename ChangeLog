@@ -29,6 +29,8 @@
 	* include/mb_memlog.h, src/utils/memlog.c: Added initial routines for 
 	  implementing instrumentation of memory usage (not fully implemented yet)
 	
+	* : Tagged as 0.1.4-alpha
+	
 2008-07-12  Lee-Shawn Chin <L.S.Chin@rl.ac.uk>
 
 	* configure.ac m4/*.m4: Implemented better configuration checks for MPI and
