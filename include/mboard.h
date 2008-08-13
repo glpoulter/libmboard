@@ -17,54 +17,69 @@
  * 
  * The Message Board Library provides memory management and message data
  * synchronisation facilities for multi-agent simulations generated using the 
- * FLAME (http://www.flame.ac.uk) framework. 
- * 
- * As agents only interact with its environment and each other via messages, 
- * the Message Board library serves as a means of achieving parallelisation. 
- * Agents can be farmed out across multiple processors and simulated 
- * concurrently while a coherent simulation is maintained through a unified 
- * view of the distributed Message Boards.
+ * FLAME framework (http://www.flame.ac.uk). 
  * 
  * \image html mboard_flame.png
  * \image latex mboard_flame.eps "Message Board Library" width=10cm
  * 
+ * As agents only interact with its environment (and each other) via messages, 
+ * the Message Board library serves as a means of achieving parallelisation. 
+ * Agents can be farmed out across multiple processors and simulated 
+ * concurrently, while a coherent simulation is maintained through a unified 
+ * view of the distributed Message Boards.
+ * 
+ * Synchronisation of the message boards are non-blocking as they are 
+ * performed on a separate communication thread, allowing much of the 
+ * communication time to be overlapped with computation.
+ * 
  * \todo When in debug mode, print useful messages if we know what is wrong
  *       instead of just using \c assert()
- * \todo Make the library thread-safe
+ * 
+ * \todo Revert to sending whole board if total tagged messages (for all
+ * procs) > number of messages. We can prevent full data replication by
+ * applying the message filters on the recipient node,
+ * 
+ * \todo Replace blocking MPI_Alltoall and MPI_Allgather with non-blocking
+ * sends/receives.
+ * 
  */
 
 /*!\ifnot userdoc 
- * \defgroup MB_API MessageBoard API
+ * \defgroup MB_API Message Board API
  * 
- * MessageBoard routines exposed to users.
+ * Message Board routines exposed to users.
  * \endif
  */
 /*!\if userdoc 
- * \defgroup FUNC MessageBoard API Routines
+ * \defgroup FUNC Message Board API Routines
  * 
- * Routines to create and use MessageBoards
+ * Routines to create and use Message Boards
  * \endif
  */
 /*!\if userdoc 
  * \defgroup  RC Return Codes
  * 
- * All MessageBoard routines return an integer return code. It is recommended
- * that users check the return code for all calls, and include sufficient 
- * error handling if the call return an error code.
+ * All Message Board routines return an <tt>int</tt>-based return code. 
+ * It is recommended that users always check the return code of all 
+ * routine calls, and include sufficient error handling if the routine
+ * ends errorneously.
  * 
- * The following are possible return codes and their description.
+ * The following is a list of possible return codes and their description.
  * \endif
  */
 /*!\if userdoc 
  * \defgroup DT Datatypes
  * 
- * Datatypes provided by the API
+ * The following is a list datatypes defined in libmboard. These datatypes
+ * are handles that represent opaque objects used during the interation with 
+ * the Message Board library.
+ *  
  * \endif
  */
 /*!\if userdoc 
  * \defgroup CONST Constants
  * 
- * Constants defined by the API
+ * The following is a list constants defined in libmboard.
  * \endif
  */
 
@@ -79,8 +94,7 @@
 /*! 
  * \var MBt_handle
  * \ingroup MB_API
- * \ingroup DT
- * \brief maping of opaque object handle to internal representation
+ * \brief Mapping of opaque object handle to internal representation
  */
 typedef OM_key_t MBt_handle; 
 
@@ -90,7 +104,28 @@ typedef OM_key_t MBt_handle;
  * \var MBt_Board
  * \ingroup MB_API
  * \ingroup DT
- * \brief Handle for representing a MessageBoard
+ * \brief A handle to store Message Board objects
+ * 
+ * Boards are objects that store messages. A board can be created (using
+ * ::MB_Create()) to store data structures of arbitrary type. To store 
+ * messages/data of different types, you will need to create diffent 
+ * Boards.
+ * 
+ * Once a board is created, it will remain valid until it is deleted using
+ * ::MB_Delete(). It can also be emptied/cleared using ::MB_Clear().
+ * 
+ * Messages can be added to the Board using ::MB_AddMessage(). However, 
+ * messages can only be accessed through Iterators (see 
+ * ::MB_Iterator_Create()).
+ * 
+ * When working in a parallel environment, a unified view of the Message 
+ * Board will only be available after it has been synchronised. See:
+ * - ::MB_SyncStart()
+ * - ::MB_SyncComplete()
+ * - ::MB_SyncTest()
+ * 
+ * \par See also:
+ * - ::MB_NULL_MBOARD
  */
 typedef MBt_handle MBt_Board;
 
@@ -98,7 +133,28 @@ typedef MBt_handle MBt_Board;
  * \var MBt_Iterator
  * \ingroup MB_API
  * \ingroup DT
- * \brief Handle for representing an Iterator
+ * \brief A handle to store Iterator objects
+ * 
+ * Iterators are objects that allow users to traverse the contents of a
+ * Message Board (::MBt_Board). Iterators can be created from a valid 
+ * board using the following routines:
+ * 
+ * - ::MB_Iterator_Create()
+ * - ::MB_Iterator_CreateFiltered()
+ * - ::MB_Iterator_CreateSorted()
+ * - ::MB_Iterator_CreateFilteredSorted()
+ * 
+ * Once an Iterator is created, it will remain valid as long as the corresponding
+ * board remains intact, and until it is deleted using ::MB_Iterator_Delete().
+ * 
+ * Messages can be read from Iterators by making repeated calls to 
+ * ::MB_Iterator_GetMessage().
+ * 
+ * \par See also:
+ * - ::MB_NULL_ITERATOR
+ * - ::MB_Iterator_Rewind()
+ * - ::MB_Iterator_Randomise() 
+ * 
  */
 typedef MBt_handle MBt_Iterator;
 
@@ -106,7 +162,22 @@ typedef MBt_handle MBt_Iterator;
  * \var MBt_Function
  * \ingroup MB_API
  * \ingroup DT
- * \brief Handle for representing a Registered Function
+ * \brief A handle to store Registered Functions
+ * 
+ * Registered Functions are objects that represent user functions that have
+ * been registered with the Message Board Library using 
+ * ::MB_Function_Register(). 
+ * 
+ * This registration provides a unique handle to the function that is 
+ * recognised across all processing nodes and can therefore be passed on as 
+ * filter functions to ::MB_Function_Assign().
+ * 
+ * The Registered Function is valid until it is freed using 
+ * ::MB_Function_Free().
+ * 
+ * \par See also:
+ * - ::MB_NULL_FUNCTION
+ * 
  */
 typedef MBt_handle MBt_Function;
 
