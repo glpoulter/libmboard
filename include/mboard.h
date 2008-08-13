@@ -3,20 +3,31 @@
  * \file mboard.h
  * \code
  *      Author: Lee-Shawn Chin 
- *      Date  : Feb 2008 
+ *      Date  : August 2008 
  *      Copyright (c) 2008 STFC Rutherford Appleton Laboratory
  * \endcode
  * 
  * \brief This should be the only header file that has to 
  *        be included by libmboard users
- * \warning This library is currently not thread-safe
  * \warning This library is designed to work only on homogenous systems
  * 
  */
 /*!
- * \mainpage Message Board Libary
+ * \mainpage libmboard (Message Board Library)
  * 
- * (intro text and stuff here ...)
+ * The Message Board Library provides memory management and message data
+ * synchronisation facilities for multi-agent simulations generated using the 
+ * FLAME (http://www.flame.ac.uk) framework. 
+ * 
+ * As agents only interact with its environment and each other via messages, 
+ * the Message Board library serves as a means of achieving parallelisation. 
+ * Agents can be farmed out across multiple processors and simulated 
+ * concurrently while a coherent simulation is maintained through a unified 
+ * view of the distributed Message Boards.
+ * 
+ * \image html mboard_flame.png
+ * \image latex mboard_flame.eps "Message Board Library" width=10cm
+ * 
  * \todo When in debug mode, print useful messages if we know what is wrong
  *       instead of just using \c assert()
  * \todo Make the library thread-safe
