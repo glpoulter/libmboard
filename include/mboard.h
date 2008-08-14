@@ -11,10 +11,22 @@
  *        be included by libmboard users
  * \warning This library is designed to work only on homogenous systems
  * 
+ * 
+ * \todo When in debug mode, print useful messages if we know what is wrong
+ *       instead of just using \c assert()
+ * 
+ * \todo Generate/install libmboard-conf script to help users use the right
+ * flags for linking libmboard to their code (include flags for pthread 
+ * and MPI support). 
+ *     \code
+ *     [shawn@aphek]$ libmboard-conf --ldflags --parallel --debug
+ *     -L/usr/libmboard/lib -L/usr/mpich2/lib -lmpi -pthread -lmboard_pd
+ *     \endcode 
  */
 /*!
  * \mainpage libmboard (Message Board Library)
  * 
+ * \section OVERVIEW Overview
  * The Message Board Library provides memory management and message data
  * synchronisation facilities for multi-agent simulations generated using the 
  * FLAME framework (http://www.flame.ac.uk). 
@@ -32,16 +44,90 @@
  * performed on a separate communication thread, allowing much of the 
  * communication time to be overlapped with computation.
  * 
- * \todo When in debug mode, print useful messages if we know what is wrong
- *       instead of just using \c assert()
  * 
- * \todo Revert to sending whole board if total tagged messages (for all
- * procs) > number of messages. We can prevent full data replication by
- * applying the message filters on the recipient node,
+ * \ifnot userdoc
+ * - \ref todo
+ * \else
  * 
- * \todo Replace blocking MPI_Alltoall and MPI_Allgather with non-blocking
- * sends/receives.
+ * \section SOURCE Obtaining the source
  * 
+ * You can download the latest release from CCPForge 
+ * (http://ccpforge.cse.rl.ac.uk/frs/?group_id=8). We currently only provide
+ * private releases, so you will need to be logged in as a member of the 
+ * FLAME framework project.
+ * 
+ * \subsection SOURCE_DEVEL Developers and maintainers
+ * 
+ * If you are a developer and wish to use the development version (unstable), 
+ * you can check out a copy from SVN (http://ccpforge.cse.rl.ac.uk/svn/xagents/trunk/libmboard). 
+ * Within the checked out directory, you can either: 
+ * -# directly use the maintainer source by running <tt>./autogen.sh</tt> to generate the 
+ *    \c Makefiles and \c configure script, or
+ * -#  generate your own release file by running <tt>./create_distribution.sh</tt>. 
+ *    A \c *.tar.gz file will be generate (and tested). 
+ * 
+ * 
+ * \section INSTALLATION Building and installing the Message Board library
+ * 
+ * -# Within the source directory, run <tt>"./configure"</tt>. This will configure 
+ *    the source code for your system. 
+ *  - If you do not have \c root access, or do not wish to install the library 
+ *    into the default location (\c /usr/local), you can specify an alternative
+ *    location by running <tt>"./configure --prefix=/your/target/dir"</tt> instead. 
+ *  - You can also provide further information to the \c configure script as
+ *    arguments. Run <tt>"./configure --help"</tt> for a list of possible options.
+ * -# Upon successful configuration, run <tt>"make"</tt> to compile the project. 
+ * -# (optional) You can run <tt>"make test"</tt> to compile and run the unit
+ *    tests. You will need to have CUnit (http://cunit.sourceforge.net/) installed.
+ * -# To install your newly built library, run <tt>"make install"</tt>. This 
+ *    will install the libraries, header files, and scripts to either the 
+ *    default location or the directory you may have specified earlier.
+ * 
+ * \section USAGE Using the library
+ * 
+ * To use the Message Board library with your code, you will need to include
+ * the mboard.h header file, and call the appropriate \ref FUNC. All Message
+ * Board routines return integer-based \ref RC. It is recommended that 
+ * you always check the return code, and include sufficient error handling 
+ * if the routine ends errorneously.
+ * 
+ * When linking your executable, you will need to link in the appropriate
+ * Message Board library. There are four versions available:
+ * - link with <tt>-lmboard_s</tt> for the serial version.
+ * - link with <tt>-lmboard_sd</tt> for the serial \b DEBUG version.
+ * - link with <tt>-lmboard_p</tt> for the parallel version.
+ * - link with <tt>-lmboard_pd</tt> for the parallel \b DEBUG version
+ * 
+ * Always use the \b DEBUG version for during the development and testing
+ * stage of your project. They may incur performance overheads, but the \c DEBUG
+ * versions include crucial checks and assertions to ensure that the library 
+ * is used correctly. 
+ * Once your code has been validated and verified, you can switch to the
+ * standard version for your production runs.
+ * 
+ * If your library was install to a non-default location (by configuring with
+ * <tt>"./configure --prefix=/your/target/dir"</tt>), you will need to inform
+ * your compiler/linker where to locate the Message Board libraries and header
+ * files.
+ * - append '<tt>-I/your/target/dir/<b>include</b></tt>' to 
+ *   your compilation flags (\c CFLAGS).
+ * - append '<tt>-L/your/target/dir/<b>lib</b></tt>' to 
+ *   your linker flags (\c LDFLAGS).
+ * 
+ * The parallel versions of the library uses \c MPI and \c pthreads. Therefore,
+ * you may need additional compilation options or specific compilers when using
+ * then with you code. This depends on how you system was set up.
+ * \note In the next version, we plan to include a <tt>libmboard-conf</tt>
+ * script that will assist you in generating the necessary flags for compiling
+ * your code with the Message Board library.
+ * 
+ * \section EXAMPLE Example
+ * 
+ * The \c ./example/circle_mb directory within the source contains an example 
+ * of how libmboard can be used within a project.
+ * 
+ *  
+ * \endif
  */
 
 /*!\ifnot userdoc 
