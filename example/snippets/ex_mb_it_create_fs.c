@@ -1,5 +1,3 @@
-MBt_Board myboard;
-
 /* our message datatype */
 typedef struct {
     int id;
@@ -58,16 +56,25 @@ int mycmp(const void *msg1, const void *msg2) {
     }
 }
 
-/* ------- within some routine ----- */
-MBt_Iterator iterator;
-myFilterParam params;
-
-params.minPrice = 10.5;
-params.maxPrice = 58.3;
-rc = MB_Iterator_CreateFilteredSorted(myboard, &iterator, &myFilter, &params, &mycmp);
-
-if ( rc != MB_SUCCESS )
-{
-    fprintf(stderr, "Error while creating Filtered+Sorted Iterator\n");
-    /* handle error */
+/* some function somewhere */
+void func_beruk(void) {
+        
+    MBt_Iterator iterator;
+    myFilterParam params;
+    
+    /* assuming myboard has been created and populated */
+    
+    params.minPrice = 10.5;
+    params.maxPrice = 58.3;
+    rc = MB_Iterator_CreateFilteredSorted(myboard, &iterator, &myFilter, &params, &mycmp);
+    if ( rc != MB_SUCCESS )
+    {
+        fprintf(stderr, "Error while creating Filtered+Sorted Iterator\n");
+        
+        /* check valur of rc to determine reason of failure. Handle error */
+        /* don't continue if error can't be handled */
+        exit(1);
+    }
+    
+    /* ... more code ... */
 }

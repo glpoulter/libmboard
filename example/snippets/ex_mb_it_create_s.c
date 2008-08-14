@@ -1,5 +1,3 @@
-MBt_Board myboard;
-
 /* our message datatype */
 typedef struct {
     int id;
@@ -29,13 +27,22 @@ int mycmp(const void *msg1, const void *msg2) {
     }
 }
 
-/* ------- within some routine ----- */
-MBt_Iterator iterator;
+/* some function somewhere */
+void func_siamang(void) {
 
-rc = MB_Iterator_CreateSorted(myboard, &iterator, &mycmp);
+    MBt_Iterator iterator;
+    
+    /* assuming myboard has been created and populated */
+    
+    rc = MB_Iterator_CreateSorted(myboard, &iterator, &mycmp);
+    if ( rc != MB_SUCCESS )
+    {
+        fprintf(stderr, "Error while creating Sorted Iterator\n");
+        
+        /* check valur of rc to determine reason of failure. Handle error */
+        /* don't continue if error can't be handled */
+        exit(1);
+    }
 
-if ( rc != MB_SUCCESS )
-{
-    fprintf(stderr, "Error while creating Sorted Iterator\n");
-    /* handle error */
+    /* ... more code ... */
 }

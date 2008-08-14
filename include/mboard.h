@@ -353,6 +353,11 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \ingroup MB_API
  * \ingroup CONST
  * \brief Null Message Board
+ * 
+ * This value represents an non-existent or invalid Message Board. It
+ * is typically returned in place of a Message Board that has been 
+ * deleted, or after an erroneous creation of a Message board.
+ * 
  */
 #define MB_NULL_MBOARD     (MBt_Board)OM_NULL_INDEX
 
@@ -361,6 +366,11 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \ingroup MB_API
  * \ingroup CONST
  * \brief Null Iterator
+ * 
+ * This value represents an non-existent or invalid Iterator object. It
+ * is typically returned in place of an Iterator that has been 
+ * deleted, or after an erroneous creation of an Iterator.
+ * 
  */
 #define MB_NULL_ITERATOR   (MBt_Iterator)OM_NULL_INDEX
 
@@ -369,6 +379,10 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \ingroup MB_API
  * \ingroup CONST
  * \brief Null Function
+ * 
+ * This value represents an non-existent or invalid Registered Function. It
+ * is typically returned in place of a Registered Function that has been 
+ * deleted, or after an erroneous registration of an function.
  */
 #define MB_NULL_FUNCTION   (MBt_Iterator)OM_NULL_INDEX
 
@@ -377,7 +391,7 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \def MB_TRUE
  * \ingroup MB_API
  * \ingroup CONST
- * \brief Internal representation of TRUE (logical)
+ * \brief Internal representation of a logical \c TRUE 
  */
 
 #define MB_TRUE 1
@@ -385,7 +399,7 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \def MB_FALSE
  * \ingroup MB_API
  * \ingroup CONST
- * \brief Internal representation of FALSE (logical)
+ * \brief Internal representation of a logical \c FALSE 
  */
 #define MB_FALSE 0
 
@@ -397,7 +411,7 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \ingroup RC
  * \brief Return Code: Success
  * 
- * Specifies a successful execution
+ * Specifies a successful execution.
  */
 #define MB_SUCCESS     0
 
@@ -407,7 +421,9 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \ingroup RC
  * \brief Return Code: Memory allocation error
  * 
- * Failed to allocate required memory.
+ * Failed to allocate required memory. We have most likely exhausted all
+ * available memory on the system. Use the \c DEBUG version of libmboard
+ * for more information on where this occured.
  */
 #define MB_ERR_MEMALLOC 1
 
@@ -417,7 +433,7 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \ingroup RC
  * \brief Return Code: Input error
  * 
- * One or more of the given input is invalid
+ * One or more of the given input parameter is invalid. 
  */
 #define MB_ERR_INVALID  2 
 
@@ -427,7 +443,7 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \ingroup RC
  * \brief Return Code: Object locked
  * 
- * Operation cannot proceed due to object being locked by another process
+ * Object has being locked by another process.
  */
 #define MB_ERR_LOCKED   3 
 
@@ -437,7 +453,8 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \ingroup RC
  * \brief Return Code: MPI Error
  * 
- * An MPI related error has occured. 
+ * An MPI related error has occured. Use the \c DEBUG version of libmboard
+ * for more information on where this occured.
  */
 #define MB_ERR_MPI      4
 
@@ -447,7 +464,10 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \ingroup RC
  * \brief Return Code: Environment Error
  * 
- * Specifies error due uninitalised or invalid environment state 
+ * Specifies error due to uninitalised or invalid environment state. This may
+ * be due to users calling Message Board routines before initialising the 
+ * environment with ::MB_Env_Init(), or after the environment has been 
+ * finalised with ::MB_Env_Finalise().
  */
 #define MB_ERR_ENV      5 
 
@@ -457,9 +477,9 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \ingroup RC
  * \brief Return Code: Overflow Error
  * 
- * Specifies error due overflow in intenal variable or storage.
- * 
- * To identify the problem, use the debug version of libmboard.
+ * Specifies error due overflow in internal variable or storage.
+ * Use the \c DEBUG version of libmboard
+ * for more information on where this occured.
  */
 #define MB_ERR_OVERFLOW     6
 
@@ -469,9 +489,9 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \ingroup RC
  * \brief Return Code: Internal Error
  * 
- * Specifies internal implementation error. 
- * 
- * To identify the problem, use the debug version of libmboard.
+ * Specifies internal implementation error.  Possibly a bug.
+ * Use the \c DEBUG version of libmboard
+ * for more information on where this occured.
  */
 #define MB_ERR_INTERNAL     7
 
@@ -502,7 +522,7 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \ingroup RC
  * \brief Return Code: Not Implemented
  * 
- * Requested operation has not been implemented
+ * Requested operation has not been implemented.
  * 
  */
 #define MB_ERR_NOT_IMPLEMENTED      111
@@ -520,17 +540,19 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \ingroup FUNC
  * \brief Initialises the libmboard environment
  * 
- * This routine has to be called before any other libmboard routines 
- * (apart for MB_Env_Initialised() and MB_Env_Finalised()).
+ * This routine must be called before any other libmboard routines 
+ * (apart for MB_Env_Initialised() and MB_Env_Finalised()). It launches the 
+ * communication thread and initialises all internal data structures required
+ * by the library.
  * 
- * The libmboard environment should not be re-initialised once it
- * has been finalised.
+ * The libmboard environment should be initialised only once, and never 
+ * re-initialised once it has been finalised (using ::MB_Env_Finalise()).
  * 
  * Possible return codes:
  *  - ::MB_SUCCESS
  *  - ::MB_ERR_MPI (MPI Environment not yet started)
  *  - ::MB_ERR_ENV (libmboard environment already started)
- *  - ::MB_ERR_MALLOC (unable to allocate required memory)
+ *  - ::MB_ERR_MEMALLOC (unable to allocate required memory)
  * 
  * \endif
  */
@@ -541,7 +563,12 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \brief Finalises the libmboard environment
  * 
  * This should be the last libmboard routine called within a program 
- * (apart for MB_Env_Initialised() and MB_Env_Finalised()).
+ * (apart for MB_Env_Initialised() and MB_Env_Finalised()). It deallocates
+ * all internal data structures and terminates the communication thread.
+ * 
+ * It is erroneous to finalise the environment while there are pending 
+ * board synchronisations, i.e. all ::MB_SyncStart() must be completed 
+ * with a matching ::MB_SyncComplete() (or successful ::MB_SyncTest()). 
  * 
  * Possible return codes:
  *  - ::MB_SUCCESS
@@ -584,9 +611,9 @@ int MB_Function_Free(MBt_Function *fh_ptr);
 /*!\if userdoc
  * \fn MB_Create(MBt_Board *mb_ptr, size_t msgsize)
  * \ingroup FUNC
- * \brief Instantiates a new MessageBoard
- * \param[out] mb_ptr Address of MessageBoard handle
- * \param[in] msgsize Size of message that this MessageBoard will be used for
+ * \brief Instantiates a new Message Board object
+ * \param[out] mb_ptr Address of Message Board handle
+ * \param[in] msgsize Size of message that this Message Board will be used for
  * 
  * Creates a new board for storing messages of size \c msgsize and returns a 
  * handle to the board via \c mb_ptr .
@@ -603,9 +630,9 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  *  - ::MB_SUCCESS
  *  - ::MB_ERR_INVALID (\c msgsize is invalid)
  *  - ::MB_ERR_MEMALLOC (unable to allocate required memory)
- *  - ::MB_ERR_OVERFLOW (too many boards created. See ::MBI_MAX_BOARDS for max size)
+ *  - ::MB_ERR_OVERFLOW (too many boards created)
  *  - ::MB_ERR_INTERNAL (internal error, possibly a bug)
- *  - ::MB_ERR_ENV (MessageBoard environment not yet initialised)
+ *  - ::MB_ERR_ENV (Message Board environment not yet initialised)
  * 
  * Usage example:
  * \include ex_mb_create.c
@@ -615,8 +642,8 @@ int MB_Function_Free(MBt_Function *fh_ptr);
 /*!\if userdoc
  * \fn MB_AddMessage(MBt_Board mb, void *msg)
  * \ingroup FUNC
- * \brief Adds a message to the MessageBoard
- * \param[in] mb MessageBoard handle
+ * \brief Adds a message to the Message Board
+ * \param[in] mb Message Board handle
  * \param[in] msg Address of the message to be added
  * 
  * Messages added to the board must be of the size specified
@@ -624,9 +651,9 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * may not cause an error code to be returned, but will lead to unexpected
  * behavior and possible segmentation faults.
  * 
- * The message data is cloned and stored in the message board. Users are
- * free to modify, reuse, or deallocate their copy of the message after
- * this routine has completed.
+ * The message data addressed by \c msg is cloned and stored in the message 
+ * board. Users are free to modify, reuse, or deallocate their copy of the 
+ * message after this routine has completed.
  * 
  * Possible return codes:
  *  - ::MB_SUCCESS
@@ -643,15 +670,15 @@ int MB_Function_Free(MBt_Function *fh_ptr);
 /*!\if userdoc
  * \fn MB_Clear(MBt_Board mb)
  * \ingroup FUNC
- * \brief Clears the MessageBoard
- * \param[in] mb MessageBoard handle
+ * \brief Clears the Message Board
+ * \param[in] mb Message Board handle
  * 
- * Deletes all messages from the board. Once cleared, the board can be reused
- * for adding messages of the same type.
+ * Deletes all messages from the board. The board can be reused
+ * for adding more messages of the same type.
  * 
  * Once a board is cleared, all Iterators associated with the board is no longer
  * valid and has to be recreated. It is the users' responsibility to ensure 
- * that invalidated Iterators are not used.
+ * that invalidated Iterators are never used.
  * 
  * Possible return codes:
  *  - ::MB_SUCCESS
@@ -667,20 +694,21 @@ int MB_Function_Free(MBt_Function *fh_ptr);
 /*!\if userdoc
  * \fn MB_Delete(MBt_Board *mb_ptr)
  * \ingroup FUNC
- * \brief Deletes a MessageBoard
- * \param[in,out] mb_ptr Address of MessageBoard handle
+ * \brief Deletes a Message Board
+ * \param[in,out] mb_ptr Address of Message Board handle
  * 
  * Upon successful deletion, the handle referenced by \c mb_ptr will be set 
  * to ::MB_NULL_MBOARD . This handle can be reused when creating a new board.
  * 
- * If an error occurs, \c mb_ptr will remain unchanged.
+ * If an error occurs, this routine will return an error code, and \c mb_ptr 
+ * will remain unchanged.
  * 
- * If a null board (::MB_NULL_MBOARD) is passed in, the routine will return 
+ * If a null board (::MB_NULL_MBOARD) is given, the routine will return 
  * immediately with ::MB_SUCCESS
  * 
  * Once a board is deleted, all Iterators associated with the board is no longer
  * valid. It is the users' responsibility to ensure that invalidated Iterators 
- * are not used.
+ * are never used.
  * 
  * 
  * Possible return codes:
@@ -698,10 +726,10 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \fn MB_Iterator_Create(MBt_Board mb, MBt_Iterator *itr_ptr)
  * \ingroup FUNC
  * \brief Creates a new Iterator for accessing messages in board \c mb
- * \param[in] mb MessageBoard handle
+ * \param[in] mb Message Board handle
  * \param[out] itr_ptr Address of Iterator Handle
  * 
- * Upon successful creation of Iterator, the routine  
+ * Upon successful creation of the Iterator, the routine  
  * returns a handle to the Iterator via \c itr_ptr .
  *  
  * Attempts to create an Iterator against a null board (::MB_NULL_MBOARD) will 
@@ -731,7 +759,7 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \fn MB_Iterator_CreateSorted(MBt_Board mb, MBt_Iterator *itr_ptr, int (*cmpFunc)(const void *msg1, const void *msg2))
  * \ingroup FUNC
  * \brief Creates a new Iterator for accessing sorted messages in board \c mb
- * \param[in] mb MessageBoard handle
+ * \param[in] mb Message Board handle
  * \param[out] itr_ptr Address of Iterator Handle
  * \param[in] cmpFunc Pointer to user-defined comparison function
  * 
@@ -778,7 +806,7 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \ingroup FUNC
  * \brief Creates a new Iterator for accessing a selection of messages 
  *        in board \c mb 
- * \param[in] mb MessageBoard handle
+ * \param[in] mb Message Board handle
  * \param[out] itr_ptr Address of Iterator Handle
  * \param[in] filterFunc Pointer to user-defined filter function
  * \param[in] filterFuncParams Pointer to input data that will be passed into \c filterFunc 
@@ -823,7 +851,7 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \ingroup FUNC
  * \brief Instantiates a new Iterator for accessing a sorted selection of 
  *        messages in board \c mb 
- * \param[in] mb MessageBoard handle
+ * \param[in] mb Message Board handle
  * \param[out] itr_ptr Address of Iterator Handle
  * \param[in] filterFunc Pointer to user-defined filter function
  * \param[in] filterFuncParams Pointer to input data that will be passed into \c filterFunc 
@@ -879,7 +907,7 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \param[in,out] itr_ptr Address of Iterator Handle
  * 
  * Upon successful deletion, the handle referenced by \c itr_ptr will be set 
- * to ::MB_NULL_ITERATOR . This handle can be reused when creating a new 
+ * to ::MB_NULL_ITERATOR. This handle can be reused when creating a new 
  * Iterator of any kind.
  * 
  * If an error occurs, \c itr_ptr will remain unchanged.
@@ -903,24 +931,25 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \ingroup FUNC
  * \brief Returns next available message from Iterator
  * \param[in] itr Iterator Handle
- * \param[out] msg_ptr Address where reference to message will be written to
+ * \param[out] msg_ptr Address where pointer to message will be written to
  * 
  * After a successful call to the routine, \c msg_ptr will be assigned with 
- * the reference to a newly allocated memory block containing the message 
+ * a pointer to a newly allocated memory block containing the message 
  * data. It is the user's responsibility to free the memory associated with the 
  * returned msg.
  *
  * When there are no more messages to return, \c msg_ptr will be assigned with
  * \c NULL and the routine shall complete with the ::MB_SUCCESS return code.
  *
- * Any attempts to get a message from a null Iterator (::MB_NULL_ITERATOR) will 
+ * Any attempts to retrieve a message from a null Iterator (::MB_NULL_ITERATOR) will 
  * result in an ::MB_ERR_INVALID error.
  * 
  * In the event of an error, msg will be assigned \c NULL and the routine shall
  * return with an appropriate error code.
  * 
- * \warning If the given Iterator is invalidated due to a deleted/cleared board, the
- * data returned by this routine will not be valid. 
+ * \warning If the given Iterator is invalidated due to a deletion or clearance 
+ * of the target board, calling this routine on the invalid board may result in
+ * either an undefined block of data or a segmentation fault.
  * 
  * Possible return codes:
  *  - ::MB_SUCCESS
@@ -980,16 +1009,17 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \fn MB_SyncStart(MBt_Board mb)
  * \ingroup FUNC
  * \brief Synchronises the content of the board across all processes
- * \param[in] mb MessageBoard Handle
+ * \param[in] mb Message Board Handle
  * 
  * This is a non-blocking routine which returns immediately after 
  * locking the message board and intialising the synchronisation 
  * process. The board should not be modified, cleared, or deleted 
- * until the synchronisation process is completed using either
- * MB_SyncComplete() or MB_SyncCompleteGroup() .
+ * until the synchronisation process is completed using
+ * MB_SyncComplete() (or until MB_SyncTest() results in a ::MB_TRUE
+ * flag).
  * 
- * In the serial version, this routine would not do 
- * anything apart from locking the message board. 
+ * In the serial version, this routine will do nothing apart from 
+ * locking the message board. 
  * 
  * Synchronisation of a null board (::MB_NULL_MBOARD) is valid, and will 
  * return immediately with ::MB_SUCCESS
@@ -997,7 +1027,6 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * Possible return codes:
  *  - ::MB_SUCCESS
  *  - ::MB_ERR_INVALID (\c mb is invalid)
- *  - ::MB_ERR_MEMALLOC (unable to allocate required memory)
  *  - ::MB_ERR_INTERNAL (internal error, possibly a bug)
  *  - ::MB_ERR_LOCKED (\c mb is locked by another process)
  * 
@@ -1010,7 +1039,7 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \fn MB_SyncTest(MBt_Board mb, int *flag)
  * \ingroup FUNC
  * \brief Inspects the completion status of a board synchronisation
- * \param[in] mb MessageBoard Handle
+ * \param[in] mb Message Board Handle
  * \param[out] flag address where return value will be written to
  * 
  * This routine is non-blocking, and will return after setting the
@@ -1023,8 +1052,7 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * on this board.
  * 
  * Testing a null board (::MB_NULL_MBOARD) will always return with 
- * the ::MB_TRUE flag and ::MB_SUCCESS 
- * return code.
+ * the ::MB_TRUE flag and ::MB_SUCCESS return code.
  * 
  * Testing a board that is not being synchronised is invalid,  
  * and will return with the ::MB_FALSE flag and ::MB_ERR_INVALID 
@@ -1036,7 +1064,6 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * Possible return codes:
  *  - ::MB_SUCCESS
  *  - ::MB_ERR_INVALID (\c mb is invalid or not being synchronised)
- *  - ::MB_ERR_MEMALLOC (unable to allocate required memory)
  *  - ::MB_ERR_INTERNAL (internal error, possibly a bug)
  * 
  * Usage example: see MB_SyncStart()
@@ -1048,14 +1075,14 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \fn MB_SyncComplete(MBt_Board mb)
  * \ingroup FUNC
  * \brief Completes the synchronisation of a board
- * \param[in] mb MessageBoard Handle
+ * \param[in] mb Message Board Handle
  * 
  * This routine will block until the synchronisation of the board has
  * completed. Upon successful execution of this routine, the board
  * will be unlocked and ready for access.
  * 
- * In the serial version, this routine would not do 
- * anything apart from unlocking the message board. 
+ * In the serial version, this routine will do nothing apart from 
+ * unlocking the message board. 
  * 
  * Synchronisation of a null board (::MB_NULL_MBOARD) is valid, and will 
  * return immediately with ::MB_SUCCESS
@@ -1066,7 +1093,6 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * Possible return codes:
  *  - ::MB_SUCCESS
  *  - ::MB_ERR_INVALID (\c mb is invalid or not being synchronised)
- *  - ::MB_ERR_MEMALLOC (unable to allocate required memory)
  *  - ::MB_ERR_INTERNAL (internal error, possibly a bug)
  * 
  * Usage example: see MB_SyncStart()
@@ -1079,9 +1105,21 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \brief Registers a function
  * 
  * Registers a filter function and returns a handle to the function via
- * \c fh_ptr.
+ * \c fh_ptr. The handle is unique to that function, and is recognised across 
+ * all processing nodes. 
+ * 
+ * Registered functions can be assigned to message boards
+ * using MB_Function_Assign() to act as a filtering mechanism when retrieving
+ * messages from remote nodes during a synchronisation. This reduces the number of
+ * messages that need to be transferred and stored on each node.
  * 
  * If this routine returns with an error, \c fh_ptr will be set to :: MB_NULL_FUNCTION.
+ * 
+ * In the parallel debug version, this routine is blocking and will return when 
+ * all processes have issued and completed the call. This effectively 
+ * synchronises all processing nodes. It is the users' responsibility to ensure 
+ * that all processing nodes issue the call (with the same values for \c filterFunc) 
+ * to prevent deadlocks.
  * 
  * Possible return codes:
  *  - ::MB_SUCCESS
@@ -1090,6 +1128,7 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  *  - ::MB_ERR_INTERNAL (internal error, possibly a bug)
  * 
  * Usage example:
+ * \include ex_mb_func.c
  * \endif
  */
 
@@ -1098,30 +1137,37 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \ingroup FUNC
  * \brief Assigns function handle to a message board
  * 
+ * This routine assigns a registered function to a Message Board. The function
+ * will act as a filtering mechanism when retrieving
+ * messages from remote nodes during a synchronisation. This reduces the number of
+ * messages that need to be transferred and stored on each node.
+ * 
  * For efficiency, boards must be assigned with the same \c fh on all
  * MPI processes. It is left to the user to ensure that this is so.
  * (this limitation may be removed or changed in the future if there is
  * a compelling reason to do so).
  * 
+ * \c param_size can be of diffent across all processing nodes.
+ * 
+ * If \c params is \c NULL, \c param_size will be ignored. \c param can only
+ * be \c NULL if all processing nodes also sets it to \c NULL.
+ * 
  * \c fh can be ::MB_NULL_FUNCTION, in which case \c mb will be deassociated with any 
  * function that it was previously assigned with.
  * 
- * If \c params is \c NULL, \c param_size will be ignored.
- * 
- * If \c params is set to \c NULL, then it has to be \c NULL as well on all
- * MPI processes.
- * 
  * It is the users' responsibility to ensure that \c params is valid and
- * populated with the right data before board synchronisation, and not
- * modified during the synchronisation process.
+ * populated with the right data before board synchronisation. Data referenced
+ * to by \c param must not be modified during the synchronisation process or
+ * results from the synchronisation process will be erroneous, and may result
+ * in a segmentation fault.
  * 
  * Possible return codes:
  *  - ::MB_SUCCESS
  *  - ::MB_ERR_INVALID (at least one of the input parameters is invalid.)
- *  - ::MB_ERR_MEMALLOC (unable to allocate required memory)
- *  - ::MB_ERR_INTERNAL (internal error, possibly a bug)
  *  - ::MB_ERR_LOCKED (\c mb is locked by another process)
  * \endif
+ * 
+ * Usage example: see MB_Function_Register()
  */
 
 /*!\if userdoc
@@ -1129,15 +1175,19 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \ingroup FUNC
  * \brief Deallocates a registered function
  * 
- * Free up memory used to represent a function. 
+ * The function associated with \c fh_ptr will be deregistered, and \c fh_ptr 
+ * will be set to ::MB_NULL_FUNCTION.  
  * 
- * It is the users' responsibility to ensure that a function is no longer in use
- * before freeing.
+ * Synchronisation of a Message Board assigned with a deregistered function
+ * will result in an error. It is the users' responsibility to ensure that
+ * this does not happen. 
  * 
  * Possible return codes:
  *  - ::MB_SUCCESS
  *  - ::MB_ERR_INVALID (\c fh_ptr is NULL or invalid)
  * \endif
+ * 
+ * Usage example: see MB_Function_Register()
  */
 
 

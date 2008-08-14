@@ -14,31 +14,46 @@ staticMsg.value = 200;
 if ( MB_AddMessage(myboard, (void *)&staticMsg) != MB_SUCCESS )
 {
     fprintf(stderr, "Error adding message to board\n");
+    
+    /* check valur of rc to determine reason of failure. Handle error */
+    /* don't continue if error can't be handled */
+    exit(1);
 }
 
 if ( MB_SyncStart(myboard) != MB_SUCCESS )
 {
     fprintf(stderr, "Unable to begin synchronisation\n");
-    /* Handle error */
+    
+    /* check valur of rc to determine reason of failure. Handle error */
+    /* don't continue if error can't be handled */
+    exit(1);
 }
 
 /* check if synchronisation has completed */
 MB_SyncTest(myboard, &flag);
 if (flag == MB_TRUE) 
 {
-    fprintf(stderr, "synchronisation has completed\n");
+    printf("synchronisation has completed\n");
+    
+    /* a successful call to MB_SyncTest would already complete
+     * the communication and unlock the board. MB_SyncComplete()
+     * is not needed.
+     */
     process_message_board();
 }
 else
 {
-    fprintf(stderr, "synchronisation still in progress\n");
+    printf("synchronisation still in progress\n");
     
     do_something_else_first();
     
     if ( MB_SyncComplete(myboard) != MB_SUCCESS ) /* wait till sync done */
     {
         fprintf(stderr, "Unable to begin synchronisation\n");
-        /* Handle error */
+        
+        /* check valur of rc to determine reason of failure. Handle error */
+        /* don't continue if error can't be handled */
+        exit(1);
     }
     
     process_message_board();
