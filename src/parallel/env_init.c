@@ -13,6 +13,12 @@
  * 
  * \brief Parallel implementation of MB_Env_Init()
  * 
+ * \todo Call MPI_Init() on behalf of user code if necessary. We will need
+ *       to run MPI_Finalize() during ::MB_Env_Finalise(). This will allow
+ *       user code to be written without any trace of MPI, and have exactly
+ *       then same codebase for both serial and parallel versions! We may need
+ *       to provide additional routines like MB_Env_GetProcID() and 
+ *       MB_Env_GetProcCount().
  */
 
 #include "mb_parallel.h"
@@ -52,6 +58,8 @@ int MBI_CommSize;
  *  - ::MB_ERR_MEMALLOC (error allocating memory for ObjectMaps)
  *  - ::MB_ERR_ENV (libmboard environment already started)
  *  - ::MB_ERR_MPI (MPI Environment not yet initialised)
+ * 
+ * 
  */
 int MB_Env_Init(void) {
     

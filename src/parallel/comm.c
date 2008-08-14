@@ -11,6 +11,14 @@
  * 
  * \image html CommNode.png
  * \image latex CommNode.eps
+ * 
+ * \todo Revert to sending whole board if total tagged messages (for all
+ * procs) > number of messages. We can prevent full data replication by
+ * applying the message filters on the recipient node.
+ * 
+ * \todo Replace blocking MPI_Alltoall and MPI_Allgather with non-blocking
+ * sends/receives. This would introduce more communication states, but 
+ * avoid unnecessary synchronisation of processors.
  */
 #include "mb_parallel.h"
 #include "mb_commqueue.h"
