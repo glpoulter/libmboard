@@ -18,10 +18,12 @@
  * \todo Generate/install libmboard-conf script to help users use the right
  * flags for linking libmboard to their code (include flags for pthread 
  * and MPI support). 
+ * \ifnot userdoc
  *     \code
  *     [shawn@aphek]$ libmboard-conf --ldflags --parallel --debug
  *     -L/usr/libmboard/lib -L/usr/mpich2/lib -lmpi -pthread -lmboard_pd
  *     \endcode 
+ * \endif
  */
 /*!
  * \mainpage libmboard (Message Board Library)
@@ -1103,6 +1105,8 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \fn MB_Function_Register(MBt_Function *fh_ptr, int (*filterFunc)(const void *msg, const void *params) );
  * \ingroup FUNC
  * \brief Registers a function
+ * \param[out] fh_ptr Address to write Function Handle to
+ * \param[in] filterFunc Pointer to user-defined function
  * 
  * Registers a filter function and returns a handle to the function via
  * \c fh_ptr. The handle is unique to that function, and is recognised across 
@@ -1136,6 +1140,10 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \fn MB_Function_Assign(MBt_Board mb, MBt_Function fh, void *params, size_t param_size);
  * \ingroup FUNC
  * \brief Assigns function handle to a message board
+ * \param[in] mb Message Board Handle
+ * \param[in] fh Function Handle
+ * \param[in] params Pointer to function parameters
+ * \param[in] param_size Size of function parameters
  * 
  * This routine assigns a registered function to a Message Board. The function
  * will act as a filtering mechanism when retrieving
@@ -1174,6 +1182,7 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \fn MB_Function_Free(MBt_Function *fh_ptr);
  * \ingroup FUNC
  * \brief Deallocates a registered function
+ * \param[in,out] fh_ptr Address of Function Handle
  * 
  * The function associated with \c fh_ptr will be deregistered, and \c fh_ptr 
  * will be set to ::MB_NULL_FUNCTION.  
