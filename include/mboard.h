@@ -628,6 +628,8 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * 
  * If this routine returns with an error, \c mb_ptr will be set to ::MB_NULL_MBOARD.
  * 
+ * \note We currently support up to 4096 boards.
+ * 
  * Possible return codes:
  *  - ::MB_SUCCESS
  *  - ::MB_ERR_INVALID (\c msgsize is invalid)
