@@ -18,6 +18,10 @@
 #include "mb_config.h"
 #endif
 
+#ifdef _LOG_MEMORY_USAGE
+#include "mb_memlog.h"
+#endif
+
 #include "mb_objmap.h"
 #include "mb_pooled_list.h"
 #include <assert.h>

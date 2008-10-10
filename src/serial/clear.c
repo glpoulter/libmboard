@@ -9,6 +9,7 @@
  * 
  * \brief Serial implementation of MB_Clear()
  * 
+ * \todo Allow MB_CONFIG_RECYCLE_MEMPOOL to be defined as in env variable
  */
 
 #include "mb_serial.h"

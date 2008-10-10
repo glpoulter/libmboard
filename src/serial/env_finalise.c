@@ -35,6 +35,10 @@ int MB_Env_Finalise(void) {
     MBI_objmap_destroy(&MBI_OM_mboard);
     MBI_objmap_destroy(&MBI_OM_iterator);
     
+    #ifdef _LOG_MEMORY_USAGE
+        memlog_milestone("F");
+        memlog_finalise();
+    #endif
     
     /* set initialised status and return */
     MBI_STATUS_finalised   = MB_TRUE;

@@ -22,21 +22,36 @@ common_sources   = objmap.c pooled_list.c unmap.c memlog.c tag_table.c \
                     $(INCLUDEDIR)/mb_memlog.h \
                     $(INCLUDEDIR)/mb_common.h
 common_cflags    = -I$(INCLUDEDIR)
+common_libadd    = 
+
+if COMPILE_SQLITE
+noinst_LTLIBRARIES += lib_utils_sqlite3.la
+common_libadd      += lib_utils_sqlite3.la
+
+lib_utils_sqlite3_la_SOURCES = sqlite3.c $(INCLUDEDIR)/sqlite3.h
+# manually handle thread safety so serial lib would not need pthread    
+lib_utils_sqlite3_la_CFLAGS  = -DSQLITE_THREADSAFE=0 \
+                               -DSQLITE_OMIT_LOAD_EXTENSION
+endif
 
 lib_utils_la_SOURCES   = $(common_sources)     
 lib_utils_la_CFLAGS    = $(common_cflags) @PRODUCTION_CFLAGS@
+lib_utils_la_LIBADD    = $(common_libadd)
 
 lib_utils_d_la_SOURCES  = $(common_sources)     
 lib_utils_d_la_CFLAGS   = $(common_cflags) @DEBUG_CFLAGS@
+lib_utils_d_la_LIBADD   = $(common_libadd)
 
 if COMPILE_PARALLEL
 lib_utils_p_la_SOURCES  = $(common_sources)
 lib_utils_p_la_LDFLAGS  = @MB_PARALLEL_LDFLAGS@
 lib_utils_p_la_LIBS     = @MB_PARALLEL_LIBS@
 lib_utils_p_la_CFLAGS   = $(common_cflags) @MB_PARALLEL_CFLAGS@ @PRODUCTION_CFLAGS@
+lib_utils_p_la_LIBADD   = $(common_libadd)
 
 lib_utils_pd_la_SOURCES = $(common_sources)  
 lib_utils_pd_la_LDFLAGS = @MB_PARALLEL_LDFLAGS@
 lib_utils_pd_la_LIBS    = @MB_PARALLEL_LIBS@
 lib_utils_pd_la_CFLAGS  = $(common_cflags) @MB_PARALLEL_CFLAGS@ @DEBUG_CFLAGS@
+lib_utils_pd_la_LIBADD  = $(common_libadd)
 endif

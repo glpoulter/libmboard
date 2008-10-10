@@ -46,6 +46,11 @@ int MB_Env_Finalise(void) {
     /* free our MPI_Communicator */
     MPI_Comm_free(&MBI_CommWorld);
     
+    #ifdef _LOG_MEMORY_USAGE
+        memlog_milestone("F");
+        memlog_finalise();
+    #endif
+
     /* set initialised status and return */
     MBI_STATUS_finalised   = MB_TRUE;
     MBI_STATUS_initialised = MB_FALSE;

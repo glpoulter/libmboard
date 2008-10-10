@@ -178,6 +178,7 @@
 #include <stddef.h>
 #include <limits.h>
 #include "mb_objmap.h"
+#include "mb_memlog.h"
 
 /*! 
  * \var MBt_handle

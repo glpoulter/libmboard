@@ -1,3 +1,13 @@
+2008-??-??  Lee-Shawn Chin <L.S.Chin@rl.ac.uk>
+
+	* : Memory logging implemented. Activated using --enable-memlog.
+	* include/sqlite3.h, src/utils/sqlite3.c: Added sqlite3 files for storing
+	  memory usage.
+	* configure.ac, Makefile.am, src/utils/Makefile.am: sqlite3 built into 
+	  binaries if Memory Logging is enabled.
+	* src/progs/mboard-parse-memlogdb: Added program to generate graphs from 
+	  memlog output. Installed when source configured with --enable-memlog
+
 2008-08-08  Lee-Shawn Chin <L.S.Chin@rl.ac.uk>
 
 	* src/utils/*.c, src/serial/*.c: Further removal of checks to errno (missed

@@ -80,6 +80,10 @@ int MB_Env_Init(void) {
     /* seed rng */
     srand((unsigned)time(NULL)); 
     
+    #ifdef _LOG_MEMORY_USAGE
+        memlog_init();
+    #endif
+    
     /* Allocate object maps */
     MBI_OM_mboard   = (MBIt_objmap*)MBI_objmap_new();
     MBI_OM_iterator = (MBIt_objmap*)MBI_objmap_new();

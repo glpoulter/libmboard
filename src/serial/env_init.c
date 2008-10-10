@@ -55,8 +55,16 @@ int MB_Env_Init(void) {
     /* Check if environment already initialised */
     if (MBI_STATUS_initialised == MB_TRUE) return MB_ERR_ENV;
     
+    /* set dummy values */
+    MBI_CommSize = 1;
+    MBI_CommRank = 0;
+    
     /* seed rng */
     srand((unsigned)time(NULL)); 
+    
+    #ifdef _LOG_MEMORY_USAGE
+        memlog_init();
+    #endif
     
     /* Allocate object maps */
     MBI_OM_mboard   = (MBIt_objmap*)MBI_objmap_new();
@@ -72,10 +80,6 @@ int MB_Env_Init(void) {
         MBI_OM_mboard   ->type = OM_TYPE_MBOARD;
         MBI_OM_iterator ->type = OM_TYPE_ITERATOR;
     }
-    
-    /* set dummy values */
-    MBI_CommSize = 1;
-    MBI_CommRank = 0;
     
     /* set initialised status and return */
     MBI_STATUS_initialised = MB_TRUE;

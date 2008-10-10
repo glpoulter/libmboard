@@ -11,6 +11,8 @@
  * \brief ADT for linked-list that uses memory pooling
  * 
  * \note To use pooled_list, ::MB_CONFIG_SERIAL_POOLSIZE must be defined.
+ * 
+ * \todo Allow MB_CONFIG_*_POOLSIZE to be read from environment variable
  */
 /* 
  * 

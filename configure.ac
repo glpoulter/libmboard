@@ -82,6 +82,9 @@ if test "x${want_memlog}" = xyes;
 then
 	PRODUCTION_CFLAGS="-D_LOG_MEMORY_USAGE ${PRODUCTION_CFLAGS}"
 	DEBUG_CFLAGS="-D_LOG_MEMORY_USAGE ${DEBUG_CFLAGS}"
+	AM_CONDITIONAL([COMPILE_SQLITE], [true])
+else
+	AM_CONDITIONAL([COMPILE_SQLITE], [false])
 fi
 
 # files to create
@@ -94,6 +97,7 @@ Doxyfile_user
 Doxyfile_developer_serial
 Doxyfile_developer_parallel
 src/utils/Makefile
+src/progs/Makefile
 src/serial/Makefile
 src/parallel/Makefile
 tests/Makefile

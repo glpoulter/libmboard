@@ -4,23 +4,27 @@
 # Author: Lee-Shawn Chin 
 # Date  : June 2008
 
-SUBDIRS = src/utils src/parallel src/serial 
+SUBDIRS = src/utils src/parallel src/serial src/progs
 DIST_SUBDIRS = $(SUBDIRS) tests
 
 INCLUDEDIR = $(top_srcdir)/include
 
 include_HEADERS = $(INCLUDEDIR)/mboard.h \
+			      $(INCLUDEDIR)/mb_memlog.h \
                   $(INCLUDEDIR)/mb_config.h \
 			      $(INCLUDEDIR)/mb_objmap.h
 noinst_HEADERS  = $(INCLUDEDIR)/mb_common.h \
 			      $(INCLUDEDIR)/mb_serial.h \
 			      $(INCLUDEDIR)/mb_parallel.h \
 			      $(INCLUDEDIR)/mb_utils.h \
-			      $(INCLUDEDIR)/mb_memlog.h \
 			      $(INCLUDEDIR)/mb_syncqueue.h \
 			      $(INCLUDEDIR)/mb_commqueue.h \
 			      $(INCLUDEDIR)/mb_pooled_list.h \
 			      $(INCLUDEDIR)/uthash.h
+
+if COMPILE_SQLITE
+noinst_HEADERS += $(INCLUDEDIR)/sqlite3.h
+endif
 
 lib_LTLIBRARIES  = libmboard_s.la libmboard_sd.la 
 if COMPILE_PARALLEL
@@ -116,9 +120,11 @@ splint:
 	fi; \
 	)
 	@echo -e "\n----- (Checking src/utils/*.c)"
-	@splint $(SPLINT_OPTIONS) -I$(INCLUDEDIR) src/utils/*.c 
+	@splint $(SPLINT_OPTIONS) -I$(INCLUDEDIR) `ls src/utils/*.c | grep -v sqlite3.c`
 	@echo -e "\n----- (Checking src/serial/*.c)"
 	@splint $(SPLINT_OPTIONS) -I$(INCLUDEDIR) src/serial/*.c 
+	@echo -e "\n----- (Checking src/progs/*.c)"
+	@splint $(SPLINT_OPTIONS) -I$(INCLUDEDIR) src/progs/*.c
 if COMPILE_PARALLEL
 	@( \
 	iflags=""; \
