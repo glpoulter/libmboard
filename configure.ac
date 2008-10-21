@@ -3,7 +3,7 @@
 AC_PREREQ(2.59)
 AC_REVISION($Revision$)
 
-AC_INIT(libmboard, pre-0.1.5, L.S.Chin@_NOSPAM_rl.ac.uk)
+AC_INIT(libmboard, pre-0.1.5, shawn.chin@_NOSPAM_stfc.ac.uk)
 AM_INIT_AUTOMAKE
 #AM_MAINTAINER_MODE
 
@@ -72,6 +72,7 @@ AC_TYPE_SIZE_T
 
 
 # Allow users to enable instrumentation of memory usage
+MEMLOG_CFLAGS="-D_LOG_MEMORY_USAGE"
 AC_ARG_ENABLE([memlog], 
               [AC_HELP_STRING([--enable-memlog],
                               [Enable instrumentation of memory usage])],
@@ -80,15 +81,45 @@ AC_ARG_ENABLE([memlog],
              )
 if test "x${want_memlog}" = xyes;
 then
-	PRODUCTION_CFLAGS="-D_LOG_MEMORY_USAGE ${PRODUCTION_CFLAGS}"
-	DEBUG_CFLAGS="-D_LOG_MEMORY_USAGE ${DEBUG_CFLAGS}"
+	WANT_MEMLOG=1
+	PRODUCTION_CFLAGS="${MEMLOG_CFLAGS} ${PRODUCTION_CFLAGS}"
+	DEBUG_CFLAGS="${MEMLOG_CFLAGS} ${DEBUG_CFLAGS}"
 	AM_CONDITIONAL([COMPILE_SQLITE], [true])
 else
+	WANT_MEMLOG=0
 	AM_CONDITIONAL([COMPILE_SQLITE], [false])
 fi
+AC_SUBST(WANT_MEMLOG)
+AC_SUBST(MEMLOG_CFLAGS)
+
+# provide some extra info to *.in files
+MB_CONFIG_DATE=`date`
+AC_SUBST(MB_CONFIG_DATE)
+MB_SRC_DIR=`pwd`
+AC_SUBST(MB_SRC_DIR)
+
+AC_DEFINE_DIR([MB_INSTALL_BINDIR], [bindir], [Install dir for binaries])
+AC_DEFINE_DIR([MB_INSTALL_LIBDIR], [libdir], [Install dir for libraries])
+AC_DEFINE_DIR([MB_INSTALL_INCLUDEDIR], [includedir], [Install dir for include files])
+
+# Suppress repeated spaces in params (merely for aesthetic reasons)
+LSC_NOREPEAT_SPACES([CFLAGS])
+LSC_NOREPEAT_SPACES([LDFLAGSS])
+LSC_NOREPEAT_SPACES([LIBS])
+LSC_NOREPEAT_SPACES([PRODUCTION_CFLAGS])
+LSC_NOREPEAT_SPACES([DEBUG_CFLAGS])
+LSC_NOREPEAT_SPACES([MB_PARALLEL_CFLAGS])
+LSC_NOREPEAT_SPACES([MB_PARALLEL_LDFLAGS])
+LSC_NOREPEAT_SPACES([MB_PARALLEL_LIBS])
+LSC_NOREPEAT_SPACES([THREADS_CFLAGS])
+LSC_NOREPEAT_SPACES([THREADS_LDFLAGS])
+LSC_NOREPEAT_SPACES([THREADS_LIBS])
+LSC_NOREPEAT_SPACES([MPICFLAGS])
+LSC_NOREPEAT_SPACES([MPILDFLAGS])
+LSC_NOREPEAT_SPACES([MPILIBS])
+LSC_NOREPEAT_SPACES([MEMLOG_CFLAGS])
 
 # files to create
-
 AC_CONFIG_FILES([Makefile])
 
 AC_OUTPUT([
@@ -97,9 +128,10 @@ Doxyfile_user
 Doxyfile_developer_serial
 Doxyfile_developer_parallel
 src/utils/Makefile
-src/progs/Makefile
 src/serial/Makefile
 src/parallel/Makefile
+src/progs/Makefile
+src/progs/mboard-config.c
 tests/Makefile
 tests/testsuite_commqueue/Makefile
 tests/testsuite_commroutines/Makefile

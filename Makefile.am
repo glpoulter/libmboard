@@ -124,7 +124,7 @@ splint:
 	@echo -e "\n----- (Checking src/serial/*.c)"
 	@splint $(SPLINT_OPTIONS) -I$(INCLUDEDIR) src/serial/*.c 
 	@echo -e "\n----- (Checking src/progs/*.c)"
-	@splint $(SPLINT_OPTIONS) -I$(INCLUDEDIR) src/progs/*.c
+	@for i in src/progs/*.c; do splint $(SPLINT_OPTIONS) -I$(INCLUDEDIR) $$i; done
 if COMPILE_PARALLEL
 	@( \
 	iflags=""; \

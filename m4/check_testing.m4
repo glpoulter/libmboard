@@ -30,7 +30,8 @@ CUNITDIR=${with_cunit}
 
 if test ! "x${want_tests}" = xno;
 then
-   
+    
+    WANT_TESTS=1
 	CUNITLIBS="-lcunit"
 	
 	# backup env vars
@@ -76,6 +77,10 @@ then
 	
 	AM_CONDITIONAL([TESTS_CONFIGURED], [true])
 else
+	WANT_TESTING=0
 	AM_CONDITIONAL([TESTS_CONFIGURED], [false])
 fi
+
+AC_SUBST(WANT_TESTS)
+
 ])dnl MBOARD_CHECK_TESTING

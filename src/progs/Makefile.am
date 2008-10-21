@@ -6,6 +6,9 @@
 
 INCLUDEDIR = $(top_srcdir)/include
 
+bin_PROGRAMS = mboard-config
+mboard_config_SOURCES = mboard-config.c
+
 if COMPILE_SQLITE
 bin_PROGRAMS = mboard-parse-memlogdb
 mboard_parse_memlogdb_SOURCES = mboard-parse-memlogdb.c $(INCLUDEDIR)/sqlite3.h

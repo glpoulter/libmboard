@@ -1,4 +1,4 @@
-2008-??-??  Lee-Shawn Chin <L.S.Chin@rl.ac.uk>
+2008-??-??  Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
 
 	* : Memory logging implemented. Activated using --enable-memlog.
 	* include/sqlite3.h, src/utils/sqlite3.c: Added sqlite3 files for storing
@@ -8,7 +8,13 @@
 	* src/progs/mboard-parse-memlogdb: Added program to generate graphs from 
 	  memlog output. Installed when source configured with --enable-memlog
 
-2008-08-08  Lee-Shawn Chin <L.S.Chin@rl.ac.uk>
+	* src/progs/mboard-config.c: Added program to provide users with required 
+	  compile/link options, as well as to query parameters used to configure 
+	  and compile the local installation of libmboard.
+	
+	* m4/utils.m4: Added collection of small utiltity macros.
+	
+2008-08-08  Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
 
 	* src/utils/*.c, src/serial/*.c: Further removal of checks to errno (missed
       out during previous update).
@@ -41,9 +47,9 @@
 	
 	* : Tagged as 0.1.4-alpha
 	
-2008-07-12  Lee-Shawn Chin <L.S.Chin@rl.ac.uk>
+2008-07-12  Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
 
-	* configure.ac m4/*.m4: Implemented better configuration checks for MPI and
+	* configure.ac, m4/*.m4: Implemented better configuration checks for MPI and
       Pthreads.
 	* Makefile.am, */Makefile.am: Updated to match changes in *.m4
 	
@@ -64,7 +70,7 @@
 	
 	* : Tagged as 0.1.3-alpha
 	
-2008-06-27	Lee-Shawn Chin <L.S.Chin@rl.ac.uk>
+2008-06-27	Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
 	
 	* comm.c, tests/testsuite_commroutines/test_cr1.c: update to solve bug with
       board->locked status being updated prematurely.
@@ -85,7 +91,7 @@
 	
 	* : Tagged as 0.1.2-alpha
 
-2008-06-06  Lee-Shawn Chin <L.S.Chin@rl.ac.uk>
+2008-06-06  Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
 
 	* : First version. Tagged as 0.1.1-alpha
 	

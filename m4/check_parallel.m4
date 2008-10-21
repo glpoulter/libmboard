@@ -30,8 +30,11 @@ AC_ARG_WITH([mpi],
            )
 MPIDIR=${with_mpi}
 
+
+
 if test "x${want_parallel}" != xno
 then
+	WANT_PARALLEL=1
 	
 	### Check for MPI compiler
 	
@@ -97,6 +100,8 @@ then
 				
 				# remove -l* entries in CFLAGS
 				mpi_compile_args="`echo ${mpi_compile_args} | sed -e \"s/\-l@<:@^ @:>@*//g\" | tr -s ' '`"
+				# remove -L* entries in CFLAGS
+				mpi_compile_args="`echo ${mpi_compile_args} | sed -e \"s/\-L@<:@^ @:>@*//g\" | tr -s ' '`"
 				
 				# remove DUMMY filenames
 				mpi_link_args="`echo ${mpi_link_args} | sed -e \"s/DUMMY.o//g\"`"
@@ -266,7 +271,11 @@ then
 	
 	AM_CONDITIONAL([COMPILE_PARALLEL], [true])
 else
+	WANT_PARALLEL=0
 	AM_CONDITIONAL([COMPILE_PARALLEL], [false])
+	
 fi
+
+AC_SUBST(WANT_PARALLEL)
 
 ])dnl MBOARD_CHECK_PARALLEL
