@@ -24,7 +24,7 @@ dnl refers to ${prefix}.  Thus we have to use `eval' twice.
   eval ac_define_dir="\"[$]$2\""
   eval ac_define_dir="\"$ac_define_dir\""
   AC_SUBST($1, "$ac_define_dir")
-  AC_DEFINE_UNQUOTED($1, "$ac_define_dir", [$3])
+  #AC_DEFINE_UNQUOTED($1, "$ac_define_dir", [$3])
   test "$prefix_NONE" && prefix=NONE
   test "$exec_prefix_NONE" && exec_prefix=NONE
 ])

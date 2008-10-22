@@ -131,7 +131,7 @@ src/utils/Makefile
 src/serial/Makefile
 src/parallel/Makefile
 src/progs/Makefile
-src/progs/mboard-config.c
+src/progs/mboard-config
 tests/Makefile
 tests/testsuite_commqueue/Makefile
 tests/testsuite_commroutines/Makefile
