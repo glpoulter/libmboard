@@ -8,7 +8,7 @@
 	* src/progs/mboard-parse-memlogdb: Added program to generate graphs from 
 	  memlog output. Installed when source configured with --enable-memlog
 
-	* src/progs/mboard-config.c: Added program to provide users with required 
+	* src/progs/mboard-config.in: Added script to provide users with required 
 	  compile/link options, as well as to query parameters used to configure 
 	  and compile the local installation of libmboard.
 	
