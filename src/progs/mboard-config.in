@@ -25,6 +25,7 @@ MB_LIB_PARALLEL_DEBUG="-lmboard_pd"
 # Exit codes
 SUCCESS=0
 ERR_USAGE=1
+ERR_NOPARALLEL=2
 
 ###--- Installation Specific Parameters -------------------------------------
 
@@ -91,10 +92,11 @@ MB_WANT_TESTS=@WANT_TESTS@
 function rtfm {
 
     cat << EOF
-Usage: mboard-config [-cdlLmpqsv] [--cflags] [--debug] [--ldflags] [--libs]
-               [--mpi] [--parallel] [--query] [--serial] [--help] [--usage]
-               [--version]
-               
+
+Usage: mboard-config [-cdlLmpqsv] [--query]  [--version]  [--usage] [--help] 
+                                  [--serial] [--parallel] [--debug] [--mpi] 
+                                  [--cflags] [--ldflags]  [--libs]
+
 Try 'mboard-config --help' or 'mboard-config --usage' for more information.
 EOF
 
@@ -115,41 +117,46 @@ function print_version {
 function print_usage {
 
 cat << EOF
-Usage: mboard-config [OPTION...]
+Usage: mboard-config [OPTION]...
 
 mboard-config is the Message Board Library  configuration  utility.  It
 should  be  used by  application developers  to determine the necessary
-command-line options for the compiler and linker, as well  as  querying
-the configuration options used to compile the associated libraries.
-
-Usage:
-mboard-config --version
-mboard-config --query
-mboard-config [--debug] [--serial|--parallel] [--mpi] --cflags
-mboard-config [--debug] [--serial|--parallel] [--mpi] --ldflags
-mboard-config [--debug] [--serial|--parallel] [--mpi] --libs
+compiler and linker flags needed to compile their application with  the
+Message Board Library (libmboard). It can also be  used  to  query  the
+configuration and compilation options used in the local installation of
+the library.
+    
+mboard-config --version  # Show libmboard version
+mboard-config --query    # Show options used to compile libmboard
+mboard-config [--serial|--parallel] [--mpi] [--debug] --cflags
+mboard-config [--serial|--parallel] [--mpi] [--debug] --ldflags
+mboard-config [--serial|--parallel] [--mpi] [--debug] --libs
 
 Example:
 gcc 'mboard-config --cflags'  -c test.c
 gcc 'mboard-config --ldflags' -o program test.o 'mboard-config --libs'
 
+
 More Options:
 
-  -c, --cflags               Display neccessary compiler options to use
-                             libmboard
-  -d, --debug                Use debug version of libmboard
-  -l, --ldflags              Display neccessary linker options to use
-                             libmboard
-  -L, --libs                 Display neccessary libraries to use libmboard
-  -m, --mpi                  Include MPI library specific options (to avoid
-                             using mpicc)
-  -p, --parallel             Use parallel libmboard
-  -q, --query                Show configuration details of Message Board
-                             Library
-  -s, --serial               Use serial libmboard (default)
-  -?, --help                 Give this help list
-      --usage                Give a short usage message
-  -v, --version              Show Message Board Library version
+  -q, --query     Show configuration details of Message Board Library
+  -v, --version   Show Message Board Library version
+  
+  -c, --cflags    Display neccessary compiler flags to use libmboard
+  -l, --ldflags   Display neccessary linker flags to use libmboard
+  -L, --libs      Display neccessary libraries to use libmboard
+  
+  -s, --serial    Use serial libmboard (default)
+  -p, --parallel  Use parallel libmboard
+  
+  -d, --debug     Use debug version of libmboard
+  -m, --mpi       Include flags to provide support for MPI. Necessary
+                  if your compiler does not automatically include
+                  support for MPI.
+  
+  -u, --usage     Give this help list
+  -h, --help      Give this help list
+
 
 Report bugs to $MB_PACKAGE_BUGREPORT.
 EOF
@@ -165,7 +172,7 @@ function print_query {
 ----- [ General Info ] --------------------------------
 Name              : Message Board Library
 Version           : $MB_PACKAGE_VERSION
-Config directory  : $MB_SOURCE_DIR
+Config directory  : $MB_CONFIG_DIR
 Config date       : $MB_CONFIG_DATE
 
 ----- [ Installation paths ] --------------------------
@@ -200,7 +207,7 @@ Linker options    : $MB_PARALLEL_LDFLAGS $MB_PARALLEL_LIBS
 
 EOF
     else
-        echo "!! NOTE: Parallel libraries NOT COMPILED"
+        echo "!! NOTE: Parallel support DISABLED during installation"
     fi
 
     # If library was compiled with --enable-memlog, print notice
@@ -226,6 +233,13 @@ EOF
 }
 # prints flags depending on what options were requested
 function print_requested_flags {
+
+	# if parallel library requested but not installed
+	if [ $MB_WANT_PARALLEL -ne 1 ] && [ $A_parallel -eq 1 ]
+	then
+		echo "(memlog-config) ERROR: libmboard was installed WITHOUT parallel support." >&2
+		exit $ERR_NOPARALLEL
+	fi
 
     # Handle CFLAGS
     if [ $A_cflags -eq 1 ]
@@ -390,9 +404,18 @@ function is_acceptable_short_option {
 
     option="$1"
     
-    for key in $acceptable_long_options
+    if [ "$acceptable_short_options" == "" ]
+    then
+    	# Generate list
+    	for lkey in $acceptable_long_options
+    	do
+    		skey=`get_short_from_long $lkey`
+    		acceptable_short_options="$skey $acceptable_short_options"
+    	done
+    fi
+    
+    for skey in $acceptable_short_options
     do
-        skey=`get_short_from_long $key`
         if [ "$option" == "$skey" ]
         then
             echo true
@@ -410,6 +433,11 @@ function is_acceptable_short_option {
 acceptable_long_options="usage help version parallel serial \
                          cflags ldflags debug query libs mpi"
 
+# This list will be generated by is_acceptable_short_option when needed
+acceptable_short_options="" # DO NOT DEFINE MANUALLY!
+
+# parse input arguments
+# TODO: Add support for autocompletion (eg. --ver -> --version)
 function parse_input_arguments {
 
     recurse=""

@@ -82,6 +82,14 @@ AC_ARG_ENABLE([memlog],
 if test "x${want_memlog}" = xyes;
 then
 	WANT_MEMLOG=1
+	
+	AC_CHECK_HEADERS([argp.h],[],
+				 [AC_MSG_ERROR([
+** argp.h is needed by mboard-parse-memlogdb.c (included with --enable-memlog)
+   If you are using a non-glibc system, please install argp-standalone
+   before proceeding.			 
+				 ])])
+				 
 	PRODUCTION_CFLAGS="${MEMLOG_CFLAGS} ${PRODUCTION_CFLAGS}"
 	DEBUG_CFLAGS="${MEMLOG_CFLAGS} ${DEBUG_CFLAGS}"
 	AM_CONDITIONAL([COMPILE_SQLITE], [true])
