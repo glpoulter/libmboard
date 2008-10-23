@@ -100,7 +100,7 @@
  * - link with <tt>-lmboard_p</tt> for the parallel version.
  * - link with <tt>-lmboard_pd</tt> for the parallel \b DEBUG version
  * 
- * Always use the \b DEBUG version for during the development and testing
+ * Always use the \b DEBUG version during the development and testing
  * stage of your project. They may incur performance overheads, but the \c DEBUG
  * versions include crucial checks and assertions to ensure that the library 
  * is used correctly. 
@@ -108,24 +108,32 @@
  * standard version for your production runs.
  * 
  * If your library was install to a non-default location (by configuring with
- * <tt>"./configure --prefix=/your/target/dir"</tt>), you will need to inform
+ * <tt>"./configure --prefix=/libmboard/install/directory"</tt>), you will need to inform
  * your compiler/linker where to locate the Message Board libraries and header
  * files.
- * - append '<tt>-I/your/target/dir/<b>include</b></tt>' to 
+ * - append '<tt>-I/libmboard/install/directory/<b>include</b></tt>' to 
  *   your compilation flags (\c CFLAGS).
- * - append '<tt>-L/your/target/dir/<b>lib</b></tt>' to 
+ * - append '<tt>-L/libmboard/install/directory/<b>lib</b></tt>' to 
  *   your linker flags (\c LDFLAGS).
  * 
  * The parallel versions of the library uses \c MPI and \c pthreads. Therefore,
  * you may need additional compilation options or specific compilers when using
  * then with you code. This depends on how you system was set up.
- * \note In the next version, we plan to include a <tt>libmboard-conf</tt>
- * script that will assist you in generating the necessary flags for compiling
- * your code with the Message Board library.
+ * 
+ * Starting from version 0.1.5, the <tt>mboard-conf</tt> utility is provided to
+ * assist you in generating the necessary flags for compiling your code with the
+ * Message Board library. It will be installed along with you library, and can be
+ * found in <tt><i>/libmboard/install/directory/</i>bin</tt>.
+ * 
+ * Example:
+ * - <tt>gcc 'mboard-config --cflags'  -c test.c</tt>
+ * - <tt>gcc 'mboard-config --ldflags' -o program test.o 'mboard-config --libs'</tt>
+ * 
+ * Run <tt>'<i>/libmboard/install/directory/</i>mboard-config --help'</tt> for more details.
  * 
  * \section EXAMPLE Example
  * 
- * The \c ./example/circle_mb directory within the source contains an example 
+ * The <tt>./example/circle_mb</tt> directory within the source contains an example 
  * of how libmboard can be used within a project.
  * 
  *  
