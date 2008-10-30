@@ -58,6 +58,8 @@ static void ** get_sorted_filtered_ptr_list(MBt_Board mb, int mcount, \
  * handed over using a global variable (\c funcPtr). This global variable makes
  * our routine non thread-safe.
  * 
+ * \todo Implement custom sort instead of using qsort so we can do away with
+ * shared temp pointer.
  *  
  * We expect \c filterFunc() to return a \c 0 if a message is to be rejected,
  * and a non-zero \c int if it is to be accepted.

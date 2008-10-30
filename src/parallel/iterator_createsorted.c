@@ -54,6 +54,8 @@ static void ** get_sorted_ptr_list(MBt_Board mb, int mcount, \
  * handed over using a global variable (\c funcPtr). This global variable makes
  * our routine non thread-safe.
  * 
+ * \todo Implement custom sort instead of using qsort so we can do away with 
+ * shared temp pointer.
  * 
  * We expect \c cmpFunc() to return an integer 
  * less than, equal to, or greater than zero if the first message is 
