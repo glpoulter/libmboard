@@ -11,7 +11,7 @@ if COMPILE_PARALLEL
 noinst_LTLIBRARIES += lib_utils_p.la lib_utils_pd.la
 endif
 
-common_sources   = objmap.c pooled_list.c unmap.c memlog.c tag_table.c \
+common_sources   = objmap.c pooled_list.c unmap.c tag_table.c \
                     $(INCLUDEDIR)/uthash.h \
                     $(INCLUDEDIR)/mb_config.h \
                     $(INCLUDEDIR)/mb_objmap.h \
@@ -19,10 +19,13 @@ common_sources   = objmap.c pooled_list.c unmap.c memlog.c tag_table.c \
                     $(INCLUDEDIR)/mb_pooled_list.h \
                     $(INCLUDEDIR)/mboard.h \
                     $(INCLUDEDIR)/mb_utils.h \
-                    $(INCLUDEDIR)/mb_memlog.h \
                     $(INCLUDEDIR)/mb_common.h
 common_cflags    = -I$(INCLUDEDIR)
 common_libadd    = 
+
+if COMPILE_MEMLOG
+common_sources += memlog.c $(INCLUDEDIR)/mb_memlog.h 
+endif
 
 if COMPILE_SQLITE
 noinst_LTLIBRARIES += lib_utils_sqlite3.la

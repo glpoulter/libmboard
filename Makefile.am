@@ -137,3 +137,4 @@ if TESTS_CONFIGURED
 	@echo -e "\n ----- (Entering test directory: ./tests) "
 	(cd tests && make splint)
 endif
+
