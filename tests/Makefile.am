@@ -107,7 +107,7 @@ splint:
 	@( \
 	iflags=""; \
 	for i in dummy @MB_PARALLEL_CFLAGS@ @CUNITCFLAGS@ ; do \
-		f=`echo $${i} | grep '^-I'`; \ 
+		f=`echo $${i} | grep '^-I'`; \
 		iflags="$${iflags} $${f}"; \
 	done; \
 	for ts in $(SERIAL_TESTSUITES); do \
@@ -119,7 +119,7 @@ if COMPILE_PARALLEL
 	@( \
 	iflags=""; \
 	for i in dummy @MB_PARALLEL_CFLAGS@ @CUNITCFLAGS@ ; do \
-	f=`echo $${i} | grep '^-I'`; \ 
+	f=`echo $${i} | grep '^-I'`; \
 	iflags="$${iflags} $${f}"; \
 	done; \
 	for ts in $(PARALLEL_TESTSUITES); do \
