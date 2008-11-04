@@ -103,6 +103,8 @@ AC_SUBST(WANT_MEMLOG)
 AC_SUBST(MEMLOG_CFLAGS)
 
 # provide some extra info to *.in files
+MB_CONFIG_ARGS=$ac_configure_args
+AC_SUBST(MB_CONFIG_ARGS)
 MB_CONFIG_DATE=`date`
 AC_SUBST(MB_CONFIG_DATE)
 MB_SRC_DIR=`pwd`

@@ -36,6 +36,7 @@ MB_PACKAGE_BUGREPORT="@PACKAGE_BUGREPORT@"
 
 # General config source details
 MB_CONFIG_DIR="@MB_SRC_DIR@"
+MB_CONFIG_ARGS="@MB_CONFIG_ARGS@"
 MB_CONFIG_DATE="@MB_CONFIG_DATE@"
 
 # Installation directories
@@ -176,6 +177,7 @@ Name              : Message Board Library
 Version           : $MB_PACKAGE_VERSION
 Config directory  : $MB_CONFIG_DIR
 Config date       : $MB_CONFIG_DATE
+Config arguments  : $MB_CONFIG_ARGS
 
 ----- [ Installation paths ] --------------------------
 Install path      : $MB_INSTALL_PREFIX
