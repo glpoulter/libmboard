@@ -30,7 +30,7 @@ AC_ARG_WITH([mpi],
            )
 MPIDIR=${with_mpi}
 
-
+DUMMYFILE="config_dummy.c"
 
 if test "x${want_parallel}" != xno
 then
@@ -57,6 +57,8 @@ then
 	MPILIBS=""
 	MPICFLAGS=""
 
+	# create dummy file 
+	echo -e "#include <mpi.h>\n" > ${DUMMYFILE}
 	
 	# Look for MPI C compiler wrappers
 	AC_PATH_PROGS(MPICC, [mpicc mpcc_r mpcc mpxlc_r mpxlc hcc cmpicc], none, ${MPIPATH})
@@ -70,14 +72,14 @@ then
 			AC_MSG_RESULT([found ${MPICC}])
 			
 			AC_MSG_CHECKING([checking ${MPICC} for -show option])
-			mpi_compile_test="`${MPICC} -show`"
+			mpi_compile_test="`${MPICC} -show ${DUMMYFILE}`"
 			
 			if test ! x"$?" = x0
 			then
 				AC_MSG_RESULT([none])
 				AC_MSG_CHECKING([checking ${MPICC} for -showme option])
 				
-				mpi_compile_test="`${MPICC} -showme`"
+				mpi_compile_test="`${MPICC} -showme ${DUMMYFILE}`"
 				if test ! x"$?" = x0
 				then
 					AC_MSG_RESULT([none])
@@ -95,7 +97,7 @@ then
 			then
 				
 				mpi_cc="`echo ${mpi_compile_test} | cut -d' ' -f1`"
-				mpi_compile_args="`echo ${mpi_compile_test} | cut -d' ' -f2-`"
+				mpi_compile_args="`echo ${mpi_compile_test} | sed -e \"s/${DUMMYFILE}//g\" | cut -d' ' -f2-`"
 				mpi_link_args="`echo ${mpi_link_test} | cut -d' ' -f2-`"
 				
 				# remove -l* entries in CFLAGS
@@ -270,6 +272,10 @@ then
 	AC_SUBST(MB_PARALLEL_LDFLAGS)
 	
 	AM_CONDITIONAL([COMPILE_PARALLEL], [true])
+	
+	# delete dummy file
+	rm ${DUMMYFILE}
+	
 else
 	WANT_PARALLEL=0
 	AM_CONDITIONAL([COMPILE_PARALLEL], [false])
