@@ -72,14 +72,14 @@ then
 			AC_MSG_RESULT([found ${MPICC}])
 			
 			AC_MSG_CHECKING([checking ${MPICC} for -show option])
-			mpi_compile_test="`${MPICC} -show ${DUMMYFILE}`"
+			mpi_compile_test="`${MPICC} -show -c ${DUMMYFILE}`"
 			
 			if test ! x"$?" = x0
 			then
 				AC_MSG_RESULT([none])
 				AC_MSG_CHECKING([checking ${MPICC} for -showme option])
 				
-				mpi_compile_test="`${MPICC} -showme ${DUMMYFILE}`"
+				mpi_compile_test="`${MPICC} -showme -c ${DUMMYFILE}`"
 				if test ! x"$?" = x0
 				then
 					AC_MSG_RESULT([none])
@@ -97,7 +97,7 @@ then
 			then
 				
 				mpi_cc="`echo ${mpi_compile_test} | cut -d' ' -f1`"
-				mpi_compile_args="`echo ${mpi_compile_test} | sed -e \"s/${DUMMYFILE}//g\" | cut -d' ' -f2-`"
+				mpi_compile_args="`echo ${mpi_compile_test} | sed -e \"s/\-c ${DUMMYFILE}//g\" | cut -d' ' -f2-`"
 				mpi_link_args="`echo ${mpi_link_test} | cut -d' ' -f2-`"
 				
 				# remove -l* entries in CFLAGS
