@@ -98,7 +98,7 @@
  * Once your code has been validated and verified, you can switch to the
  * standard version for your production runs.
  * 
- * If your library was install to a non-default location (by configuring with
+ * If your library was installed to a non-default location (by configuring with
  * <tt>"./configure --prefix=/libmboard/install/directory"</tt>), you will need to inform
  * your compiler/linker where to locate the Message Board libraries and header
  * files.
@@ -109,11 +109,11 @@
  * 
  * The parallel versions of the library uses \c MPI and \c pthreads. Therefore,
  * you may need additional compilation options or specific compilers when using
- * then with you code. This depends on how you system was set up.
+ * then with you code. This depends on how your system was set up.
  * 
  * Starting from version 0.1.5, the <tt>mboard-conf</tt> utility is provided to
  * assist you in generating the necessary flags for compiling your code with the
- * Message Board library. It will be installed along with you library, and can be
+ * Message Board library. It will be installed along with your library, and can be
  * found in <tt><i>/libmboard/install/directory/</i>bin</tt>.
  * 
  * Example:
