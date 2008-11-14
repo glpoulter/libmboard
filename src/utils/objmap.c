@@ -11,30 +11,23 @@
  * \brief ADT for mapping arbitrary objects as opaque objects
  * 
  */
+/* splint directive needed due to khash implementation */
+/*@+matchanyintegral -fcnuse@*/
 
-#include "uthash.h"
+#include "khash.h"
 #include "mb_objmap.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <limits.h>
 
-/* splint directive needed due to uthash implementation */
-/*@+ignoresigns@*/
+/*! \brief Khash initialisation */
+KHASH_MAP_INIT_INT(objmap, void*)
 
+/*! \brief shortcut to access khash map */
+#define MAP (khash_t(objmap) *)map->map
 
-/*! \brief datatype used as node in \c uthash Hashtable */
-typedef struct {
-    /*! \brief Key used for indexing object in hashtable */
-    OM_key_t key;
-    /*! \brief Pointer to object being mapped */
-    void *obj;
-    /*! \brief metadata required by \c uthash */
-    UT_hash_handle hh;
-} mymap_t;
-
-/* internal routine to deallocate map memory */
-static void delete_map_data(mymap_t *ht);
-
+/* internal routine */
+static void delete_map_data(MBIt_objmap *map);
 
 /*!
  * \brief Creates a new ObjectMap
@@ -46,12 +39,14 @@ static void delete_map_data(mymap_t *ht);
  */
 MBIt_objmap* MBI_objmap_new(void) {
     
+    int i;
 #ifdef MB_THREADSAFE
-	int rc;
+    int rc;
 #endif /* MB_THREADSAFE */
-	
+    
     MBIt_objmap *mymap = NULL;
     
+    /* allocate memory for object map */
     mymap = (MBIt_objmap *)malloc(sizeof(MBIt_objmap));
     assert(mymap != NULL);
     if (mymap == NULL) /* on malloc error */
@@ -59,23 +54,31 @@ MBIt_objmap* MBI_objmap_new(void) {
         return NULL;
     }
     
+    /* initialise values */
     mymap->top  = 0;
     mymap->type = 0;
-    
 #ifdef OBJMAP_CYCLE_KEY
     mymap->key_wrapped = 0;
 #endif
     
-    /* ->map must be initialised to NULL as required by uthash */
-    mymap->map  = NULL;
+    /* initialise directmap */
+    for (i = 0; i < OBJMAP_DMAP_SIZE; i++) mymap->dmap[i] = NULL;
+    
+    /* initialise hash table for indirect mapping */
+    mymap->map  = (void *) kh_init(objmap);
+    assert(mymap->map != NULL);
+    
+    /* initialise cache */
+    mymap->cache_id  = -1;
+    mymap->cache_obj = NULL;
     
 #ifdef MB_THREADSAFE
     rc = pthread_mutex_init(&(mymap->lock), NULL);
     assert(0 == rc);
     if (0 != rc)
     {
-    	free(mymap);
-    	return NULL;
+        free(mymap);
+        return NULL;
     }
 #endif /* MB_THREADSAFE */
     
@@ -103,14 +106,11 @@ MBIt_objmap* MBI_objmap_new(void) {
  */
 OM_key_t MBI_objmap_push(MBIt_objmap *map, void *obj) {
     
-#ifdef MB_THREADSAFE
-	int rc;
-#endif /* MB_THREADSAFE */
-	
+    int rc;
+    int index;
     OM_key_t handle;
-    mymap_t *entry;
-    mymap_t *ht;
-
+    khiter_t k;
+    
 #ifdef OBJMAP_CYCLE_KEY
     mymap_t *temp;
 #endif
@@ -119,30 +119,33 @@ OM_key_t MBI_objmap_push(MBIt_objmap *map, void *obj) {
     if (!map) return OM_ERR_INVALID;
     if (!obj) return OM_ERR_INVALID;
         
-    /* allocate struct for hastable entry */
-    entry = (mymap_t *)malloc(sizeof(mymap_t));
-    assert(entry != NULL);
-    if (entry == NULL) return OM_ERR_MEMALLOC;
     
 #ifdef MB_THREADSAFE
     /* capture mutex lock before proceeding */
     rc = pthread_mutex_lock(&(map->lock));
     assert(0 == rc);
 #endif /* MB_THREADSAFE */
+
+    /* index to add obj to in map */
+    index = (int)map->top;
     
-    /* get ref to hash table */
-    ht = (mymap_t *)(map->map);
-    /* assert(ht); */
+    /* if direct map within range, use that */
+    if (index < OBJMAP_DMAP_SIZE)
+    {
+        map->dmap[index] = obj;
+    }
+    else /* else, use hash table for indirect mapping */
+    {
+        /* add to hashtable */
+        k = kh_put(objmap, MAP, index, &rc);
+        assert(rc);
+        kh_value(MAP, k) = obj;
+    }
     
-    handle = map->top; 
-    entry->key = handle; /* assign handle as key */
-    entry->obj = obj;    /* assign obj address   */
-    
-    /* add to ut_hashtable */
-    HASH_ADD(hh, ht, key, sizeof(OM_key_t), entry);
+    /* set return val */
+    handle = map->top;
     
     /* update map */
-    map->map = ht;
     map->top++; /* increment value for next handle */
     
 #ifdef OBJMAP_CYCLE_KEY
@@ -151,7 +154,7 @@ OM_key_t MBI_objmap_push(MBIt_objmap *map, void *obj) {
     {
         /* wrap back to starting index */
         map->key_wrapped = 1;
-        map->top = 0;
+        map->top = OBJMAP_DMAP_SIZE;
     }
     
     /* if key has wrapped round, we must always check if key is already
@@ -161,9 +164,8 @@ OM_key_t MBI_objmap_push(MBIt_objmap *map, void *obj) {
     {
         while (1 == 1) /* infinite loop. Wheeeeee! */
         {
-            HASH_FIND(hh, ht, &map->top, sizeof(OM_key_t), temp);
-            
-            if (temp != NULL) break;/* found available key */
+            k = kh_get(objmap, MAP, map->top);
+            if (k == kh_end(MAP)) break;/* found available key */
             
             /* else, try next index */
             map->top++;
@@ -189,11 +191,11 @@ OM_key_t MBI_objmap_push(MBIt_objmap *map, void *obj) {
 #endif
     
 #ifdef MB_THREADSAFE
-	/* release mutex lock before proceeding */
-	rc = pthread_mutex_unlock(&(map->lock));
-	assert(0 == rc);
+    /* release mutex lock before proceeding */
+    rc = pthread_mutex_unlock(&(map->lock));
+    assert(0 == rc);
 #endif /* MB_THREADSAFE */
-	    
+        
     return handle;
 }
 
@@ -214,9 +216,9 @@ OM_key_t MBI_objmap_push(MBIt_objmap *map, void *obj) {
  */
 void* MBI_objmap_getobj(MBIt_objmap *map, OM_key_t handle) {
     
-    mymap_t *entry = NULL;
-    void  *obj   = NULL;
-    mymap_t *ht;
+    int index;
+    void  *obj = NULL;
+    khiter_t k;
     
 #ifdef MB_THREADSAFE 
     int rc;
@@ -229,26 +231,39 @@ void* MBI_objmap_getobj(MBIt_objmap *map, OM_key_t handle) {
     rc = pthread_mutex_lock(&(map->lock));
     assert(0 == rc);
 #endif /* MB_THREADSAFE */
+
+    index = (int)handle;
     
-    /* get ref to hash table */
-    ht = (mymap_t *)(map->map);
-    /* assert(ht); */
-    
-    /* retrieve item from ut_hashtable */
-    HASH_FIND(hh, ht, &handle, sizeof(OM_key_t), entry);
+    if (index == map->cache_id)
+    {
+        obj = map->cache_obj;
+    }
+    else if (index < OBJMAP_DMAP_SIZE && index >= 0)
+    {
+        obj = map->dmap[index];
+        map->cache_obj = obj;
+        map->cache_id  = index;
+    }
+    else
+    {
+        /* retrieve item from hashtable */
+        k = kh_get(objmap, MAP, index);
+        
+        if (index >= OBJMAP_DMAP_SIZE && k < kh_end(MAP) && kh_exist(MAP, k))
+        {
+            obj = kh_value(MAP, k);
+            assert(obj != NULL);
+            
+            map->cache_obj = obj;
+            map->cache_id  = index;
+        }
+    }
     
 #ifdef MB_THREADSAFE
-	/* release mutex lock before proceeding */
-	rc = pthread_mutex_unlock(&(map->lock));
-	assert(0 == rc);
+    /* release mutex lock before proceeding */
+    rc = pthread_mutex_unlock(&(map->lock));
+    assert(0 == rc);
 #endif /* MB_THREADSAFE */
-	
-    /* if obj found, get ptr to our object */
-    if (entry != NULL)
-    {
-        obj = entry->obj;
-        assert(obj != NULL);
-    }
     
     return obj;
 }
@@ -265,9 +280,9 @@ void* MBI_objmap_getobj(MBIt_objmap *map, OM_key_t handle) {
  */
 void* MBI_objmap_pop(MBIt_objmap *map, OM_key_t handle) {
     
-    mymap_t *entry = NULL;
+    int index;
+    khiter_t k;
     void  *obj   = NULL;
-    mymap_t *ht;
     
 #ifdef MB_THREADSAFE 
     int rc;
@@ -281,34 +296,38 @@ void* MBI_objmap_pop(MBIt_objmap *map, OM_key_t handle) {
     assert(0 == rc);
 #endif /* MB_THREADSAFE */
     
-    /* get ref to hash table */
-    ht = (mymap_t *)(map->map);
-    /* assert(ht); */
+    index = (int)handle;
     
-    /* retrieve item from ut_hashtable */
-    HASH_FIND(hh, ht, &handle, sizeof(OM_key_t), entry);
-    
-    /* if obj found, remove from ut_hashtable */
-    if (entry != NULL)
+    if (index < OBJMAP_DMAP_SIZE && index >= 0)
     {
-        /* get ptr to our object */
-        obj = entry->obj;
-        assert(obj != NULL);
+        obj = map->dmap[index];
+        map->dmap[index] = NULL;
+    }
+    else
+    {
+        /* retrieve item from ut_hashtable */
+        /* HASH_FIND(hh, ht, &handle, sizeof(OM_key_t), entry); */
+        k = kh_get(objmap, MAP, index);
         
-        /* remove hash entry */
-        HASH_DEL(ht, entry);
-        
-        /* update map reference to hash table */
-        map->map = ht;
-        free(entry);
+        /* if obj found, remove from ut_hashtable */
+        if (k < kh_end(MAP) && kh_exist(MAP, k))
+        {
+            /* get ptr to our object */
+            obj = kh_value(MAP, k);
+            assert(obj != NULL);
+            
+            /* remove hash entry */
+            kh_del(objmap, MAP, k);
+            
+        }
     }
     
 #ifdef MB_THREADSAFE
-	/* release mutex lock before proceeding */
-	rc = pthread_mutex_unlock(&(map->lock));
-	assert(0 == rc);
+    /* release mutex lock before proceeding */
+    rc = pthread_mutex_unlock(&(map->lock));
+    assert(0 == rc);
 #endif /* MB_THREADSAFE */
-	
+    
     return obj;
 }
 
@@ -330,7 +349,9 @@ void MBI_objmap_destroy(MBIt_objmap **map) {
     mytmp = *map;
     *map  = NULL;
     
-    delete_map_data((mymap_t *)(mytmp->map));
+    delete_map_data(mytmp);
+    
+    kh_destroy(objmap, (khash_t(objmap) *)mytmp->map);
 
 #ifdef MB_THREADSAFE
     /* destroy mutex obj */
@@ -346,28 +367,30 @@ void MBI_objmap_destroy(MBIt_objmap **map) {
 
 /*! 
  * \brief Deletes all memory associated to object hashtable
- * \param[in] ht pointer to hashtable
+ * \param[in] map pointer to hashtable
  * 
- * Treats \c ht as a linked-list (which is possible with \c uthash)
- * and delete all nodes as we traverse the list
  */
-static void delete_map_data(mymap_t *ht) {
-    mymap_t *first;
+static void delete_map_data(MBIt_objmap *map) {
     
-    while (ht) /* repeat till table empty */
+    int i;
+    khiter_t k;
+    void * obj;
+    
+    /* first, destroy objects in directmap */
+    for (i = 0; i < OBJMAP_DMAP_SIZE; i++)
     {
-        /* get first element */
-        first = ht;
-        
-        /* this elem should have obj != NULL */
-        assert(first->obj != NULL);
-        
-        /* remove first element from hash */
-        HASH_DEL(ht, first);
-        
-        /* deallocate memory associated to elem */
-        free(first->obj);
-        free(first);
+        if (map->dmap[i] != NULL) free(map->dmap[i]);
     }
     
+    /* detroy objects stored in indirect map */
+    for (k = kh_begin(MAP); k != kh_end(MAP); ++k)
+    {
+        if (kh_exist(MAP, k))
+        {
+            obj = kh_value(MAP, k);
+            free(obj);
+        }
+
+    }
 }
+

@@ -15,15 +15,6 @@
  * \todo When in debug mode, print useful messages if we know what is wrong
  *       instead of just using \c assert()
  * 
- * \todo Generate/install libmboard-conf script to help users use the right
- * flags for linking libmboard to their code (include flags for pthread 
- * and MPI support). 
- * \ifnot userdoc
- *     \code
- *     [shawn@aphek]$ libmboard-conf --ldflags --parallel --debug
- *     -L/usr/libmboard/lib -L/usr/mpich2/lib -lmpi -pthread -lmboard_pd
- *     \endcode 
- * \endif
  */
 /*!
  * \mainpage libmboard (Message Board Library)

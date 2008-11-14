@@ -39,9 +39,9 @@ extern int MBI_STATUS_finalised;
  * This value (halved) is also used when creating an Filtered
  * Iterator (MB_Iterator_CreateFiltered()).
  */
-#define MB_CONFIG_POOLSIZE    100
-#define MB_CONFIG_SERIAL_POOLSIZE    MB_CONFIG_POOLSIZE
-#define MB_CONFIG_PARALLEL_POOLSIZE  MB_CONFIG_POOLSIZE
+/* #define MB_CONFIG_POOLSIZE    256 */
+#define MB_CONFIG_SERIAL_POOLSIZE    256
+#define MB_CONFIG_PARALLEL_POOLSIZE  512
 
 /* global variables (initialised and documented in env_init.c) */
 extern int MBI_CommRank;

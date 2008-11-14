@@ -12,7 +12,7 @@ noinst_LTLIBRARIES += lib_utils_p.la lib_utils_pd.la
 endif
 
 common_sources   = objmap.c pooled_list.c unmap.c tag_table.c \
-                    $(INCLUDEDIR)/uthash.h \
+                    $(INCLUDEDIR)/khash.h \
                     $(INCLUDEDIR)/mb_config.h \
                     $(INCLUDEDIR)/mb_objmap.h \
                     $(INCLUDEDIR)/mb_tag_table.h \

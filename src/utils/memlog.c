@@ -10,6 +10,9 @@
  * 
  * \brief Routines for instrumenting memory usage
  * 
+ * \todo use khash instead of uthash. Then we can remove uthash.h from 
+ * the distribution.
+ * 
  */
 
 /* splint directive needed due to uthash implementation */

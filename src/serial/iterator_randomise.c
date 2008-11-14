@@ -10,9 +10,7 @@
  * \brief Serial implementation of MB_Iterator_Randomise()
  * 
  */
-
 #include "mb_serial.h"
-#include <string.h>
 
 /*!
  * \brief Randomises the order of entries in an Iterator
@@ -26,9 +24,6 @@
  * tied to the index/offset or specific message) will no longer have any 
  * meaning.
  * 
- * We use the \c swapIteratorNode() static function in iterator_randomise.c to
- * swap nodes. This routine swaps data within the pooled_list memory block and
- * relinks the 'next' pointers for the linked list.
  * 
  * Randomising a null Iterator (::MB_NULL_ITERATOR) will result in an 
  * ::MB_ERR_INVALID error.
@@ -40,11 +35,8 @@
  */
 int MB_Iterator_Randomise(MBt_Iterator itr) {
     
-    int count, i, rnd, rc;
+    int rc;
     MBIt_Iterator *iter;
-    pooled_list *pl;
-    void *current, *target, *temp;
-    temp = NULL;
     
     /* can't rewind a null iterator */
     if (itr == MB_NULL_ITERATOR) return MB_ERR_INVALID;
@@ -58,37 +50,10 @@ int MB_Iterator_Randomise(MBt_Iterator itr) {
     iter->cursor = NULL;
     iter->iterating = 0;
     
-    /* randomise data in pooled list */
-    pl = iter->data;
-    count = (int)pl->count_current;
+    /* randomise pooled list */
+    rc = pl_randomise(iter->data);
     
-    /* nothing to do for single or no message */
-    if (count <= 1) return MB_SUCCESS;
-    
-    /* iterate thru pl data. randomise while resetting next pointer */
-    temp = malloc((size_t)pl->elem_size);
-    for (i = count - 1; i > 0; i--)
-    {
-        /* get a random number */
-        rnd = (int)((double)i * rand() / (RAND_MAX + 1.0));
-        
-        if (rnd == i) continue; /* no point swapping with self */
-
-        /* get reference to selected nodes */
-        rc = pl_getnode(pl, i, &current);
-        assert(rc == PL_SUCCESS);
-        assert(current != NULL);
-        
-        rc = pl_getnode(pl, rnd, &target);
-        assert(rc == PL_SUCCESS);
-        assert(target != NULL);
-        
-        /* do the swap */
-        memcpy(temp, target, (size_t)pl->elem_size);
-        memcpy(target, current, (size_t)pl->elem_size);
-        memcpy(current, temp, (size_t)pl->elem_size);
-    }
-    free(temp);
-    
+    if (rc != PL_SUCCESS) return MB_ERR_INTERNAL;
+   
     return MB_SUCCESS;
 }

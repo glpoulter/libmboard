@@ -59,6 +59,13 @@
  */
 /* #define OBJMAP_CYCLE_KEY */
 
+/*! \brief Size of direct map 
+ * 
+ * Object handles exceeding this size will be store in a hashmap
+ * instead of the pointer array (directmap)
+ * 
+ */
+#define OBJMAP_DMAP_SIZE 4096
 
 /* var type used as hashtable key */
 /*! 
@@ -113,6 +120,13 @@ typedef struct {
     int type;
     /*! \brief Pointer to hashtable object */
     void *map;
+    /*! \brief directmap array */
+    void *dmap[OBJMAP_DMAP_SIZE];
+    
+    /*! \brief Handle of cached entry */
+    int cache_id;
+    /*! \brief Value of cached entry */
+    void *cache_obj;
     
 #ifdef OBJMAP_CYCLE_KEY
     /*! \bried flag indicating key values have wrapped round */

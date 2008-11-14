@@ -1,4 +1,4 @@
-2008-??-??  Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
+2008-11-14  Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
 
 	* : Memory logging implemented. Activated using --enable-memlog.
 	* include/sqlite3.h, src/utils/sqlite3.c: Added sqlite3 files for storing
@@ -14,26 +14,34 @@
 	
 	* m4/utils.m4: Added collection of small utiltity macros.
 	
+	* src/utils/objmap.c: Improved performance.
+	* src/utils/pooled_list.c: Improved performance.
+	* src/*/MB_Iterator_Randomise.c: Faster randomisation.
+
+	* m4/check_parallel.m4: Improved portability.
+
+	* : Tagged as 0.1.5-beta
+
 2008-08-08  Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
 
 	* src/utils/*.c, src/serial/*.c: Further removal of checks to errno (missed
-      out during previous update).
+	  out during previous update).
 	* src/utils/objmap.c, include/mb_objmap.h: ObjectMapper is now thread-safe.
 	
 	* src/utils/tag_table.c, include mb_tag_table.h: TagTable implemented as 
-      utility to manage message tagging.
+	  utility to manage message tagging.
 	* tests/testsuite_tag_table: Unit tests implemented for TagTable utility.
 	
 	* src/parallel/comm*, includes/*: Communication routines simplified (less 
 	  optimised, for now). Better support for varios MPI implementations.
 	* src/parallel/function_assign.c, src/parallel/comm.c: Message boards can
-      now be assigned with parameters of different size (however the function 
-      handle must still be the same).
-      
+	  now be assigned with parameters of different size (however the function 
+	  handle must still be the same).
+	  
 	* autogen.sh, example/circles_mb/autogen.sh: Added version checks for 
-      automake and autoconf.
+	  automake and autoconf.
 	* example/circles_mb/configure.ac: Added option to specify libexpat 
-      installation path.
+	  installation path.
 
 	* include/uthash.h: Upgraded from v1.2 to v1.3 (with minor modifications).
 	
@@ -50,41 +58,41 @@
 2008-07-12  Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
 
 	* configure.ac, m4/*.m4: Implemented better configuration checks for MPI and
-      Pthreads.
+	  Pthreads.
 	* Makefile.am, */Makefile.am: Updated to match changes in *.m4
 	
 	* include/*.h, */*.c: Headers (apart from mboard.h and uthash.h) renamed to
-      mb_*.h to avoid conflicts with existing headers.
+	 mb_*.h to avoid conflicts with existing headers.
 	* Makefile.am: Only mboard.h and mb_objmap.h are installed.
 	
 	* src/utils/objmap.c: Renamed map_t type declaration which clashes with 
-      those defined in AIX system header files.
+	  those defined in AIX system header files.
 
 	* : Builds and runs fine on bglogin2 (Bluegene/P) - using cc defined 
-        by `mpicc -show`.
+	  by `mpicc -show`.
 	* : Builds and runs fine on HPCx (IBM AIX) - tested with gcc and xlc_r
 	* : Builds and runs fine on HAPU (HP Cluster Platform 4000) - tested with
-        gcc and pgcc.
+	  gcc and pgcc.
 	* : Builds and runs fine on SCARF (Based on RHEL4.4) - tested with gcc, 
-        icc and pgcc.
+	  icc and pgcc.
 	
 	* : Tagged as 0.1.3-alpha
 	
 2008-06-27	Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
 	
 	* comm.c, tests/testsuite_commroutines/test_cr1.c: update to solve bug with
-      board->locked status being updated prematurely.
+	  board->locked status being updated prematurely.
 	* src/parallel/*.c: removed checks on errno as they sometimes pick up values
-      from non-blocking MPI routines.
+	  from non-blocking MPI routines.
 	
 	* m4/check_parallel, m4/check_testing: properly define export *_LDFLAGS and
-      *_LIBS.
+	  *_LIBS.
 	* configure.ac, */Makefile.am: now possible to override CFLAGS during 'make'
 	* example/circles_mb/configure.ac, example/circles_mb/Makefile.am, 
 	  m4/check_mboard: updated to reflect changes in main configure.ac and m4/*
 	
 	* tests/Makefile.am, tests/*/Makefile.am: testsuites now have assertion 
-      enabled, and uses the debug versions of libs.
+	 enabled, and uses the debug versions of libs.
 	  
 	* : Builds and runs fine on Linux (tested with MPICH & LAM/MPI)
 	* : Builds and runs fine on Windows via Cygwin (tested with MPICH)

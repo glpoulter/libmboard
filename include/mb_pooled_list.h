@@ -38,6 +38,8 @@
  * 
  * \note All pl_*() routines return an Integer return code of PL_SUCCESS or PL_ERR_*.
  * 
+ * \todo Unit test for pl_randomise()
+ * 
  * \warning The current implementation not designed to be thread-safe
  * 
  * Example usage:
@@ -96,7 +98,6 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <math.h>
 
 /*! \brief Return Code: Success */
 #define PL_SUCCESS     0 
@@ -188,6 +189,7 @@ int pl_recycle(pooled_list *pl);
 int pl_reset(pooled_list *pl);
 
 int pl_getnode(pooled_list *pl, int index, void **ptr);
+int pl_randomise(pooled_list *pl);
 
 /*! @} */
 #endif /*MB_POOLED_LIST_H_*/

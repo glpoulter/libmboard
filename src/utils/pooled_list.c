@@ -367,16 +367,14 @@ int pl_reset(pooled_list *pl) {
  * If routine is unsuccessful, \c ptr will be assigned \c NULL and an
  * appropriate error code will be returned.
  * 
+ * \note Please note that if the list has been randomise using pl_randomise(),
+ * this routine will still return nodes indexed in the order that they were 
+ * added.
+ * 
  * Possible return codes:
  *  - ::PL_SUCCESS
  *  - ::PL_ERR_INVALID (\c pl is \c NULL or \c index is invalid)
  * 
- * \todo using pl_getnode() to iterate thru the whole list is very inefficient
- *       (and performed often). Need to improve it by either introducing 
- *       more low-level traversal methods or at the very least perform basic
- *       caching of block addresses so we don't have to always recalculate
- *       block_id and offset. This is not an issue for pl data that are
- *       by themselves linked-lists.
  */
 int pl_getnode(pooled_list *pl, int index, void **ptr) {
     
@@ -400,7 +398,7 @@ int pl_getnode(pooled_list *pl, int index, void **ptr) {
     assert((int)pl->elem_count > 0);
     
     /* calculate location of node */
-    block_id = (int)floor((double)index / pl->elem_count);
+    block_id = index / pl->elem_count;
     block_offset = index - (block_id * pl->elem_count);
     
     /* get reference to proper memory block */
@@ -409,13 +407,6 @@ int pl_getnode(pooled_list *pl, int index, void **ptr) {
     {
         addr_list = addr_list->next;
         assert(addr_list != NULL);
-        
-        if (addr_list == NULL)
-        {
-            *ptr = NULL;
-            return PL_ERR_FATAL;
-        }
-        
     }
     data_block = addr_list->addr;
     
@@ -425,6 +416,103 @@ int pl_getnode(pooled_list *pl, int index, void **ptr) {
     
     return PL_SUCCESS;
     
+}
+
+/*!
+ * \brief Randomise the linked list 
+ * \ingroup PLIST
+ * \param[in] pl Reference to pooled list object
+ * 
+ * This randomises the 'next' pointers within the data headers without
+ * moving the actual data. Therefore, it is important to note that
+ * only users who traverses the data as a linked list will see the randomised
+ * order. Access using pl_getnode() will still see data in the order
+ * that they were entered. 
+ * 
+ * If routine is unsuccessful, appropriate error code will be returned.
+ * 
+ * Possible return codes:
+ *  - ::PL_SUCCESS
+ *  - ::PL_ERR_MALLOC (Unable to allocate required memory)
+ *  - ::PL_ERR_INVALID (\c pl is \c NULL or invalid)
+ * 
+ */
+int pl_randomise(pooled_list *pl) {
+    
+    pl_address_node **node_headers;
+    pl_address_node *node, *old_next;
+    int i, count, bsize, bused;
+    double rnd_ratio;
+    int rnd;
+    
+    if (pl == NULL) return PL_ERR_INVALID;
+    if ((int)pl->count_current < 2) return PL_SUCCESS;
+    
+    count = (int)pl->count_current; /* number of nodes */
+    bsize = (int)pl->elem_count;    /* number of nodes per block */
+    bused = count / bsize;          /* number of blocks */
+    
+    /* allocate node header array (plus one space for NULL pointer) */
+    node_headers = (pl_address_node **)malloc(sizeof(pl_address_node*) 
+                                              * (count + 1));
+    assert(node_headers != NULL);
+    if (node_headers == NULL) return PL_ERR_MALLOC;
+    
+    /* populate node header array */
+    node = (pl_address_node*)pl->head;
+    for (i = 0; i < count; i++)
+    {
+        assert(node != NULL);
+        node_headers[i] = node; /* store address of node header */
+        node = node->next;
+    }
+    assert(node == NULL);
+    node_headers[i] = node; /* NULL pointer goes into the list as well */
+
+    /* randomise the array */
+    rnd_ratio = 1.0 / (RAND_MAX + 1.0); /* ratio to scale random numbers */
+    for (i = count; i > 0; i--)
+    {
+        /* get a random number from 0 to i */
+        rnd = (int)(rnd_ratio * (i) * rand());
+        
+        if (rnd == i) continue; /* this value stays in place */
+        
+        /* perform swap */
+        node = node_headers[i]; /* use 'node' as temp var */
+        node_headers[i]   = node_headers[rnd];
+        node_headers[rnd] = node;
+    }
+    
+    /* -------- Augment linked list to form new list ------------ */
+    
+    /* traverse list and update next pointers as we pass through */
+    i = 0;
+    node = pl->head;
+    while (node)
+    {
+        /* store old next pointer so we can travel down the list */
+        old_next = node->next; 
+        
+        /* assign new next pointer */
+        node->next = node_headers[i];
+        
+        /* will this be the new tail? */
+        if (node_headers[i] == NULL) pl->tail = node;
+        
+        /* move on to next elem */
+        i++;
+        node = old_next;
+    }
+    assert(i == (count - 1));
+    
+    /* assign new head  pointers */
+    pl->head = node_headers[i];
+
+    /* free node header array */
+    free(node_headers);
+    
+    return PL_SUCCESS;
 }
 
 /* ============ internal routines ======================= */
