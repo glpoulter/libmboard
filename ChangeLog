@@ -1,3 +1,9 @@
+2008-11-21  Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
+
+	* src/utils/pooled_list.c: Fixed critical bug in randomisation routine.
+
+	* : Tagged as 0.1.5.2-beta
+
 2008-11-14  Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
 
 	* : Memory logging implemented. Activated using --enable-memlog.
