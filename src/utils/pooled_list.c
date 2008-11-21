@@ -440,8 +440,9 @@ int pl_getnode(pooled_list *pl, int index, void **ptr) {
 int pl_randomise(pooled_list *pl) {
     
     pl_address_node **node_headers;
-    pl_address_node *node, *old_next;
-    int i, count, bsize, bused;
+    pl_address_node *node;
+    int *index_array;
+    int i, count, temp;
     double rnd_ratio;
     int rnd;
     
@@ -449,29 +450,38 @@ int pl_randomise(pooled_list *pl) {
     if ((int)pl->count_current < 2) return PL_SUCCESS;
     
     count = (int)pl->count_current; /* number of nodes */
-    bsize = (int)pl->elem_count;    /* number of nodes per block */
-    bused = count / bsize;          /* number of blocks */
     
     /* allocate node header array (plus one space for NULL pointer) */
-    node_headers = (pl_address_node **)malloc(sizeof(pl_address_node*) 
-                                              * (count + 1));
+    node_headers = (pl_address_node **)malloc(sizeof(pl_address_node*)*count);
     assert(node_headers != NULL);
     if (node_headers == NULL) return PL_ERR_MALLOC;
     
-    /* populate node header array */
+    /* allocate index array */
+    index_array = (int *)malloc(sizeof(int) * count);
+    assert(index_array != NULL);
+    if (index_array == NULL)
+    {
+    	free(node_headers);
+    	return PL_ERR_MALLOC;
+    }
+    
+    /* populate node header array and index array */
     node = (pl_address_node*)pl->head;
     for (i = 0; i < count; i++)
     {
         assert(node != NULL);
         node_headers[i] = node; /* store address of node header */
         node = node->next;
+        
+        index_array[i] = i;
     }
+    assert(pl->head == node_headers[0]);
+    assert(pl->tail == node_headers[count - 1]);
     assert(node == NULL);
-    node_headers[i] = node; /* NULL pointer goes into the list as well */
 
-    /* randomise the array */
+    /* randomise the index array */
     rnd_ratio = 1.0 / (RAND_MAX + 1.0); /* ratio to scale random numbers */
-    for (i = count; i > 0; i--)
+    for (i = count - 1; i > 0; i--)
     {
         /* get a random number from 0 to i */
         rnd = (int)(rnd_ratio * (i) * rand());
@@ -479,38 +489,29 @@ int pl_randomise(pooled_list *pl) {
         if (rnd == i) continue; /* this value stays in place */
         
         /* perform swap */
-        node = node_headers[i]; /* use 'node' as temp var */
-        node_headers[i]   = node_headers[rnd];
-        node_headers[rnd] = node;
+        temp = index_array[i];
+        index_array[i] = index_array[rnd];
+        index_array[rnd] = temp;
     }
     
     /* -------- Augment linked list to form new list ------------ */
     
-    /* traverse list and update next pointers as we pass through */
-    i = 0;
-    node = pl->head;
-    while (node)
-    {
-        /* store old next pointer so we can travel down the list */
-        old_next = node->next; 
-        
-        /* assign new next pointer */
-        node->next = node_headers[i];
-        
-        /* will this be the new tail? */
-        if (node_headers[i] == NULL) pl->tail = node;
-        
-        /* move on to next elem */
-        i++;
-        node = old_next;
-    }
-    assert(i == (count - 1));
+    /* set head pointer */
+    pl->head = node_headers[index_array[0]];
     
-    /* assign new head  pointers */
-    pl->head = node_headers[i];
+    /* link up nodes based on randomised index_array */
+    for (i = 0; i < count - 1; i++)
+    {
+    	node_headers[index_array[i]]->next = node_headers[index_array[i + 1]];
+    }
+    
+    /* identify tail node. Have it point to NULL */
+    node_headers[index_array[count - 1]]->next = NULL;
+    pl->tail = node_headers[index_array[count - 1]];
 
-    /* free node header array */
+    /* free arrays */
     free(node_headers);
+    free(index_array);
     
     return PL_SUCCESS;
 }
