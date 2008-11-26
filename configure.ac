@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT(libmboard, 0.1.5.2-beta, shawn.chin@_NOSPAM_stfc.ac.uk)
+AC_INIT(libmboard, pre-0.1.6, shawn.chin@_NOSPAM_stfc.ac.uk)
 AM_INIT_AUTOMAKE
 
 #AM_MAINTAINER_MODE
