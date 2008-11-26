@@ -40,7 +40,9 @@
  * 
  * \todo Unit test for pl_randomise()
  * 
- * \warning The current implementation not designed to be thread-safe
+ * \warning Pooled lists are not inherently thread-safe. It is up the the user to 
+ * include the necessary lockings during read/write access when simultaneous access
+ * by multiple threads are possible.
  * 
  * Example usage:
  * \code
@@ -181,6 +183,7 @@ typedef struct {
 
 
 /* ----- Function Prototypes ----- */
+/* .... see src/utils/pooled_list.c .... */
 int pl_create(pooled_list **pl_ptr_loc, size_t elem_size, int pool_size);
 int pl_delete(pooled_list **pl_ptr_loc);
 

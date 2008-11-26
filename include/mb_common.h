@@ -55,23 +55,39 @@ extern int MBI_STATUS_finalised;
 extern int MBI_CommRank;
 extern int MBI_CommSize;
 
-/*! \brief Data structure of an Iterator instance */
+/*! \brief Data structure of an Iterator instance 
+ * 
+ * This data structure is place in mb_common.h as both the serial and parallel
+ * versions use the same definition.
+ */
 typedef struct {
+	
     /*! \brief flag to indicate if iteration has started */
     unsigned int iterating :1; 
+    
     /*! \brief size of message being referenced */
     int msgsize; 
+    
     /*! \brief handle to corresponding MessageBoard */
     MBt_Board mb;  
 
     /*! \brief pooled-list to hold MBIt_addrnode which references messages */
     pooled_list *data;
+    
     /*! \brief pointer to current address node */
     pl_address_node *cursor;
 
 } MBIt_Iterator;
 
-/*! \brief Function pointer to used-defined filter function */
+/*! \brief Function pointer to user-defined filter function 
+ * 
+ * Used as a shortcut for passing function references as arguments to other 
+ * functions.
+ * 
+ * The function that this pointer refers to is takes in <tt>const void *</tt> for
+ * both its arguments, and returns <tt>int</tt>.
+ * 
+ * */
 typedef int (*MBIt_filterfunc)(const void *, const void *);
 
 /*! \brief Wrapper for pointer to filter function 

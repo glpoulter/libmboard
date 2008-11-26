@@ -8,7 +8,7 @@
  * \endcode
  * 
  * \brief Header file for Communication Queue
- * 
+ *  
  */
 
 #ifndef MB_COMMQUEUE_H
@@ -20,13 +20,14 @@
 
 #include "mboard.h"
 #include "uthash.h"
-
-/* conditionally include MPI library so CommQueue can be
- * testing without compiling with mpicc
- */
 #include <mpi.h>
 
-/* \brief Temp int array used by comm routines */
+/* \brief Temporary int array used by comm routines 
+ * 
+ * Declaring this as a global pointer means that access to it is not 
+ * thread-safe and should only be read/written to by one thread (comm thread).
+ * 
+ * */
 extern int *MBI_comm_indices;
 
 /*! \brief Used to define the different communication stages
@@ -76,7 +77,7 @@ struct MBIt_commqueue {
 
 
 /* Communication Queue management */
-/* ... see util_commqueue.c ... */
+/* ... see src/parallel/util_commqueue.c ... */
 int MBI_CommQueue_isEmpty(void);
 int MBI_CommQueue_Init(void);
 int MBI_CommQueue_Delete(void);
@@ -84,7 +85,7 @@ int MBI_CommQueue_Pop(MBt_Board mb);
 struct MBIt_commqueue* MBI_CommQueue_GetFirstNode(void);
 int MBI_CommQueue_Push(MBt_Board mb, enum MBIt_CommStage startstage);
 
-/* ... see comm.c ... */
+/* ... see src/parallel/comm.c ... */
 int MBIt_Comm_InitTagging(struct MBIt_commqueue *node);
 int MBIt_Comm_WaitTagInfo(struct MBIt_commqueue *node);
 int MBIt_Comm_TagMessages(struct MBIt_commqueue *node);

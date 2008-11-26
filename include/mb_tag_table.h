@@ -56,6 +56,7 @@ typedef struct {
 
 
 /* ----- Function Prototypes ----- */
+/* .... see src/utils/tag_table.c .... */
 int tt_create(tag_table **tt_ptr_loc, int rows, int cols);
 int tt_delete(tag_table **tt_ptr_loc);
 

@@ -19,6 +19,7 @@
 #include "mb_config.h"
 #endif
 
+/* if we're compiling a parallel library, and if we have pthreads support */
 #ifdef _PARALLEL
 #ifdef HAVE_PTHREAD
 
@@ -43,13 +44,16 @@
  * representation, or using different implementations for the
  * serial and parallel versions.
  * 
- * \note We use the uthash Hashtable available from http://uthash.sourceforge.net
+ * \note We use the khash Hashtable available from 
+ * http://www.freewebs.com/attractivechaos/khash.h.html
  * 
  * \warning This implementation was not designed to be thread-safe.
  * 
  * @{*/
 
 /* Uncomment to allow MBI_objmap_push to recycle used keys 
+ * - This is EXPERIMENTAL and not fully tested. Make sure you validate your
+ * results before making production runs.
  * - This will be a compromise between performance and scalability
  * You might need this if MBI_objmap_push return with OM_ERR_OVERFLOW
  * - If this is enabled, and you still get OM_ERR_OVERFLOW, it means
@@ -75,15 +79,15 @@
  * forget to update ::OM_KEY_MAX. Example:
  * \code
  *     // using Unsigned Integers as key 
- *     typedef unsigned int OM_key_t;
- *     #define OM_KEY_MAX UINT_MAX
+ *     typedef unsigned long OM_key_t;
+ *     #define OM_KEY_MAX ULONG_MAX
  * \endcode
  */
 typedef unsigned int OM_key_t;
 
 /*! \brief maximum possible value for key type 
  * 
- * Definition of \c ULONG_MAX taken from \c limits.h
+ * Definition of \c UINT_MAX taken from \c limits.h
  * */
 #define OM_KEY_MAX UINT_MAX
 
@@ -143,13 +147,16 @@ typedef struct {
     
 } MBIt_objmap;
 
+
+/* ~~ Implementation and further docs in src/utils/objmap.c ~~ */
+
 /* return a new object map */
 MBIt_objmap* MBI_objmap_new(void);
 
-/* adds obj to map. returns int handler (OM_ERR_* on failure) */
+/* adds obj to map. returns handle (OM_ERR_* on failure) */
 OM_key_t MBI_objmap_push(MBIt_objmap *map, void *obj);
 
-/* get object pointer refered to by int handler (return NULL on failure) */
+/* get object pointer refered to by handle (return NULL on failure) */
 void* MBI_objmap_getobj(MBIt_objmap *map, OM_key_t handle);
 
 /* delete object from map and return object (NULL on failure) */

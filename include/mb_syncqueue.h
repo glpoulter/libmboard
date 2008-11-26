@@ -22,7 +22,7 @@
 #include <pthread.h>
 
 /* Sync Request queue management */
-/* ... see util_syncqueue.c ... */
+/* ... see src/parallel/util_syncqueue.c ... */
 extern pthread_mutex_t MBI_SRQLock;
 extern pthread_cond_t  MBI_SRQCond;
 int MBI_SyncQueue_isEmpty(void);

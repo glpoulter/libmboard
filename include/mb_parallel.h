@@ -19,15 +19,16 @@
 #include "mb_common.h"
 #include "mb_tag_table.h"
 
+/* we require MPI and pthreads support */
 #include <mpi.h>
 #include <pthread.h>
 
+/*! \brief Shortcut to enable checks for masternode as 
+ * <tt>if MASTERNODE; do_something()</tt>
+ */
 #define MASTERNODE (0 == MBI_CommRank)
 
-/* uncomment to skip expensive checks. */
-/* #define MB_CONFIG_NOCHECKS */
-
-/*! \brief Data structure for managing message tagging  */
+/*! \brief Rename TagTable Data structure to fit our naming scheme  */
 typedef tag_table MBIt_TagTable;
 
 /*! \brief Data structure of a MessageBoard instance  */
@@ -59,16 +60,16 @@ typedef struct {
      * wait on sync completion
      */
     pthread_cond_t  syncCond;
-
-    
+   
     /*! \brief pooled-list to hold messages */
     pooled_list *data;
+    
 } MBIt_Board;
 
 /* constants for calculating MPI tags (for labelling communication) */
 /* LAM MPI supports a rather small MAX TAG value, and does not have the 
  * courtesy to set the MPI_TAG_UB. Boooo!
- * Let's be conservative with our values
+ * Let's be conservative with our values...
  */
 /* We use up to 15 bits. First 12 bits for boards (so we support 4092
  * boards), and the remaining 3 for communication type (max 8)
@@ -79,27 +80,17 @@ typedef struct {
 #define MBI_TAG_MSGDATA  (0x2000)
 /* max MBI_TAG_*DATA = (0x7000) */
 
-/* The number of available simulataneous comms limits the number of 
+/*The number of available simulataneous comms limits the number of 
  * boards we can have
  */
+/*! \brief Maximum number of boards we can support */
 #define MBI_MAX_BOARDS MBI_TAG_MAX
 
-/* datatypes for storing params for pending creates */
-typedef struct t_MBIt_pendingCreate_node {
-    
-    /* params for MB_Create */
-    size_t     msgsize;
-    MBt_Board *mb_ptr;
-    
-    /* pointer to next node */
-    struct t_MBIt_pendingCreate_node *next;
-} MBIt_pendingCreate_node;
-
-/* global variables (initialised and documented in env_init.c) */
+/* global variables (initialised and documented in src/parallel/env_init.c) */
 extern MPI_Comm MBI_CommWorld;
 
 /* Communication thread routines */
-/* ... see commthread.c ... */
+/* ... see src/parallel/commthread.c ... */
 int MBI_CommThread_Init(void);
 int MBI_CommThread_Finalise(void);
 

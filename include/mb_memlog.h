@@ -17,10 +17,14 @@
 
 #ifdef _LOG_MEMORY_USAGE
 
+/* Memory Logging management routines */
+/* ... see src/util/memlog.c ... */
 void memlog_init(void);
 void memlog_finalise(void);
 void memlog_milestone(const char *label);
 
+/* Replacement routines for memory allocation/deallocation */
+/* ... see src/util/memlog.c ... */
 void memlog_free(void *ptr);
 void *memlog_calloc(size_t nmemb, size_t size);
 void *memlog_malloc(size_t size);

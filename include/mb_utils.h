@@ -17,11 +17,9 @@
 
 #include "mb_common.h"
 
-/* ----- Internal datatypes ----- */
-
 
 /* ------ Routines internal to libmboard ----- */
-/* from unmap.c */
+/* .... see src/utils/unmap.c .... */
 
 /* Dereference Mboard Handle */
 void * MBI_getMBoardRef(MBt_Board mb);
