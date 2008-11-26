@@ -1,14 +1,16 @@
 # Process this file with autoconf to produce a configure script.
 
+AC_INIT(libmboard, 0.1.5.2-beta, shawn.chin@_NOSPAM_stfc.ac.uk)
+AM_INIT_AUTOMAKE
+
+#AM_MAINTAINER_MODE
+
 AC_PREREQ(2.59)
 AC_REVISION($Revision$)
 
-AC_INIT(libmboard, 0.1.5.2-beta, shawn.chin@_NOSPAM_stfc.ac.uk)
-AM_INIT_AUTOMAKE
-#AM_MAINTAINER_MODE
-
 AC_CONFIG_SRCDIR([src/serial/env_init.c])
 AC_CONFIG_HEADER([include/mb_config.h])
+AC_CONFIG_MACRO_DIR([m4])
 
 # Checks for programs.
 AC_PROG_CC
@@ -17,6 +19,9 @@ AC_DISABLE_SHARED
 AC_PROG_LIBTOOL
 
 AC_C_INLINE
+
+# Checks for $CC -c -o. Needed to allow pre-target flags
+AM_PROG_CC_C_O
 
 # Default CFLAGS
 # Need extra checks to set this depending on compiler
