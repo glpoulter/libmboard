@@ -31,7 +31,7 @@
 extern int MBI_STATUS_initialised;
 extern int MBI_STATUS_finalised;
 
-/*! \brief Number of elements per memory block
+/*! \brief Number of elements per memory block (for serial lib)
  * 
  * This value is passed as \c pool_size to pl_create() when 
  * MessageBoards are created using MB_Create() .
@@ -39,8 +39,16 @@ extern int MBI_STATUS_finalised;
  * This value (halved) is also used when creating an Filtered
  * Iterator (MB_Iterator_CreateFiltered()).
  */
-/* #define MB_CONFIG_POOLSIZE    256 */
 #define MB_CONFIG_SERIAL_POOLSIZE    256
+
+/*! \brief Number of elements per memory block (for parallel lib)
+ * 
+ * This value is passed as \c pool_size to pl_create() when 
+ * MessageBoards are created using MB_Create() .
+ * 
+ * This value (halved) is also used when creating an Filtered
+ * Iterator (MB_Iterator_CreateFiltered()).
+ */
 #define MB_CONFIG_PARALLEL_POOLSIZE  512
 
 /* global variables (initialised and documented in env_init.c) */

@@ -126,7 +126,7 @@ int MB_Iterator_CreateFilteredSorted(MBt_Board mb, MBt_Iterator *itr_ptr, \
     iter->iterating = 0;
     
     /* allocate memory for address list */
-    rc = pl_create(&(iter->data), sizeof(void *), mcount + 1);
+    rc = pl_create(&(iter->data), sizeof(void *), MB_CONFIG_PARALLEL_POOLSIZE / 2);
     if (rc != PL_SUCCESS)
     {
         free(iter);
