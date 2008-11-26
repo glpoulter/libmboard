@@ -5,7 +5,7 @@
 # Date  : June 2008
 
 # Let make know where m4 scripts are if it needs to run aclocal
-ACLOCAL_AMFLAGS = "-I m4"
+ACLOCAL_AMFLAGS = -I m4
 
 SUBDIRS = src/utils src/parallel src/serial src/progs
 DIST_SUBDIRS = $(SUBDIRS) tests
