@@ -18,8 +18,8 @@
  * \ingroup MB_API
  * 
  * 
- * ObjectMaps (::MBI_OM_mboard and ::MBI_OM_iterator) are destroyed, and the 
- * \c MBI_STATUS_* flags are set.
+ * ObjectMaps (::MBI_OM_mboard, ::MBI_OM_iterator, and ::MBI_OM_function) 
+ * are destroyed, and the \c MBI_STATUS_* flags are updated.
  * 
  * Possible return codes:
  *  - ::MB_SUCCESS

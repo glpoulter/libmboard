@@ -83,6 +83,7 @@ static void ** get_sorted_ptr_list(MBt_Board mb, int mcount, \
  *  - ::MB_ERR_MEMALLOC (error allocating memory for Iterator object or pooled_list)
  *  - ::MB_ERR_LOCKED (\c mb is locked)
  *  - ::MB_ERR_INTERNAL (possible bug. Recompile and run in debug mode for hints)
+ *  - ::MB_ERR_OVERFLOW (MessageBoard overflow. Too many Iterators created.)
  */
 int MB_Iterator_CreateSorted(MBt_Board mb, MBt_Iterator *itr_ptr, \
         int (*cmpFunc)(const void *msg1, const void *msg2) ) {
@@ -100,10 +101,13 @@ int MB_Iterator_CreateSorted(MBt_Board mb, MBt_Iterator *itr_ptr, \
     /* get ptr to board */
     board = (MBIt_Board*)MBI_getMBoardRef(mb);
     if (board == NULL) return MB_ERR_INVALID;
-    mcount = (int)board->data->count_current;
     
     /* check if board is locked */
     if (board->locked != MB_FALSE) return MB_ERR_LOCKED;
+    
+    /* get message count */
+    mcount = (int)board->data->count_current;
+    
     
     /* Allocate Iterator object */
     iter = (MBIt_Iterator*)malloc(sizeof(MBIt_Iterator));
@@ -151,6 +155,10 @@ int MB_Iterator_CreateSorted(MBt_Board mb, MBt_Iterator *itr_ptr, \
         if (rc_om == OM_ERR_MEMALLOC)
         {
             return MB_ERR_MEMALLOC;
+        }
+        else if (rc_om == OM_ERR_OVERFLOW)
+        {
+        	return MB_ERR_OVERFLOW;
         }
         else
         {

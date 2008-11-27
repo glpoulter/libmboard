@@ -48,8 +48,9 @@ int MBI_CommSize;
  * \ingroup MB_API
  * 
  * 
- * ObjectMaps needed to hash MessageBoards (::MBI_OM_mboard) and Iterators 
- * (::MBI_OM_iterator) are instantiated and assigned to the global reference.
+ * ObjectMaps needed to hash MessageBoards (::MBI_OM_mboard), functions 
+ * (::MBI_OM_function), and Iterators (::MBI_OM_iterator) are instantiated 
+ * and assigned to global reference.
  * 
  * The environment status flags are set, and the RNG seeded with the time.
  * 

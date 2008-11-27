@@ -23,7 +23,23 @@
     
 #endif /*_EXTRA_CHECKS*/
     
-/* Register a function */
+/*!
+ * \brief Registers a function
+ * \ingroup MB_API
+ * \param[out] fh_ptr Address of Function handle
+ * \param[in] filterFunc Pointer to user-defined filter function
+ * 
+ * Function pointer is placed in a newly allocated ::MBIt_filterfunc_wrapper
+ * object and registered with the ::MBI_OM_function map. The associated 
+ * function handle is returned through \c fh_ptr.
+ * 
+ * Possible return codes:
+ *  - ::MB_SUCCESS 
+ *  - ::MB_ERR_INVALID (\c filterFunc is \c NULL)
+ *  - ::MB_ERR_MEMALLOC (unable to allocate required memory)
+ *  - ::MB_ERR_OVERFLOW (ObjectMap overflow. Too many functions registered.)
+ *  - ::MB_ERR_INTERNAL (Internal error. Possibly a bug.)
+ */
 int MB_Function_Register(MBt_Function *fh_ptr, 
         int (*filterFunc)(const void *msg, const void *params) ) {
     
@@ -51,6 +67,10 @@ int MB_Function_Register(MBt_Function *fh_ptr,
         if (rc_fh == OM_ERR_MEMALLOC)
         {
             return MB_ERR_MEMALLOC;
+        }
+        else if (rc_fh == OM_ERR_OVERFLOW)
+        {
+        	return MB_ERR_OVERFLOW;
         }
         else
         {

@@ -9,6 +9,8 @@
  * 
  * \brief management of Pending Communication Queue
  * 
+ * \todo Use khash instead of uthash
+ * 
  */
 
 /* splint directive needed due to uthash implementation */

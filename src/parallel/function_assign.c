@@ -13,6 +13,7 @@
 
 #include "mb_parallel.h"
 
+/* if compiling debug version, we need additional functions and datastructs */
 #ifdef _EXTRA_CHECKS
     static void check_all_fh_equal(MBt_Function fh, void *params);
     struct fh_data {
@@ -21,7 +22,32 @@
     };
 #endif /*_EXTRA_CHECKS*/
     
-/* Assign function handle to a message board */
+/*!
+ * \brief Assigns function handle to a message board
+ * \ingroup MB_API
+ * \param[in] mb Message Board handle
+ * \param[in] fh Function handle
+ * \param[in] params Pointer to input data that will be passed into filter function 
+ * \param[in] param_size Size of input data (in bytes)
+ * 
+ * Function handles, param pointer and param sizes are stored within the
+ * board object. 
+ * 
+ * If \c params is \c NULL, the \c param_size value is ignored.
+ * 
+ * This routine also updates the <tt>board->tagging</tt> flag -- ::MB_TRUE if \c fh
+ * is not null (::MB_NULL_FUNCTION) or ::MB_FALSE otherwise.
+ * 
+ * Users can also remove a function assigned to a board by passing ::MB_NULL_FUNCTION
+ * into \c fh.
+ * 
+ * On error, \c mb will remain unchanged and an appropriate error code is returned.
+ * 
+ * Possible return codes:
+ *  - ::MB_SUCCESS
+ *  - ::MB_ERR_INVALID (invalid or null board/fh given, or, invalid param size) 
+ *  - ::MB_ERR_LOCKED (\c mb is locked)
+ */
 int MB_Function_Assign(MBt_Board mb, MBt_Function fh, 
         void *params, size_t param_size) {
     

@@ -12,8 +12,10 @@
  */
 #include "mb_parallel.h"
 
-static int newBoardObj(MBt_handle *mb, size_t);
+/* function prototype for internal routine used within this file only */
+inline static int newBoardObj(MBt_handle *mb, size_t);
 
+/* if Extra Checks are required, we need these datastructures as well */
 #ifdef _EXTRA_CHECKS
     static void check_all_mb_equal(MBt_Board mb, size_t msgsize);
     
@@ -21,9 +23,25 @@ static int newBoardObj(MBt_handle *mb, size_t);
         MBt_Board handle;
         size_t    msgsize;
     };
-    
 #endif /*_EXTRA_CHECKS*/
 
+/*!
+ * \brief Instantiates a new MessageBoard
+ * \ingroup MB_API
+ * \param[out] mb_ptr Address of MessageBoard handle
+ * \param[in] msgsize Size of message that this MessageBoard will be used for
+ * 
+ * The MessageBoard object is allocated and registered  with the ::MBI_OM_mboard
+ * ObjectMap. The reference ID returned by ObjectMap is then written to 
+ * \c mb_ptr as the handle.
+ * 
+ * Possible return codes:
+ *  - ::MB_SUCCESS 
+ *  - ::MB_ERR_INVALID (invalid or null board given) 
+ *  - ::MB_ERR_MEMALLOC (error allocating memory for memory pool or ObjectMap entry)
+ *  - ::MB_ERR_INTERNAL (possible bug. Recompile and run in debug mode for hints)
+ *  - ::MB_ERR_ENV (MessageBoard environment not yet initialised)
+ */
 int MB_Create(MBt_Board *mb_ptr, size_t msgsize) {
     
     int rc;
@@ -51,8 +69,15 @@ int MB_Create(MBt_Board *mb_ptr, size_t msgsize) {
     return MB_SUCCESS;
 }
 
-
-static int newBoardObj(MBt_Board *mb_ptr, size_t msgsize) {
+/*! \brief Creates board object
+ * \param[in] msgsize Size of message that this MessageBoard will be used for
+ * \param[out] mb_ptr Pointer to created board object
+ * 
+ * This routine is only used by MB_Create(). It creates a new board object
+ * and returns a pointer to the object.
+ * 
+ */
+inline static int newBoardObj(MBt_Board *mb_ptr, size_t msgsize) {
     
     int rc;
     OM_key_t rc_om;
@@ -129,8 +154,14 @@ static int newBoardObj(MBt_Board *mb_ptr, size_t msgsize) {
 
 
 #ifdef _EXTRA_CHECKS
-
-
+/*! \brief Checks that board is created with same msgsize across all procs 
+ * \param[in] msgsize Message size
+ * \param[in] mb Board Handle
+ * 
+ * Only used when _EXTRA_CHECKS is defined (used within the debug version of 
+ * libmboard).
+ * 
+ */
 static void check_all_mb_equal(MBt_Board mb, size_t msgsize) {
     
     int rc;
@@ -150,5 +181,4 @@ static void check_all_mb_equal(MBt_Board mb, size_t msgsize) {
     assert(bdata.msgsize == msgsize);
 
 }
-
 #endif /*_EXTRA_CHECKS*/

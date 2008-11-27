@@ -11,7 +11,7 @@
  * 
  */
 #include "mb_parallel.h"
-#include <string.h>
+#include <string.h> /* for memcpy() */
 
 /*!
  * \brief Adds a message to the MessageBoard

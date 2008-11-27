@@ -25,6 +25,11 @@ inline static void processPendingComms(void);
 inline static void initiate_board_sync(MBt_Board mb);
 inline static void commthread_sendTerminationSignal(void);
 inline static void complain_and_terminate(int rc, char* stage);
+
+/*! \brief Shortcut to check for termination flag
+ * 
+ * Can be used as <tt> if TermFlagSet(); doSomething();</tt>
+ */
 #define TermFlagSet() (0 != TERMINATE)
 
 /*! 

@@ -752,6 +752,7 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  *  - ::MB_ERR_INVALID (\c mb is null or invalid)
  *  - ::MB_ERR_LOCKED (\c mb is locked by another process)
  *  - ::MB_ERR_MEMALLOC (unable to allocate required memory)
+ *  - ::MB_ERR_OVERFLOW (too many Iterators created)
  *  - ::MB_ERR_INTERNAL (internal error, possibly a bug)
  * 
  * Usage example:
@@ -798,6 +799,7 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  *  - ::MB_ERR_INVALID (\c mb is null or invalid)
  *  - ::MB_ERR_LOCKED (\c mb is locked by another process)
  *  - ::MB_ERR_MEMALLOC (unable to allocate required memory)
+ *  - ::MB_ERR_OVERFLOW (too many Iterators created)
  *  - ::MB_ERR_INTERNAL (internal error, possibly a bug)
  * 
  * Usage example:
@@ -843,6 +845,7 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  *  - ::MB_ERR_INVALID (\c mb is null or invalid)
  *  - ::MB_ERR_LOCKED (\c mb is locked by another process)
  *  - ::MB_ERR_MEMALLOC (unable to allocate required memory)
+ *  - ::MB_ERR_OVERFLOW (too many Iterators created)
  *  - ::MB_ERR_INTERNAL (internal error, possibly a bug)
  * 
  * Usage example:
@@ -897,6 +900,7 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  *  - ::MB_ERR_INVALID (\c mb is null or invalid)
  *  - ::MB_ERR_LOCKED (\c mb is locked by another process)
  *  - ::MB_ERR_MEMALLOC (unable to allocate required memory)
+ *  - ::MB_ERR_OVERFLOW (too many Iterators created)
  *  - ::MB_ERR_INTERNAL (internal error, possibly a bug)
  * 
  * Usage example:
@@ -1003,6 +1007,7 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * Possible return codes:
  *  - ::MB_SUCCESS
  *  - ::MB_ERR_INVALID (\c itr is null or invalid)
+ *  - ::MB_ERR_INTERNAL (internal error, possibly a bug)
  * 
  * Usage example:
  * \include ex_mb_it_randomise.c
@@ -1131,7 +1136,8 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  *  - ::MB_SUCCESS
  *  - ::MB_ERR_INVALID (\c filterFunc is NULL)
  *  - ::MB_ERR_MEMALLOC (unable to allocate required memory)
- *  - ::MB_ERR_INTERNAL (internal error, possibly a bug)
+ *  - ::MB_ERR_OVERFLOW (Too many functions registered)
+ *  - ::MB_ERR_INTERNAL (Internal error, possibly a bug)
  * 
  * Usage example:
  * \include ex_mb_func.c

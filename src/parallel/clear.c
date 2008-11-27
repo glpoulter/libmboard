@@ -13,7 +13,6 @@
 
 #include "mb_parallel.h"
 #include "mb_objmap.h"
-#include <string.h>
 
 /*!
  * \brief Clears the content of a MessageBoard

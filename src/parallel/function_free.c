@@ -13,7 +13,20 @@
 
 #include "mb_parallel.h"
 
-/* Deallocate a registered function */
+/*!
+ * \brief Deallocates a registered function
+ * \ingroup MB_API
+ * \param[in,out] fh_ptr Address of Function handle
+ * 
+ * The associated function object is removed from the map and deallocated.
+ * 
+ * On success, \c fh_ptr is set to MB_NULL_FUNCTION. On error, \c fh_ptr
+ * will remain unchanged, and an appropriate error code is returned.
+ * 
+ * Possible return codes:
+ *  - ::MB_SUCCESS 
+ *  - ::MB_ERR_INVALID (invalid or null function handle) 
+ */
 int MB_Function_Free(MBt_Function *fh_ptr) {
     
     void *obj;

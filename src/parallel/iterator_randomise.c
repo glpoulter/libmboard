@@ -28,6 +28,7 @@
  * 
  * Possible return codes:
  *  - ::MB_SUCCESS
+ *  - ::MB_ERR_INTERNAL (error when calling pl_randomise())
  *  - ::MB_ERR_INVALID (the Iterator is either null or invalid)
  * 
  */

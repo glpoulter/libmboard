@@ -12,7 +12,24 @@
  */
 #include "mb_parallel.h"
 
-/* should this be a collective operation? */
+/*!
+ * \brief Deletes a MessageBoard
+ * \ingroup MB_API
+ * \param[in,out] mb_ptr Address of MessageBoard handle
+ * 
+ * Upon successful removal of the reference to the board from the 
+ * ::MBI_OM_mboard ObjectMap, we first delete the pooled-list associated 
+ * with the board and then deallocate the board object.
+ * 
+ * \note It is valid to delete a null board (::MB_NULL_MBOARD). The routine
+ * will return immediately with ::MB_SUCCESS
+ * 
+ * Possible return codes:
+ *  - ::MB_SUCCESS 
+ *  - ::MB_ERR_INVALID (invalid board given) 
+ *  - ::MB_ERR_LOCKED (message board is locked for synchronisation)
+ *  - ::MB_ERR_INTERNAL (possible bug. Recompile and run in debug mode for hints)
+ */
 int MB_Delete(MBt_Board *mb_ptr) {
     
     int rc;

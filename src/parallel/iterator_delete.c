@@ -24,7 +24,7 @@
  * with the Iterator and then deallocate the Iterator object.
  * 
  * \note It is valid to delete a null Iterator (::MB_NULL_ITERATOR). The routine
- * will return immediately with ::MB_SUCCESS
+ * will return immediately with ::MB_SUCCESS.
  * 
  * Possible return codes:
  *  - ::MB_SUCCESS 
