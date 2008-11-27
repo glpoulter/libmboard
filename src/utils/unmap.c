@@ -17,11 +17,6 @@
 #include "mb_objmap.h"
 #include <assert.h>
 
-/* kindly request that the compiler inline these routines */
-/* #pragma inline (MBI_getMBoardRef);   */
-/* #pragma inline (MBI_getIteratorRef); */
-
-
 /*! 
  * \brief wrapper routine for mapping MessageBoard handle to object reference 
  * \param[in] mb MessageBoard handle
@@ -30,7 +25,7 @@
  * Performs the necessary assertions (if compiled in debug mode) and obtains
  * the associated board reference from the appropriate ObjectMap.
  */
-void * MBI_getMBoardRef(MBt_Board mb) {
+inline void * MBI_getMBoardRef(MBt_Board mb) {
     
     /* make sure mboard object map valid */
     assert(MBI_OM_mboard != NULL);
@@ -50,7 +45,7 @@ void * MBI_getMBoardRef(MBt_Board mb) {
  * Performs the necessary assertions (if compiled in debug mode) and obtains
  * the associated Iterator reference from the appropriate ObjectMap.
  */
-void * MBI_getIteratorRef(MBt_Iterator iter) {
+inline void * MBI_getIteratorRef(MBt_Iterator iter) {
     
     /* make sure mboard object map valid */
     assert(MBI_OM_iterator != NULL);
@@ -70,7 +65,7 @@ void * MBI_getIteratorRef(MBt_Iterator iter) {
  * Performs the necessary assertions (if compiled in debug mode) and obtains
  * the associated Function reference from the appropriate ObjectMap.
  */
-void * MBI_getFunctionRef(MBt_Function fh) {
+inline void * MBI_getFunctionRef(MBt_Function fh) {
     
     /* make sure mboard object map valid */
     assert(MBI_OM_function != NULL);

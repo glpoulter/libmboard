@@ -22,12 +22,12 @@
 /* .... see src/utils/unmap.c .... */
 
 /* Dereference Mboard Handle */
-void * MBI_getMBoardRef(MBt_Board mb);
+inline void * MBI_getMBoardRef(MBt_Board mb);
 
 /* Dereference Iterator Handle */
-void * MBI_getIteratorRef(MBt_Iterator iter);
+inline void * MBI_getIteratorRef(MBt_Iterator iter);
 
 /* Dereference Function Handle */
-void * MBI_getFunctionRef(MBt_Function fh);
+inline void * MBI_getFunctionRef(MBt_Function fh);
 
 #endif /*MB_UTILS_H_*/
