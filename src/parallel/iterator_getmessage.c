@@ -88,7 +88,8 @@ int MB_Iterator_GetMessage(MBt_Iterator itr, void **msg_ptr) {
     if ((*msg_ptr) == NULL) return MB_ERR_MEMALLOC;
     
     /* copy message to allocated buffer */
-    memcpy(&data_addr, PL_NODEDATA(iter->cursor), iter->data->elem_size);
+    /* memcpy(&data_addr, PL_NODEDATA(iter->cursor), iter->data->elem_size); */
+    data_addr = *((void **)PL_NODEDATA(iter->cursor));
     memcpy(*msg_ptr, data_addr, (size_t)iter->msgsize);
 
     /* move cursor */
