@@ -160,6 +160,12 @@ tests/testsuite_pooled_list/Makefile
 tests/testsuite_syncqueue/Makefile
 ])dnl
 
+# Some external header files (such as pthread.h for pthreads-win32) may look
+# for config.h if -DHAVE_CONFIG_H is defined. 
+# Alias include/mb_config.h to include/config.h so compilation is not affected
+# (note, only mb_config.h is installed during "make install")
+(cd include && ln -sf mb_config.h config.h ) 2>/dev/null
+
 echo ""
 echo "------------------- Configuration successful --------------------------"
 echo ""

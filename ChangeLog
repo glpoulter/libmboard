@@ -1,3 +1,10 @@
+200x-xx-xx Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
+
+	* m4/acx_pthread.m4, m4/check_parallel.m4: Added support pthreads-win32.
+	  Necessary when compiling on Windows using MinGW/MSYS (Cygwin has built-
+	  in support for pthreads).
+	
+
 2008-11-21  Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
 
 	* src/utils/pooled_list.c: Fixed critical bug in randomisation routine.

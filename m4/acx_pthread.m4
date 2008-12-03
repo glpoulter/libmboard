@@ -1,5 +1,15 @@
 # ===========================================================================
-#              http://autoconf-archive.cryp.to/acx_pthread.html
+# Souce: http://autoconf-archive.cryp.to/acx_pthread.html
+#
+# ChangeLog: 
+# ----------
+#
+# 2008-12-01 Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
+# * Added option: --with-pthreads=PTHREADSDIR
+# * Added checks for pthreadGC2 and pthreadGCE2 (pthreads-win32) 
+# * Enabled hack for users to specify their own pthreads lib name using
+#   ./configure pthread_preferred_lib="mylib -myflag -anotherflag anotherlib"
+#   Entries are appended to acx_pthread_flags and thus follow the same rules.
 # ===========================================================================
 #
 # SYNOPSIS
@@ -85,6 +95,13 @@ AC_LANG_SAVE
 AC_LANG_C
 acx_pthread_ok=no
 
+# Allow users to manually specify path to pthreads installation
+AC_ARG_WITH([pthreads],
+            [AC_HELP_STRING([--with-pthreads=PTHREADS_DIR],
+                            [Specify path to Pthreads installation])]
+           )
+PTHREADS_DIR=${with_pthreads}
+
 # We used to check for pthread.h first, but this fails if pthread.h
 # requires special compiler flags (e.g. on True64 or Sequent).
 # It gets checked for in the link test anyway.
@@ -118,7 +135,7 @@ fi
 # which indicates that we try without any flags at all, and "pthread-config"
 # which is a program returning the flags for the Pth emulation library.
 
-acx_pthread_flags="pthreads none -Kthread -kthread lthread -pthread -pthreads -mthreads pthread --thread-safe -mt pthread-config"
+acx_pthread_flags="${pthread_preferred_lib} pthreads none -Kthread -kthread lthread -pthread -pthreads -mthreads pthread --thread-safe -mt pthread-config pthreadGC2 pthreadGCE2 pthreadGC pthreadGCE"
 
 # The ordering *is* (sometimes) important.  Some notes on the
 # individual items follow:
@@ -139,6 +156,8 @@ acx_pthread_flags="pthreads none -Kthread -kthread lthread -pthread -pthreads -m
 # pthread: Linux, etcetera
 # --thread-safe: KAI C++
 # pthread-config: use pthread-config program (for GNU Pth library)
+# pthreadGC2/pthreadGC: pthreads-win32 (built with Mingw32 GCC - No Exception handling, uses setjmp/longjmp)
+# pthreadGCE2/pthreadGCE: pthreads-win32 (built with Mingw32 G++ - C++ Exception Handling)
 
 case "${host_cpu}-${host_os}" in
         *solaris*)
@@ -166,27 +185,47 @@ for flag in $acx_pthread_flags; do
                 -*)
                 AC_MSG_CHECKING([whether pthreads work with $flag])
                 PTHREAD_CFLAGS="$flag"
+                PTHREAD_LDFLAGS="$flag"
                 ;;
 
-		pthread-config)
-		AC_CHECK_PROG(acx_pthread_config, pthread-config, yes, no)
-		if test x"$acx_pthread_config" = xno; then continue; fi
-		PTHREAD_CFLAGS="`pthread-config --cflags`"
-		PTHREAD_LIBS="`pthread-config --ldflags` `pthread-config --libs`"
-		;;
+				pthread-config)
+				AC_CHECK_PROG(acx_pthread_config, pthread-config, yes, no)
+				if test x"$acx_pthread_config" = xno; then continue; fi
+				
+				# if users specify custom PTHREADS_DIR, use pthread-config from
+				# $PTHREADS_DIR/bin, else, grab one from default PATH
+				PTH_CFG_BIN="pthread-config"
+				if test "x${PTHREADS_DIR}" != x
+				then
+					PTH_CFG_BIN="${PTHREADS_DIR}/bin/${PTH_CFG_BIN}"
+				fi
+				PTHREAD_CFLAGS="`${PTH_CFG_BIN} --cflags`"
+				PTHREAD_LIBS="`${PTH_CFG_BIN} --ldflags` `${PTH_CFG_BIN} --libs`"
+				;;
 
                 *)
                 AC_MSG_CHECKING([for the pthreads library -l$flag])
                 PTHREAD_LIBS="-l$flag"
+                
+                # if users specify custom PTHREADS_DIR, add it include/lib paths
+				if test "x${PTHREADS_DIR}" != x
+					then
+					PTHREAD_CFLAGS="-I${PTHREADS_DIR}/include $PTHREAD_CFLAGS"
+					PTHREAD_LDFLAGS="-L${PTHREADS_DIR}/lib $PTHREAD_LDFLAGS"
+				fi
                 ;;
         esac
 
+
+		
         save_LIBS="$LIBS"
         save_CFLAGS="$CFLAGS"
+        save_LDFLAGS="$LDFLAGS"
         LIBS="$PTHREAD_LIBS $LIBS"
         CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
-
-        # Check for various functions.  We must include pthread.h,
+        LDFLAGS="$LDFLAGS $PTHREAD_LDFLAGS"
+		
+		# Check for various functions.  We must include pthread.h,
         # since some functions may be macros.  (On the Sequent, we
         # need a special flag -Kthread to make this header compile.)
         # We check for pthread_join because it is in -lpthread on IRIX
@@ -203,6 +242,7 @@ for flag in $acx_pthread_flags; do
 
         LIBS="$save_LIBS"
         CFLAGS="$save_CFLAGS"
+        LDFLAGS="$save_LDFLAGS"
 
         AC_MSG_RESULT($acx_pthread_ok)
         if test "x$acx_pthread_ok" = xyes; then
@@ -211,6 +251,7 @@ for flag in $acx_pthread_flags; do
 
         PTHREAD_LIBS=""
         PTHREAD_CFLAGS=""
+        PTHREAD_LDFLAGS=""
 done
 fi
 
@@ -261,6 +302,7 @@ fi
 
 AC_SUBST(PTHREAD_LIBS)
 AC_SUBST(PTHREAD_CFLAGS)
+AC_SUBST(PTHREAD_LDFLAGS)
 AC_SUBST(PTHREAD_CC)
 
 # Finally, execute ACTION-IF-FOUND/ACTION-IF-NOT-FOUND:
