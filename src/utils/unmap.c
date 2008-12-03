@@ -25,7 +25,7 @@
  * Performs the necessary assertions (if compiled in debug mode) and obtains
  * the associated board reference from the appropriate ObjectMap.
  */
-inline void * MBI_getMBoardRef(MBt_Board mb) {
+void * MBI_getMBoardRef(MBt_Board mb) {
     
     /* make sure mboard object map valid */
     assert(MBI_OM_mboard != NULL);
@@ -45,7 +45,7 @@ inline void * MBI_getMBoardRef(MBt_Board mb) {
  * Performs the necessary assertions (if compiled in debug mode) and obtains
  * the associated Iterator reference from the appropriate ObjectMap.
  */
-inline void * MBI_getIteratorRef(MBt_Iterator iter) {
+void * MBI_getIteratorRef(MBt_Iterator iter) {
     
     /* make sure mboard object map valid */
     assert(MBI_OM_iterator != NULL);
@@ -65,7 +65,7 @@ inline void * MBI_getIteratorRef(MBt_Iterator iter) {
  * Performs the necessary assertions (if compiled in debug mode) and obtains
  * the associated Function reference from the appropriate ObjectMap.
  */
-inline void * MBI_getFunctionRef(MBt_Function fh) {
+void * MBI_getFunctionRef(MBt_Function fh) {
     
     /* make sure mboard object map valid */
     assert(MBI_OM_function != NULL);
