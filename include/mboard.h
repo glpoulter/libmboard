@@ -158,8 +158,8 @@
  * \defgroup DT Datatypes
  * 
  * The following is a list datatypes defined in libmboard. These datatypes
- * are handles that represent opaque objects used during the interation with 
- * the Message Board library.
+ * are used to hold <i>Handles</i> to opaque objects that can be used for
+ * interating with the Message Board library.
  *  
  * \endif
  */
@@ -384,7 +384,7 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * 
  * This value represents an non-existent or invalid Registered Function. It
  * is typically returned in place of a Registered Function that has been 
- * deleted, or after an erroneous registration of an function.
+ * deleted, or after an erroneous registration of a function.
  */
 #define MB_NULL_FUNCTION   (MBt_Iterator)OM_NULL_INDEX
 
@@ -479,7 +479,7 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \ingroup RC
  * \brief Return Code: Overflow Error
  * 
- * Specifies error due overflow in internal variable or storage.
+ * Specifies error due to an overflow in internal variable or storage.
  * Use the \c DEBUG version of libmboard
  * for more information on where this occured.
  */
@@ -491,7 +491,7 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * \ingroup RC
  * \brief Return Code: Internal Error
  * 
- * Specifies internal implementation error.  Possibly a bug.
+ * Specifies internal implementation error. Possibly a bug.
  * Use the \c DEBUG version of libmboard
  * for more information on where this occured.
  */
