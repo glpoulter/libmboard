@@ -63,6 +63,9 @@ MBOARD_CHECK_PARALLEL
 # Check requirements for testing
 MBOARD_CHECK_TESTING
 
+# Check requirements for performing coverage analysis
+MBOARD_CHECK_COVERAGE
+
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 AC_C_INLINE
@@ -149,6 +152,7 @@ src/serial/Makefile
 src/parallel/Makefile
 src/progs/Makefile
 src/progs/mboard-config
+src/progs/compile_coverage.sh
 tests/Makefile
 tests/testsuite_commqueue/Makefile
 tests/testsuite_commroutines/Makefile

@@ -1,8 +1,13 @@
-200x-xx-xx Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
+2009-xx-xx Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
 
 	* m4/acx_pthread.m4, m4/check_parallel.m4: Added support pthreads-win32.
 	  Necessary when compiling on Windows using MinGW/MSYS (Cygwin has built-
 	  in support for pthreads).
+	* Makefile.am: Disable automatic running of test after "make test"
+	* configure.ac, m4/check_coverage, Makefile.am: Added support for coverage 
+	  testing
+	* src/utils/compile_coverage.sh: Added script to gather coverage data into
+	  HTML report using LCOV
 	
 
 2008-11-21  Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>

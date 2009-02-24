@@ -67,7 +67,7 @@ dist-hook:
 if TESTS_CONFIGURED
 
 test: 
-	@(make && cd tests && make && make run)
+	@(make && cd tests && make)
 	
 else
 
@@ -106,6 +106,10 @@ doc: Doxyfile_user Doxyfile_developer_serial Doxyfile_developer_parallel
 vclean:
 	(cd tests; make clean)
 	make clean
+if COVERAGE_CONFIGURED
+	@find -name "*.gcno" -exec rm {} \;
+	@find -name "*.gcda" -exec rm {} \;
+endif
 
 # Options for splint
 # -D__sigset_t=int hides problems with splint trying to parse headers
@@ -141,3 +145,14 @@ if TESTS_CONFIGURED
 	(cd tests && make splint)
 endif
 
+if COVERAGE_CONFIGURED
+# TODO: Check that GCOV is installed
+# TODO: Check version compatibility of GCC and GCOV
+# TODO: Check that LCOV is installed
+# TODO: Check that GD.pm installed. Disable --frames in genhtml call.
+# Hint: Perhaps embed checks in script. Call with ./script --check
+coverage:
+	make all
+	make test
+	bash src/progs/compile_coverage.sh
+endif
