@@ -96,7 +96,8 @@ int MBI_CommQueue_Delete(void) {
     while(CommQ)
     {
         node = CommQ;
-        CommQ = CommQ->hh.next;
+        /* CommQ = CommQ->hh.next; */
+        HASH_DEL(CommQ, node);
         /*
         free_commqueue_node(node);
         */
