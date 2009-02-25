@@ -9,7 +9,7 @@
 	* configure.ac, m4/check_coverage, Makefile.am: Added support for coverage 
 	  testing. Enabled using --enable-coverage. Executed using "make coverage"
 	* src/utils/compile_coverage.sh: Added script to gather coverage data into
-	  HTML report using LCOV
+	  HTML report using LCOV 
 	
 
 2008-11-21  Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
