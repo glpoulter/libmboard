@@ -1,4 +1,3 @@
-# $Id$
 # ===========================================================================
 # Copyright (c) 2009 STFC Rutherford Appleton Laboratory 
 # Author: Lee-Shawn Chin 
