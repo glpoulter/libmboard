@@ -18,7 +18,7 @@
  * \ingroup MB_API
  * \param[in] mb MessageBoard handle
  * \param[in] msg Address of the message to be added
- * 
+ *  
  * The message data is copied into a data node in the message board. Upon 
  * completion, users are free to modify, reuse, or deallocate their copy of 
  * the message. Not only will this be less susceptible to bugs, it also 
