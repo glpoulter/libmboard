@@ -1,3 +1,9 @@
+# $Id$
+# ===========================================================================
+# Copyright (c) 2009 STFC Rutherford Appleton Laboratory 
+# Author: Lee-Shawn Chin 
+# ===========================================================================
+# 
 # Process this file with autoconf to produce a configure script.
 
 AC_INIT(libmboard, pre-0.1.6, shawn.chin@_NOSPAM_stfc.ac.uk)
@@ -17,8 +23,6 @@ AC_PROG_CC
 AC_PROG_MAKE_SET
 AC_DISABLE_SHARED
 AC_PROG_LIBTOOL
-
-AC_C_INLINE
 
 # Checks for $CC -c -o. Needed to allow pre-target flags
 AM_PROG_CC_C_O
