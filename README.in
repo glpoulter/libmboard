@@ -50,9 +50,6 @@ Apart from the requirements listed above, you will also need:
  
 ##### Bootstrapping: #####
 
-
-Note: You must repeat this step every time you update your Subversion checkout.
-
 Before you can configure and install the project, you will first need to 
 process the pristine source through GNU Autotools. This can be done by running
 the following command:
