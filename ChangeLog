@@ -11,6 +11,7 @@
 	* src/utils/compile_coverage.sh: Added script to gather coverage data into
 	  HTML report using LCOV 
 	
+	* README: Replaced stubs with actual information :)
 
 2008-11-21  Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
 
