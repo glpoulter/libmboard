@@ -1,4 +1,4 @@
-2009-xx-xx Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
+2009-05-08 Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
 
 	* m4/acx_pthread.m4, m4/check_parallel.m4: Added support pthreads-win32.
 	  Necessary when compiling on Windows using MinGW/MSYS (Cygwin has built-
@@ -11,8 +11,13 @@
 	* src/utils/compile_coverage.sh: Added script to gather coverage data into
 	  HTML report using LCOV 
 	
-	* README: Replaced stubs with actual information :)
+	* include/mb_commqueue.h, src/parallel/util_commqueue.c: CommQueue now
+	  uses a bi-directional list instead of uthash.h
+	  
+	* README.in: Replaced stubs with actual information :)
 
+	* : Tagged as 0.1.5.3-beta
+	
 2008-11-21  Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
 
 	* src/utils/pooled_list.c: Fixed critical bug in randomisation routine.

@@ -40,7 +40,7 @@ void test_cq_newnode(void) {
     /* get reference to first node */
     node = MBI_CommQueue_GetFirstNode();
     CU_ASSERT_PTR_NOT_NULL_FATAL(node);
-    CU_ASSERT_EQUAL(node->mb, (MBt_Board)100);
+    CU_ASSERT_EQUAL(node->mb, (MBt_Board)101);
     CU_ASSERT_PTR_NULL(node->inbuf);
     CU_ASSERT_PTR_NULL(node->outbuf);
     CU_ASSERT_PTR_NULL(node->sendreq);
@@ -49,9 +49,9 @@ void test_cq_newnode(void) {
     CU_ASSERT_EQUAL(node->stage, PRE_TAGGING)
     
     /* get ref to second node */
-    node = node->hh.next;
+    node = node->next;
     CU_ASSERT_PTR_NOT_NULL_FATAL(node);
-    CU_ASSERT_EQUAL(node->mb, (MBt_Board)101);
+    CU_ASSERT_EQUAL(node->mb, (MBt_Board)100);
     CU_ASSERT_PTR_NULL(node->inbuf);
     CU_ASSERT_PTR_NULL(node->outbuf);
     CU_ASSERT_PTR_NULL(node->sendreq);
@@ -60,7 +60,7 @@ void test_cq_newnode(void) {
     CU_ASSERT_EQUAL(node->stage, PRE_TAGGING)
     
     /* make sure this is last node */
-    CU_ASSERT_PTR_NULL(node->hh.next);
+    CU_ASSERT_PTR_NULL(node->next);
 }
 
 /* Testing deletion of nodes from CommQueue */
@@ -69,21 +69,18 @@ void test_cq_deletenode(void) {
     int rc;
     struct MBIt_commqueue *node;
     
-    /* Delete invalid node */
-    rc = MBI_CommQueue_Pop((MBt_Board)999);
-    CU_ASSERT_EQUAL(rc, MB_ERR_INVALID);
-    
     /* Delete first node */
-    rc = MBI_CommQueue_Pop((MBt_Board)100);
+    node = MBI_CommQueue_GetFirstNode();
+    rc = MBI_CommQueue_Pop(node);
     CU_ASSERT_EQUAL(rc, MB_SUCCESS);
     CU_ASSERT(!MBI_CommQueue_isEmpty());
     
     /* make sure remaining node is the right one */
     node = MBI_CommQueue_GetFirstNode();
-    CU_ASSERT_EQUAL(node->mb, (MBt_Board)101);
+    CU_ASSERT_EQUAL(node->mb, (MBt_Board)100);
     
     /* Delete second node */
-    rc = MBI_CommQueue_Pop((MBt_Board)101);
+    rc = MBI_CommQueue_Pop(node);
     CU_ASSERT_EQUAL(rc, MB_SUCCESS);
     
     /* CommQueue should now be empty */

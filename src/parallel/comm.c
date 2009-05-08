@@ -1114,8 +1114,8 @@ int MBIt_Comm_CompletePropagation(struct MBIt_commqueue *node) {
         }
         
         /* remove node from queue */
-        rc = MBI_CommQueue_Pop(node->mb);
-        assert(rc == MB_SUCCESS);
+        /*rc = MBI_CommQueue_Pop(node->mb);
+        assert(rc == MB_SUCCESS);*/
         
         /* unlock board */
         rc = pthread_mutex_lock(&(board->syncLock));

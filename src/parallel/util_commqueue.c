@@ -9,8 +9,6 @@
  * 
  * \brief management of Pending Communication Queue
  * 
- * \todo Use khash instead of uthash
- * 
  */
 
 /* splint directive needed due to uthash implementation */
@@ -19,10 +17,12 @@
 #include "mb_parallel.h"
 #include "mb_commqueue.h"
 
+
+/*! \brief Shared array used to store temporary indices */
 int *MBI_comm_indices = NULL;
 
 /*! \brief pointer to CommQueue hashtable */
-static struct MBIt_commqueue *CommQ = NULL;
+static struct MBIt_commqueue* CommQ = NULL;
 
 /* internal routine to free commqueue node memory */
 /*
@@ -41,11 +41,13 @@ int MBI_CommQueue_isEmpty(void) {
  * \return Return Code
  * 
  * Possible return codes:
+ *  - ::MB_ERR_MEMALLOC
  *  - ::MB_SUCCESS
  */
 int MBI_CommQueue_Init(void) {
+
     assert(CommQ == NULL);
-    
+   
     /* allocate memory for temp int array */
     MBI_comm_indices = (int*)malloc(sizeof(int) * MBI_CommSize);
     assert(MBI_comm_indices != NULL);
@@ -56,29 +58,30 @@ int MBI_CommQueue_Init(void) {
 
 /*! 
  * \brief Deletes an entry from the CommQueue
- * \param[in] mb Message Board handle
+ * \param[in] node Pointer to CommQueue node
  * \return Return Code
  * 
  * Possible return codes:
  *  - ::MB_SUCCESS
- *  - ::MB_ERR_INVALID (\c mb is not in CommQueue)
  * 
  */
-int MBI_CommQueue_Pop(MBt_Board mb) {
+int MBI_CommQueue_Pop(struct MBIt_commqueue *node) {
+       
+    if (CommQ == node) /* First node in list */
+    {
+        assert(node->prev == NULL);
+        CommQ = node->next;
+        if (node->next != NULL) node->next->prev = NULL;
+    }
+    else 
+    {
+        node->prev->next = node->next;
+        if (node->next != NULL) node->next->prev = node->prev;
+    }
     
-    struct MBIt_commqueue *node = NULL;
-    
-    /* retrieve obj from hashtable */
-    HASH_FIND(hh, CommQ, &mb, sizeof(MBt_Board), node);
-    
-    if (node == NULL) return MB_ERR_INVALID;
-    
-    HASH_DEL(CommQ, node);
-    /*
-    free_commqueue_node(node);
-    */
     free(node);
     return MB_SUCCESS;
+    
 }
 
 /*! 
@@ -91,19 +94,16 @@ int MBI_CommQueue_Pop(MBt_Board mb) {
  */
 int MBI_CommQueue_Delete(void) {
     
-    struct MBIt_commqueue *node;
+    struct MBIt_commqueue *next;
     
     while(CommQ)
     {
-        node = CommQ;
-        /* CommQ = CommQ->hh.next; */
-        HASH_DEL(CommQ, node);
-        /*
-        free_commqueue_node(node);
-        */
-        free(node);
+        next = CommQ->next;
+        free(CommQ);
+        CommQ = next;
     }
     
+    /* free temporary indices array */
     free(MBI_comm_indices);
     
     return MB_SUCCESS;
@@ -135,9 +135,11 @@ int MBI_CommQueue_Push(MBt_Board mb, enum MBIt_CommStage startstage) {
     node->pending_out = 0;
     node->stage   = startstage;
     
-    
-    /* add to hashtable */
-    HASH_ADD(hh, CommQ, mb, sizeof(MBt_Board), node);
+    /* Add to Queue */
+    if (CommQ != NULL) CommQ->prev = node;
+    node->next = CommQ;
+    node->prev = NULL;
+    CommQ = node;
     
     return MB_SUCCESS;
 }
@@ -151,22 +153,3 @@ struct MBIt_commqueue* MBI_CommQueue_GetFirstNode(void) {
     return CommQ;
 }
 
-
-/*!
- * \brief Deallocates memory used by CommQueue node
- * \param[in] q Pointer to CommQueue node
- */
-/*
-static void free_commqueue_node(struct MBIt_commqueue *q)
-{
-    if (q == NULL) return;
-    
-    assert(q->inbuf == NULL);
-    assert(q->outbuf == NULL);
-    assert(q->incount == NULL);
-    assert(q->sendreq == NULL);
-    assert(q->recvreq == NULL);
-
-    
-    free(q);
-}*/

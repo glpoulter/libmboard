@@ -102,13 +102,13 @@ int init_cr(void) {
     else if (node->mb == mb_m) node_m = node;
     else if (node->mb == mb_x) node_x = node;
     
-    node = node->hh.next;
+    node = node->next;
     if (node == NULL) return 1;
     else if (node->mb == mb_e) node_e = node;
     else if (node->mb == mb_m) node_m = node;
     else if (node->mb == mb_x) node_x = node;
     
-    node = node->hh.next;
+    node = node->next;
     if (node == NULL) return 1;
     else if (node->mb == mb_e) node_e = node;
     else if (node->mb == mb_m) node_m = node;
@@ -524,6 +524,7 @@ void test_cr_completepropagation(void) {
         else
         {
             if (rc != MB_SUCCESS_2) CU_FAIL("wrong return code");
+            MBI_CommQueue_Pop(node);
         }
     }
     CU_ASSERT_EQUAL(board->syncCompleted, MB_TRUE);
@@ -580,6 +581,7 @@ void test_cr_completepropagation(void) {
         else
         {
             if (rc != MB_SUCCESS_2) CU_FAIL("wrong return code");
+            MBI_CommQueue_Pop(node);
         }
     }
     CU_ASSERT_EQUAL(board->syncCompleted, MB_TRUE);
@@ -646,6 +648,7 @@ void test_cr_completepropagation(void) {
         else
         {
             if (rc != MB_SUCCESS_2) CU_FAIL("wrong return code");
+            MBI_CommQueue_Pop(node);
         }
         
     };

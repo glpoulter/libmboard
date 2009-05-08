@@ -19,7 +19,6 @@
 #endif
 
 #include "mboard.h"
-#include "uthash.h"
 #include <mpi.h>
 
 /* \brief Temporary int array used by comm routines 
@@ -70,9 +69,11 @@ struct MBIt_commqueue {
     MPI_Request *recvreq;
     /*! \brief Stage in which communication process is in */
     enum MBIt_CommStage stage;
-
-    /*! \brief metadata required by \c uthash */
-    UT_hash_handle hh;
+    
+    /*! \brief Pointer to next node in list */
+    struct MBIt_commqueue* next;
+    /*! \brief Pointer to previous node in list */
+    struct MBIt_commqueue* prev;
 };
 
 
@@ -81,7 +82,7 @@ struct MBIt_commqueue {
 int MBI_CommQueue_isEmpty(void);
 int MBI_CommQueue_Init(void);
 int MBI_CommQueue_Delete(void);
-int MBI_CommQueue_Pop(MBt_Board mb);
+int MBI_CommQueue_Pop(struct MBIt_commqueue *);
 struct MBIt_commqueue* MBI_CommQueue_GetFirstNode(void);
 int MBI_CommQueue_Push(MBt_Board mb, enum MBIt_CommStage startstage);
 

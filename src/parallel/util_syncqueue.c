@@ -9,6 +9,9 @@
  * 
  * \brief management of Sync Request Queue
  * 
+ * These routines are meant to be thread-safe as they are used by both
+ * the main thread and the communication thread.
+ * 
  */
 #include "mb_parallel.h"
 #include "mb_syncqueue.h"

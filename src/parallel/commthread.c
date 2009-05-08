@@ -9,6 +9,15 @@
  * 
  * \brief Main routine run by communication thread
  * 
+ * Routines within this file are expected to be run by a single thread
+ * which will perform all communication. Therefore, the data structures
+ * that it uses (e.g. CommQueue and MBI_Comm_Indices) were not designed
+ * to be thread-safe. 
+ * So, if you are planning to enhance this setup such that more than 
+ * one thread can be used to perform data movement and communication,
+ * do be aware of thread-safety issues. This includes issues regarding
+ * the thread-safety of the underlying MPI library.
+ * 
  */
 #include "mb_parallel.h"
 #include "mb_commqueue.h"
@@ -218,10 +227,8 @@ inline static void processSyncRequests(void) {
  * The whole simulation should be aborted if the transition function returns
  * with an error. 
  * 
- * If transition routine returns ::MB_SUCCESS_2, do not proceed with travesal
- * as the queue would have been modified and the data structures may have 
- * changed. Return immediately (the other nodes will be processed on the 
- * next pass)
+ * If transition routine returns ::MB_SUCCESS_2, it means communication has
+ * completed for that node and can be removed from the queue.
  * 
  */
 inline static void processPendingComms(void) {
@@ -233,7 +240,7 @@ inline static void processPendingComms(void) {
     while (next)
     {
         node = next;
-        next = node->hh.next;
+        next = node->next;
         
         switch(node->stage)
         {
@@ -261,13 +268,9 @@ inline static void processPendingComms(void) {
                 rc = MBIt_Comm_CompletePropagation(node);
                 if (rc != MB_SUCCESS)
                 {
-                    if (rc == MB_SUCCESS_2)
-                    {
-                        /* Comm queue has been modified. Don't proceed with traversal */
-                        return;
-                    }
-                    
-                    complain_and_terminate(rc, "PROPAGATION");
+                    /* Comm for this node has completed. Remove from list */
+                    if (rc == MB_SUCCESS_2) MBI_CommQueue_Pop(node);
+                    else complain_and_terminate(rc, "PROPAGATION");
                 }
                 break; 
             
