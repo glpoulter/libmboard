@@ -13,6 +13,7 @@
 	
 	* include/mb_commqueue.h, src/parallel/util_commqueue.c: CommQueue now
 	  uses a bi-directional list instead of uthash.h
+	* src/utils/memlog.c: Replaced uthash with khash.
 	  
 	* README.in: Replaced stubs with actual information :)
 

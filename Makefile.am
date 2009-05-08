@@ -23,7 +23,7 @@ noinst_HEADERS  = $(INCLUDEDIR)/mb_common.h \
 			      $(INCLUDEDIR)/mb_syncqueue.h \
 			      $(INCLUDEDIR)/mb_commqueue.h \
 			      $(INCLUDEDIR)/mb_pooled_list.h \
-			      $(INCLUDEDIR)/uthash.h
+			      $(INCLUDEDIR)/khash.h
 
 if COMPILE_SQLITE
 noinst_HEADERS += $(INCLUDEDIR)/sqlite3.h

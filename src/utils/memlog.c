@@ -10,13 +10,10 @@
  * 
  * \brief Routines for instrumenting memory usage
  * 
- * \todo use khash instead of uthash. Then we can remove uthash.h from 
- * the distribution.
- * 
  */
 
 /* splint directive needed due to uthash implementation */
-/*@+ignoresigns -unrecog@*/
+/*@+matchanyintegral -unrecog -fcnuse@*/
 
 /*! \brief Flag to ensure that memory operations are not overridden in 
  *         this file
@@ -43,7 +40,7 @@
 #include <sys/time.h>
 #include "mb_memlog.h"
 #include "mb_common.h"
-#include "uthash.h"
+#include "khash.h"
 #include "sqlite3.h"
 
 /*! \brief Maximum length of filenames */
@@ -84,8 +81,6 @@ struct memlog_ptrsizemap_t {
     void *ptr;
     /* \brief Size of allocated memory assigned to ptr */
     size_t size; 
-    /*! \brief metadata required by \c uthash */
-    UT_hash_handle hh;
 };
 
 /*! \brief Handle to sqlite3 database connection */
@@ -134,9 +129,18 @@ double init_ts;
 /*! \brief String to store filename */
 char memlog_filename[MAX_FILENAME_LENGTH];
 
-/*! \brief Hash table to store map of allocated memory + size */
-struct memlog_ptrsizemap_t *sizemap;
+/*! \brief Khash initialisation */
+#define _sm_key_equal(a,b) (a == b)
+#ifdef QUADWORD
+    #define _sm_hash_func(key) kh_int64_hash_func((uint64_t)key)
+#else
+    #define _sm_hash_func(key) kh_int_hash_func((uint32_t)key)
+#endif
+KHASH_INIT(sm, void*, struct memlog_ptrsizemap_t*, 1, _sm_hash_func, _sm_key_equal)
 
+/*! \brief Hash table to store map of allocated memory + size */
+khash_t(sm) *sizemap;
+    
 /*!
  * \brief Returns current timestamp
  * \return double representing current timestamp in seconds
@@ -195,29 +199,36 @@ static void __record_memory_usage(void) {
 /* remember memory size allocated to a pointer */
 static int __sizemap_add(void *ptr, size_t size) {
     
-    struct memlog_ptrsizemap_t *new;
-    struct memlog_ptrsizemap_t *old;
-    
+    struct memlog_ptrsizemap_t *obj;
+    khiter_t k;
+    int rc;
+
     /* don't add if empty ptr or 0 sized */
     if (size == 0 || ptr == NULL) return 0;
 
-    HASH_FIND(hh, sizemap, &ptr, sizeof(void *), old);
-    if (old != NULL)
+    k = kh_get(sm, sizemap, ptr);
+    if (k != kh_end(sizemap))
     {
         /* note: this isn't really a memory leak. Just the fact that
          * the pointer in question was freed in a code beyond our reach
          * and which we therefore have no record off.
          */ 
-        lost += (int)old->size;
-        HASH_DEL(sizemap, old);
-        free(old);
+        obj = kh_value(sizemap, k);
+        lost += (int)obj->size;
+        kh_del(sm, sizemap, k);
+    }
+    else
+    {
+        obj = (struct memlog_ptrsizemap_t*)malloc(sizeof(struct memlog_ptrsizemap_t));
     }
     
-    new = (struct memlog_ptrsizemap_t*)malloc(sizeof(struct memlog_ptrsizemap_t));
-    new->ptr  = ptr;
-    new->size = size;
+    obj->ptr  = ptr;
+    obj->size = size;
 
-    HASH_ADD(hh, sizemap, ptr, sizeof(void *), new);
+    k = kh_put(sm, sizemap, ptr, &rc);
+    assert(rc);
+    kh_value(sizemap, k) = obj;
+    
     return (int)size;
 }
 
@@ -236,19 +247,18 @@ static int __sizemap_add(void *ptr, size_t size) {
 /* forget memory size allocated to a pointer */
 static int __sizemap_del(void *ptr) {
 
-    struct memlog_ptrsizemap_t *old;
+    struct memlog_ptrsizemap_t *obj;
+    khiter_t k;
     size_t size = 0;
 
-    /* first get pointer to struct so we can deallocate mem
-     * since HASH_DELETE does not free the struct
-     */
-    HASH_FIND(hh, sizemap, &ptr, sizeof(void *), old);
-
-    if (old != NULL) /* if found */
+    k = kh_get(sm, sizemap, ptr);
+    if (k != kh_end(sizemap)) /* if found */
     {
-        size = old->size;
-        HASH_DEL(sizemap, old);
-        free(old);
+        obj = kh_value(sizemap, k);
+        size = obj->size;
+        
+        kh_del(sm, sizemap, k);
+        free(obj);
     }
     return (int)size;
 }
@@ -267,17 +277,20 @@ static int __sizemap_del(void *ptr) {
 static int __sizemap_flush(void) {
     size_t remainder = 0;
     struct memlog_ptrsizemap_t *node;
+    khiter_t k;
     
     /* iterate map to sum unallocated memory and free data*/
-    while(sizemap)
+    for (k = kh_begin(sizemap); k < kh_end(sizemap); k++)
     {
-        node = sizemap;
-        sizemap = sizemap->hh.next;
-        
-        remainder += node->size;
-        free(node);
+        if (kh_exist(sizemap, k))
+        {
+            node = kh_value(sizemap, k);
+            remainder += (int)node->size;
+            free(node);
+        }
     }
     
+    kh_destroy(sm, sizemap);
     return (int)remainder;
 }
 
@@ -351,7 +364,7 @@ void memlog_init(void) {
     init_ts   = __get_ts();
     
     /* initialise ptr-size hash table */
-    sizemap = NULL;
+    sizemap = kh_init(sm);
     
     /* determine output filename */
     snprintf(memlog_filename, MAX_FILENAME_LENGTH, "memlog-%d_of_%d.db", 
