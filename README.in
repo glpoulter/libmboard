@@ -89,6 +89,37 @@ You can also browse the User Manual online at:
 http://www.softeng.cse.clrc.ac.uk/libmboard/
 
 
+##### Runing unit tests #####
+
+Compile the tests using "make test". Four tests binaries will be produced, 
+each testing different aspects of the library.
+ * ./tests/run_test_utils    : Test utility code used by both serial and 
+                               parallel modules
+ * ./tests/run_test_serial   : Test serial libmboard API
+ * ./tests/run_test_parallel_utils  : Test utility code used only by the 
+                                      parallel modules
+ * ./tests/run_test_parallel : Test parallel libmboard API 
+ 
+ You will need to run the parallel tests using your standard MPI job launcher.
+ 
+ 
+ ##### Performing Test Coverage analysis #####
+ 
+ Configure the package using --enable-coverage, and compile the code using 
+ the "coverage" target
+    
+    [lsc@stfc]$ ./configure --enable-coverage
+    [lsc@stfc]$ make coverage
+    
+ If the code compiles and the tests run successfully, the coverage report 
+ will be available in the ./coverage_html directory. Load the index.html
+ file in your favourite browser to view the report. Example:
+ 
+     [lsc@stfc]$ firefox ./coverage_html/index.html
+
+When done, you can clean up your source directies by running "make vclean".
+
+
 ===============================================================================
 ++ Installing from Subversion (developer's version) ++
 -------------------------------------------------------------------------------
