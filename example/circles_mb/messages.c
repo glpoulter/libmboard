@@ -21,19 +21,19 @@ int createBoards(void) {
 }
 
 int registerFunctions(void) {
-    
+    /* DEPRECATED
     if (MB_Function_Register(&f_range, &filterWithinRange) != MB_SUCCESS)
         return FAIL;
-    
+    */
     return OK;
 }
 
 int assignFunctionsToBoards(void) {
-    
+    /* DEPRECATED
     if (MB_Function_Assign(b_Location, f_range, &fp_range, sizeof(struct rangeFuncParams)) 
             != MB_SUCCESS)
         return FAIL;
-    
+    */
     return OK;
 }
 

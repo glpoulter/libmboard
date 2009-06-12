@@ -22,7 +22,9 @@
    CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
    SOFTWARE.
 */
-
+/* description at 
+ * http://attractivechaos.wordpress.com/2008/09/02/implementing-generic-hash-library-in-c/
+ */
 /*
   An example:
 
@@ -263,8 +265,8 @@ static const double __ac_HASH_UPPER = 0.77;
 /*@unused@*/
 static inline khint_t __ac_X31_hash_string(const char *s)
 {
-	khint_t h = *s;
-	if (h) for (++s ; *s; ++s) h = (h << 5) - h + *s;
+	khint_t h = (int)*s;
+	if (h) for (++s ; *s; ++s) h = (h << 5) - h + (int)*s;
 	return h;
 }
 #define kh_str_hash_func(key) __ac_X31_hash_string(key)
@@ -293,7 +295,7 @@ static inline khint_t __ac_X31_hash_string(const char *s)
 #define kh_size(h) ((h)->size)
 #define kh_n_buckets(h) ((h)->n_buckets)
 
-/* More conenient interfaces */
+/* More convenient interfaces */
 
 #define KHASH_SET_INIT_INT(name)										\
 	KHASH_INIT(name, uint32_t, char, 0, kh_int_hash_func, kh_int_hash_equal)

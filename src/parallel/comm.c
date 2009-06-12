@@ -3,8 +3,8 @@
  * \file parallel/comm.c
  * \code
  *      Author: Lee-Shawn Chin 
- *      Date  : July 2008 
- *      Copyright (c) 2008 STFC Rutherford Appleton Laboratory
+ *      Date  : June 2009 
+ *      Copyright (c) 2009 STFC Rutherford Appleton Laboratory
  * \endcode
  * 
  * \brief State Transition Routines for processing communication nodes
@@ -12,13 +12,6 @@
  * \image html CommNode.png
  * \image latex CommNode.eps
  * 
- * \todo Revert to sending whole board if total tagged messages (for all
- * procs) > number of messages. We can prevent full data replication by
- * applying the message filters on the recipient node.
- * 
- * \todo Replace blocking MPI_Alltoall and MPI_Allgather with non-blocking
- * sends/receives. This would introduce more communication states, but 
- * avoid unnecessary synchronisation of processors.
  */
 #include "mb_parallel.h"
 #include "mb_commqueue.h"
@@ -40,469 +33,380 @@
 #define SETBIT(octet, pos) octet = ((octet) | (UNITY << (7 - pos)))
 /*! \brief query if most significant bit is set */
 #define MSB_IS_SET(octet) (((octet) & MSBMASK) == MSBMASK)
-
+/*! \brief query if specific bits are set */
+#define BIT_IS_SET(octet, mask) ((octet & mask) == mask)
 
 /*! 
- * \brief Intialises tagging of a message board
+ * \brief Tag messages in the board
  * \param[in] node address of CommQueue node
  * \return Return Code
  * 
- * This routine should only be called by processPendingComms() within
- * the communication thread when processing a node that is in the
- * ::PRE_TAGGING stage.
+ * This routine is to be executed during the firs commncation stage
+ * (::PRE_TAGGING).
  * 
- * It should not be called when the target board has no
- * registered functions associated with it, and only when run in parallel 
- * (with more than one MPI task).
+ * Pre:
+ * - node->mb is valid
+ * - board->locked == ::MB_TRUE
+ * - board->syncCompleted == ::MB_FALSE
+ * - node->stage == ::PRE_TAGGING
+ * - node->flag_fdrFallback = ::MB_FALSE
+ * - node->flag_shareOutbuf = ::MB_FALSE
+ * - node->incount == \c NULL
+ * - node->outcount == \c NULL
+ * - node->inbuf == \c NULL
+ * - node->outbuf == \c NULL
+ * - node->sendreq == \c NULL
+ * - node->recvreq == \c NULL
+ * - node->board == \c NULL
  * 
- * If the target board has no function parameters assigned (\c node->fparams 
- * is \c NULL), the node is moved into the ::TAGGING stage and the routine
- * returns successfully.
+ * Steps:
+ * -# Get pointer to board object and cache it in node->board
+ * -# Allocate memory for node->outcount
+ * -# If node->mb->filter == \c NULL or node->board->data->count_current = 0
+ *  -# set node->outcount[*] = node->board->data->count_current
+ *  -# set node->flag_shareOutbuf = ::MB_TRUE
+ * -# If node->board->filter != \c NULL
+ *  -# Use node->board->filter to build tag table in node->board->tt
+ *  -# Allocate memory for node->outcount
+ *  -# Initialise values in node->outcount[] based on contents of node->board->tt.
+ *     Keep count of outcount total as we go along. If total > node->board->data->count_current, 
+ *     fallback to full data replication
+ *   - clear tag table
+ *   - set node->outcount[*] = node->board->data->count_current
+ *   - set node->flag_fdrFallback = ::MB_TRUE
+ *   - set node->flag_shareOutbuf = ::MB_TRUE
+ * -# set node->stage to ::READY_FOR_PROP
  * 
- * If the function paramemters are set, <tt>MPI_Allgather</tt> is used to distribute
- * the size of parameters on each board. This is necessary as we now allow
- * for parameters of different sizes across all MPI tasks.
- * Do note that at this point, all boards MUST have their parameters 
- * defined with \c board->fparams_size \c > \c 0.
- * 
- * Once sizes are known, boards will send its parameters to other boards, and 
- * in turn receive parameters of all other boards. Non-blocking sends and 
- * receives are issued to propagate the parameters.
- * 
- * The user defined \c fparams pointer is used as the MPI output buffer to
- * avoid unnecessary duplication of memory. Therefore, users must be reminded
- * that their parameters should never be modified or deallocated while 
- * synchronisation is in progress.
- * 
- * The node is then moved to stage ::TAGINFO_SENT and the routine returns.
- * 
- * Side effects:
- * - if <tt>node->fparams != NULL</tt>
- *  - <tt>node->outbuf</tt> allocated with memory
- *  - <tt>node->outbuf[0]</tt> allocated with memory
- *  - <tt>node->outbuf[0]</tt> contains same data as \c node->fparams
- *  - <tt>node->sendreq</tt> allocated with memory
- *  - <tt>node->sendreq[*]</tt> contains valid MPI_Request values, apart 
- *    from <tt>node->sendreq[::MBI_CommRank]</tt> which should be set to
- *    \c MPI_REQUEST_NULL.
- *  - <tt>node->recvreq</tt> allocated with memory
- *  - <tt>node->recvreq[*]</tt> contains valid MPI_Request values, apart 
- *    from <tt>node->sendreq[::MBI_CommRank]</tt> which should be set to
- *    \c MPI_REQUEST_NULL.
- *  - <tt>node->inbuf</tt> allocated with memory
- *  - <tt>node->inbuf[*]</tt> allocated with memory, apart from 
- *    <tt>node->inbuf[::MBI_CommRank]</tt> which should be set to \c NULL
- *  - <tt>node->stage</tt> set to ::TAGINFO_SENT
- * - if <tt>node->fparams == NULL</tt>
- *  - <tt>node->outbuf</tt> remains \c NULL
- *  - <tt>node->inbuf</tt> remains \c NULL
- *  - <tt>node->sendreq</tt> remains \c NULL
- *  - <tt>node->recvreq</tt> remains \c NULL
- *  - <tt>node->stage</tt> set to ::TAGGING
- * Notes:
- *  - It might be possible to reduce memory usage by not copying param
- *    data to <tt>node->outbuf[0]</tt>. Instead, we pass address of 
- *    \c node->fparams to Issend(). However, since fparams holds a user 
- *    supplied pointer, there is a danger that the data might inadvertently 
- *    be modified while the transmission is in progress, leading to 
- *    hard-to-debug errors.
- *  
- * Possible return codes:
- *  - ::MB_SUCCESS
- *  - ::MB_ERR_MEMALLOC (Could not allocate required memory)
- *  - ::MB_ERR_MPI (MPI routine call failed)
- * 
- * 
+ * Post:
+ * - node->stage == ::READY_FOR_PROP
+ * - node->outcount != \c NULL
+ * - node->board != \c NULL
+ * - if (node->board->filter != NULL)
+ *  - if (node->flag_fdrFallback == ::MB_TRUE) node->board->tt == \c NULL
+ *  - if (node->flag_fdrFallback == ::MB_FALSE) node->board->tt != \c NULL
+ * - if node->board->filter == \c NULL or node->fdr_fallback == \c ::MB_TRUE
+ *  - node->flag_shareOutbuf == ::MB_TRUE
  */
-int MBIt_Comm_InitTagging(struct MBIt_commqueue *node) {
+int MBI_Comm_TagMessages(struct MBIt_commqueue *node) {
     
-    int i, rc, tag;
-    int param_size;
-    MBIt_Board *board;
+    char window;
+    int rc, i, c, w, p;
+    int total_tagged, mcount;
+    void *msg;
+    MBIt_TagTable *tt;
+    pl_address_node *pl_itr;
     
-    /* check that all is well before we proceed */
-    assert(node != NULL);
+    /* check that initial values are set properly */
     assert(node->stage == PRE_TAGGING);
+    assert(node->flag_fdrFallback == MB_FALSE);
+    assert(node->flag_shareOutbuf == MB_FALSE);
     assert(node->incount == NULL);
-    assert(MBI_CommSize != 1);
+    assert(node->outcount == NULL);
+    assert(node->inbuf == NULL);
+    assert(node->outbuf == NULL);
+    assert(node->recvreq == NULL);
+    assert(node->sendreq == NULL);
+    assert(node->board == NULL);
+
+    /* get reference to board object and cache ptr in node */
+    node->board = (MBIt_Board *)MBI_getMBoardRef(node->mb);
+    assert(node->board != NULL);
+    if (node->board == NULL) return MB_ERR_INVALID;
     
-    /* get reference to mboard */
-    board = (MBIt_Board*)MBI_getMBoardRef(node->mb);
-    assert(board != NULL);
-    assert(board->tagging == MB_TRUE);
-    assert(board->fh != MB_NULL_FUNCTION);
-    assert(NULL != MBI_getFunctionRef(board->fh));
+    /* check board state */
+    assert(node->board->locked == MB_TRUE);
+    assert(node->board->syncCompleted == MB_FALSE);
     
-    /* check if tagging requires function parameters */
-    if (board->fparams == NULL)
+    /* get message count */
+    mcount = (int)node->board->data->count_current;
+    
+    /* allocate memory for outcount */
+    node->outcount = (int *)calloc((size_t)MBI_CommSize, sizeof(int)); 
+    assert(node->outcount != NULL);
+    if (node->outcount == NULL) return MB_ERR_MEMALLOC;
+    
+    /* determined number of messages to send to remote procs */
+    if (mcount == 0 || MBI_CommSize == 1) /* nothing to send */
     {
-        /* skip parameter propagation */
-        node->stage = TAGGING;
-        return MB_SUCCESS;
+        /* outcount already initialised to 0 (calloc) */
+        /*for (i = 0; i < MBI_CommSize; i++) node->outcount[i] = 0;*/
+    }
+    else if (node->board->filter == (MBIt_filterfunc)NULL) /* no filter */
+    {   
+        /* send all messages to all procs (except self) */
+        for (i = 0; i < MBI_CommSize; i++)
+        {
+            node->outcount[i] = (i == MBI_CommRank) ? 0 : mcount;
+        }
+        
+        /* outgoing buffer can be shared */
+        node->flag_shareOutbuf = MB_TRUE;
+        
+    }
+    else /* filter assigned */
+    {        
+        /* create tag_table and assign to board */
+        rc = tt_create(&tt, mcount, MBI_CommSize);
+        assert(rc == TT_SUCCESS);
+        if (rc != TT_SUCCESS)
+        {
+            if (rc == TT_ERR_MEMALLOC) return MB_ERR_MEMALLOC;
+            else return MB_ERR_INTERNAL;
+        }
+        node->board->tt = tt; /* assign to board */
+        
+        /* initialise counters */
+        i = 0;
+        total_tagged = 0;
+        
+        /* loop thru messages and fill up tag table */
+        for (pl_itr = PL_ITERATOR(node->board->data); pl_itr; pl_itr = pl_itr->next)
+        {
+            assert(i < mcount);
+            
+            /* get reference to message from iterator */
+            msg = PL_NODEDATA(pl_itr);
+            assert(msg != NULL);
+            if (msg == NULL) return MB_ERR_INTERNAL;
+            
+            /* c : offset within byte buffer (window)
+             * w : window offset within table row
+             */
+            c = w = 0;
+            SETZEROS(window);
+            
+            /* run filter on message per MPI task */
+            for (p = 0; p < MBI_CommSize; p++)
+            {
+                if (p != MBI_CommRank)
+                {   
+                    /* if message accepted by filter */
+                    if (1 == (*node->board->filter)(msg, p))
+                    {
+                        /* set bit within our byte buffer */
+                        SETBIT(window, c);
+                        
+                        /* update outcount */
+                        node->outcount[p]++;
+                        total_tagged++;
+
+                    }
+                }
+                
+                
+                /* move index within window */
+                c++;
+                
+                /* when window full, write to table and shift window */
+                if (c == 8)
+                {
+                    /* write byte buffer to table */
+                    rc = tt_setbyte(node->board->tt, i, w, window);
+                    assert(rc == TT_SUCCESS);
+                    
+                    /* move window */
+                    w += 1;
+                    
+                    /* reset byte buffer */
+                    SETZEROS(window);
+                    c = 0;
+                }
+            }
+            
+            /* write remaining byte buffer */
+            if (w < (int)node->board->tt->row_size)
+            {
+                rc = tt_setbyte(node->board->tt, i, w, window);
+                assert(rc == TT_SUCCESS);
+            }
+            
+            /* increment counter */
+            i++;
+        }
+        assert(node->outcount[MBI_CommRank] == 0);
+        
+        /* Should we fall back to full data replication? */
+        if (total_tagged > mcount)
+        {
+            /* we don't need the tagtable any more */
+            node->board->tt = NULL;
+            rc = tt_delete(&tt);
+            assert(rc == TT_SUCCESS);
+            
+            /* send all messages to all remote procs */
+            node->flag_fdrFallback = MB_TRUE; /* fallback to full data replication */
+            node->flag_shareOutbuf = MB_TRUE; /* use shared buffer */
+            for (i = 0; i < MBI_CommSize; i++)
+            {
+                if (node->outcount[i] != 0) node->outcount[i] = mcount;
+            }
+        }
     }
     
-    /* if fparams != NULL, then size can't be 0 */
-    assert(board->fparams_size != 0);
+    /* move on to next stage */
+    node->stage = READY_FOR_PROP;
+    return MB_SUCCESS;
     
-    /* ------------ propagate fparam size --------------- */
+}
 
-    /* prep array to receive remote param sizes 
-     * - reuse incount var within "node"
-     */
-    node->incount = (int *)malloc(sizeof(int) * MBI_CommSize);
+/*! 
+ * \brief Send out expected buffer sizes to all procs
+ * \param[in] node address of CommQueue node
+ * \return Return Code
+ * 
+ * This routine is to be executed during the ::READY_FOR_PROP stage.
+ * 
+ * Steps:
+ * -# Allocate memory for node->incount
+ * -# Allocate memory for node->recvreq
+ * -# Issue MPI_Irecv from all remote procs
+ * -# Set node->pending_in = 1
+ * -# Allocate memory for node->sendreq
+ * -# Issue MPI_Issend to all remote procs
+ * -# Set node->pending_out = 1
+ * -# Set node->stage == ::BUFINFO_SENT
+ * 
+ * Post:
+ * - node->stage == ::BUFINFO_SENT
+ * - node->incount != \c NULL
+ * - node->outcount != \c NULL
+ * - node->sendreq != \c NULL
+ * - node->recvreq != \c NULL
+ * - node->pending_out == 1
+ * - node->pending_in == 1
+ * 
+ */ 
+int MBI_Comm_SendBufInfo(struct MBIt_commqueue *node) {
+    
+    int i, rc, tag;
+    
+    assert(node->stage == READY_FOR_PROP);
+    assert(node->outcount != NULL);
+    assert(node->incount  == NULL);
+    assert(node->board != NULL);
+    
+    /* allocate memory for incount */
+    node->incount = (int*)malloc(MBI_CommSize * sizeof(int));
     assert(node->incount != NULL);
     if (node->incount == NULL) return MB_ERR_MEMALLOC;
-
     
-    /* get local param size */
-    param_size = (int)board->fparams_size;
-    
-    /* NOTE: this is an unoptimised version
-     * - for simplicity, we use MPI_Allgather to propagate param sizes.
-     *   We would ideally want to use non-blocking sends/recvs to begin
-     *   the propagation, then complete the communication at a later stage.
-     * - This is blocking, and will synchronise all mpi tasks.
-     */
-    rc = MPI_Allgather(&param_size, 1, MPI_INT, 
-                       node->incount, 1, MPI_INT, MBI_CommWorld);
-    assert(rc == MPI_SUCCESS);
-    if (rc != MPI_SUCCESS) return MB_ERR_MPI;
-    
-    /* we don't need to send anything to ourself */
-    node->incount[MBI_CommRank] = 0;
-    
-    /* quick check to make sure we're expecting something */
-
-    
-    /* ----------- initiate non-blocking sends ---------- */
-    
-    /* define MPI tag to use for communication */
-    assert(node->mb <= MBI_TAG_BASE);
-    tag = MBI_TAG_FHDATA | node->mb;
-    assert(tag < MBI_TAG_MAX);
-    
-    /* NOTE: we don't prep an output buffer. Instead, we use the param pointer
-     *       provided by the user
-     * - This saves having to do a potentially huge memory copy.
-     * - Make sure users are aware that they should not change the param
-     *   pointer or the data it points to mid-sync!!!
-     */
-    node->outbuf = NULL;
-    
-    /* quick check to ensure function param pointer was set */
-    assert(board->fparams != NULL);
-    assert(param_size != 0);
-    
-    /* allocate memory for send requests */
-    node->sendreq = (MPI_Request *)malloc(sizeof(MPI_Request) * MBI_CommSize);
+    /* allocate memory for sendreq */
+    node->sendreq = (MPI_Request *)malloc(MBI_CommSize * sizeof(MPI_Request));
     assert(node->sendreq != NULL);
     if (node->sendreq == NULL) return MB_ERR_MEMALLOC;
     
-    /* issue sends to all other MPI tasks */
+    /* allocate memory for recvreq */
+    node->recvreq = (MPI_Request *)malloc(MBI_CommSize * sizeof(MPI_Request));
+    assert(node->recvreq != NULL);
+    if (node->recvreq == NULL) return MB_ERR_MEMALLOC;
+    
+    /* generate unique tag from this board */
+    assert(node->mb <= MBI_TAG_BASE);
+    tag = MBI_TAG_MSGDATA | node->mb;
+    assert(tag < MBI_TAG_MAX);
+    
+    /* issue irecv from all remote procs */
     for (i = 0; i < MBI_CommSize; i++)
     {
         if (i == MBI_CommRank)
         {
-            /* don't send to self */
-            node->sendreq[i] = MPI_REQUEST_NULL;
-            continue;
+            node->incount[i] = 0;
+            node->recvreq[i] = MPI_REQUEST_NULL;
         }
-        
-        /* issue non-blocking send */
-        rc = MPI_Issend(board->fparams, param_size, MPI_BYTE, i, tag,
-                        MBI_CommWorld, &(node->sendreq[i]));
-        assert(rc == MPI_SUCCESS);
-        if (rc != MPI_SUCCESS) return MB_ERR_MPI;
+        else
+        {
+            rc = MPI_Irecv(&(node->incount[i]), 1, MPI_INT, i, tag, 
+                    MBI_CommWorld, &(node->recvreq[i])); 
+            assert(rc == MPI_SUCCESS);
+            if (rc != MPI_SUCCESS) return MB_ERR_MPI;
+        }
     }
 
     
-    /* ----------- initiate non-blocking receives ---------- */
-      
-    
-
-    
-
-    /* allocate memory for input buffer */
-    node->inbuf = (void **)malloc(sizeof(void*) * MBI_CommSize);
-    assert(node->inbuf != NULL);
-    if (node->inbuf == NULL) return MB_ERR_MEMALLOC;
-    
-    /* allocate memory for recv request array */
-    node->recvreq = (MPI_Request *)malloc(sizeof(MPI_Request) * MBI_CommSize);
-    assert(node->recvreq != NULL);
-    if (node->recvreq == NULL) return MB_ERR_MEMALLOC;
-    
-    /* issue non-blocking receives from appropriate MPI tasks */
+    /* issue issends to all remote procs */
     for (i = 0; i < MBI_CommSize; i++)
     {
-        if (node->incount[i] == 0)
+        if (i == MBI_CommRank)
         {
-            node->inbuf[i]   = NULL;
-            node->recvreq[i] = MPI_REQUEST_NULL;
-            continue;
+            node->sendreq[i] = MPI_REQUEST_NULL;
         }
-        
-        /* we should never have to send to ourself */
-        assert(i != MBI_CommRank);
-        
-        /* allocate memory for incoming message */
-        /* note: at this point, incount[] stores sizes in bytes */
-        node->inbuf[i] = malloc((size_t)node->incount[i]);
-        assert(node->inbuf[i] != NULL);
-        if (node->inbuf[i] == NULL) return MB_ERR_MEMALLOC;
-        
-        rc = MPI_Irecv(node->inbuf[i], node->incount[i], MPI_BYTE, i, tag,
-                       MBI_CommWorld, &(node->recvreq[i]));
-        assert(rc == MPI_SUCCESS);
-        if (rc != MPI_SUCCESS) return MB_ERR_MPI;
-    }
-
-    /* ----------------- move comm progress to next stage -------------- */
-    node->stage = TAGINFO_SENT;
-    
-    return MB_SUCCESS;
-}
-
-/*! 
- * \brief Wait for propagation of function parameters to complete
- * \param[in] node address of CommQueue node
- * \return Return Code
- *
- * This routine should only be called by processPendingComms() within
- * the communication thread when processing a node that is in the
- * ::TAGINFO_SENT stage.
- * 
- * It should only be called when run in parallel (with more than one MPI task).
- * 
- * If \c node->sendreq or \c node->recvreq are not \c NULL, we assume
- * that there are pending sends/receives to complete.
- * 
- * Use <tt>MPI_Testall()</tt> to check if communication has completed.
- * If either sends or receives are completed, \c node->*req is freed
- * and set to \c NULL.
- * 
- * When all sends and receives are completed, the node is moved into
- * the ::TAGGING stage.
- * 
- * Side effects:
- * - if <tt>node->sendreq != NULL</tt> and sends are completed
- *  - \c node->sendreq is freed and set to \c NULL
- *  - <tt>node->outbuf[0]</tt> is freed
- *  - \c node->outbuf is freed
- * - if <tt>node->recvreq != NULL</tt> and receives are completed
- *  - \c node->recvreq is freed and set to \c NULL
- * - if both \c node->sendreq and \c node->recvreq are \c NULL
- *  - \c node->stage is set to ::TAGGING
- * 
- * Possible return codes:
- *  - ::MB_SUCCESS
- *  - ::MB_ERR_MPI (MPI routine call failed)
- */ 
-int MBIt_Comm_WaitTagInfo(struct MBIt_commqueue *node) {
-    
-    int rc, completed;
-    
-    /* check that all is well before we proceed */
-    assert(node != NULL);
-    assert(node->stage == TAGINFO_SENT);
-    assert(MBI_CommSize != 1);
-    
-    /* handle sends */
-    if (node->sendreq != NULL)
-    {
-        rc = MPI_Testall(MBI_CommSize, node->sendreq, &completed, MPI_STATUSES_IGNORE);
-        assert(rc == MPI_SUCCESS);
-        if (rc != MPI_SUCCESS) return MB_ERR_MPI;
-        
-        if (completed)
+        else
         {
-            free(node->sendreq);
-            node->sendreq = NULL;
+            /* send send send... */
+            rc = MPI_Issend(&(node->outcount[i]), 1, MPI_INT, i, tag, 
+                    MBI_CommWorld, &(node->sendreq[i])); 
+            assert(rc == MPI_SUCCESS);
+            if (rc != MPI_SUCCESS) return MB_ERR_MPI;
         }
     }
     
-    /* handle receives */
-    if (node->recvreq != NULL)
-    {
-        rc = MPI_Testall(MBI_CommSize, node->recvreq, &completed, MPI_STATUSES_IGNORE);
-        assert(rc == MPI_SUCCESS);
-        if (rc != MPI_SUCCESS) return MB_ERR_MPI;
-        
-        if (completed) 
-        {
-            free(node->recvreq);
-            node->recvreq = NULL;
-        }
-    }
-    
-    /* if sends and recvs are completed, tag messages */
-    if (node->sendreq == NULL && node->recvreq == NULL)
-    {
-        /* move on to next stage */
-        node->stage = TAGGING;
-
-    }
-    
-    return MB_SUCCESS;
-}
-
-/*! 
- * \brief Allocate and populate tag table within message board
- * \param[in] node address of CommQueue node
- * \return Return Code
- *
- * This routine should only be called by processPendingComms() within
- * the communication thread when processing a node that is in the
- * ::TAGGING stage.
- * 
- * It should only be called when run in parallel (with more than one MPI task).
- * 
- * If there are messages in the board, a ::tag_table object is created 
- * and assigned to the \c board. It is then populated
- * by looping thru the message board (using an iterator), and for each 
- * message, applying the filter function from all remote boards.
- * 
- * \c node->inbuf is then freed and the node is moved into the
- * ::PRE_PROPAGATION stage.
- * 
- * Side effects:
- * - If \c board is not empty, ::tag_table within board is initialised and populated
- * - \c node->inbuf is freed and set to \c NULL
- * - \c node->stage is set to ::PRE_PROPAGATION
- * 
- * Possible return codes:
- *  - ::MB_SUCCESS
- *  - ::MB_ERR_MEMALLOC (could not allocate required memory)
- *  - ::MB_ERR_INTERNAL (calls to internal routines failed. Run in debug mode for details)
- */ 
-int MBIt_Comm_TagMessages(struct MBIt_commqueue *node) {
-    
-    char window;
-    void *params;
-    void *msg;
-    int i, c, w, p;
-    int rc, mcount;
-    MBIt_Board *board;
-    MBIt_filterfunc func;
-    pl_address_node *pl_itr;
-    
-    /* check that all is well before we proceed */
-    assert(node != NULL);
-    assert(node->stage == TAGGING);
-    assert(MBI_CommSize != 1);
-    
-    /* get reference to mboard */
-    board = (MBIt_Board*)MBI_getMBoardRef(node->mb);
-    assert(board != NULL);
-    assert(board->tagging == MB_TRUE);
-    assert(board->fh != MB_NULL_FUNCTION);
-    assert(NULL != MBI_getFunctionRef(board->fh));
-    assert(board->data != NULL);
-    assert(board->tt == NULL);
-    if (board == NULL) return MB_ERR_INTERNAL;
-    
-    /* -------------- init TagTable object ----------------- */
-    
-    /* how many messages do we have in the board? */
-    mcount = (int)board->data->count_current;
-    
-    /* create tagtable object */
-    if (mcount > 0)
-    {
-        rc = tt_create(&(board->tt), mcount, MBI_CommSize);
-        assert(rc == TT_SUCCESS);
-        assert(board->tt != NULL);
-        if (rc != TT_SUCCESS || board->tt == NULL) return MB_ERR_INTERNAL;
-    }
-    
-    /* --------------- start tagging messages ------------------ */
-    
-    /* get ptr to associated filter function */
-    /* NOTE: We're assuming that all MPI Tasks have this board assigned with
-     *       the same Function Handle
-     * - This is checked during MB_Function_Assign() when run in debug mode
-     * - Do remind users!
-     */
-    func = ((MBIt_filterfunc_wrapper*)MBI_getFunctionRef(board->fh))->func;
-    assert(func != NULL);
-    if (func == NULL) return MB_ERR_INTERNAL;
-    
-    /* loop thru messages */
-    i = 0;
-    for (pl_itr = PL_ITERATOR(board->data); pl_itr; pl_itr = pl_itr->next)
-    {
-        /* get reference to message object */
-        msg = PL_NODEDATA(pl_itr);
-        assert(msg != NULL);
-        if (msg == NULL) return MB_ERR_INTERNAL;
-        
-        /* c : offset within byte buffer (window)
-         * w : window offset within table row
-         */
-        c = w = 0;
-        SETZEROS(window);
-        
-        /* run filter on message per MPI task */
-        for (p = 0; p < MBI_CommSize; p++)
-        {
-            if (p != MBI_CommRank)
-            {   
-                /* assign params pointer for this MPI task */
-                params = (board->fparams == NULL)? NULL : node->inbuf[p];
-                
-                /* if message accepted by filter */
-                if (1 == (*func)(msg, params))
-                {
-                    /* set bit within our byte buffer */
-                    SETBIT(window, c);
-                }
-            }
-            
-            /* move index within window */
-            c += 1;
-            
-            /* when window full, write to table and shift window */
-            if (c == 8)
-            {
-                /* write byte buffer to table */
-                rc = tt_setbyte(board->tt, i, w, window);
-                assert(rc == TT_SUCCESS);
-                
-                /* move window */
-                w += 1;
-                
-                /* reset byte buffer */
-                SETZEROS(window);
-                c = 0;
-            }
-        }
-        
-        /* write remaining byte buffer */
-        if (w < (int)board->tt->row_size)
-        {
-            rc = tt_setbyte(board->tt, i, w, window);
-            assert(rc == TT_SUCCESS);
-        }
-        
-        /* before we go on to next message */
-        i++;
-        assert(i <= mcount);
-    }
-    
-    /* free inbuf */
-    if (node->inbuf)
-    {
-        for (i = 0; i < MBI_CommSize; i++)
-        {
-            if (node->inbuf[i]) free(node->inbuf[i]);
-        }
-        free(node->inbuf);
-        node->inbuf = NULL;
-    }
+    node->pending_in  = 1;
+    node->pending_out = 1;
     
     /* move on to next stage */
-    node->stage = PRE_PROPAGATION;
+    node->stage = BUFINFO_SENT;
+    return MB_SUCCESS;
     
+}
+
+/*! 
+ * \brief Wait for all send/receives of bufinfo to complete
+ * \param[in] node address of CommQueue node
+ * \return Return Code
+ *
+ * This routine is to be executed during the ::BUFINFO_SENT stage.
+ * 
+ * Steps:
+ * -# if node->pending_in != 0, MPI_Testall() receives
+ *  - if completed, set node->pending_in = 0
+ * -# if node->pending_out != 0, MPI_Testall() sends
+ *  - if completed, set node->pending_out = 0
+ * -# if node->pending_in == 0 and node->pending_out == 0
+ *  - set node->stage = PRE_PROPAGATION
+ * 
+ * Post:
+ * - if node->pending_in == 0 and node->pending_out == 0
+ *  - node->stage == PRE_PROPAGATION
+ * - else
+ *  - node->stage == BUFINFO_SENT
+ */ 
+int MBI_Comm_WaitBufInfo(struct MBIt_commqueue *node) {
+    
+    int rc, flag;
+    
+    assert(node->stage == BUFINFO_SENT); 
+    assert(node->outcount != NULL);
+    assert(node->incount  != NULL);
+    assert(node->sendreq  != NULL);
+    assert(node->recvreq  != NULL);
+    assert(node->board != NULL);
+    
+    /* check receives */
+    if (node->pending_in != 0)
+    {
+        rc = MPI_Testall(MBI_CommSize, node->recvreq, &flag, MPI_STATUSES_IGNORE);
+        assert(rc == MPI_SUCCESS);
+        if (rc != MPI_SUCCESS) return MB_ERR_MPI;
+        
+        if (flag) node->pending_in = 0;
+    }
+    
+    /* check sends */
+    if (node->pending_out != 0)
+    {
+        rc = MPI_Testall(MBI_CommSize, node->sendreq, &flag, MPI_STATUSES_IGNORE);
+        assert(rc == MPI_SUCCESS);
+        if (rc != MPI_SUCCESS) return MB_ERR_MPI;
+        
+        if (flag) node->pending_out = 0;
+    }
+    
+    /* if all done, move on to next stage */
+    if (node->pending_in == 0 && node->pending_out == 0)
+    {
+        node->stage = PRE_PROPAGATION;
+    }
+
     return MB_SUCCESS;
 }
 
@@ -511,430 +415,326 @@ int MBIt_Comm_TagMessages(struct MBIt_commqueue *node) {
  * \param[in] node address of CommQueue node
  * \return Return Code
  *
- * This routine should only be called by processPendingComms() within
- * the communication thread when processing a node that is in the
- * ::PRE_PROPAGATION stage.
+ * This routine is to be executed during the ::PRE_PROPAGATION stage.
  * 
- * It should only be called when run in parallel (with more than one MPI task).
+ * Steps:
+ * -# Allocate memory for node->inbuf (based on node->incount)
+ * -# Issue MPI_Irecv() for each non-0 counts. node->pending_in++
+ * -# Allocate memory for node->outbuf 
+ * -# Set up non-blocking sends
+ *  - If node->flag_shareOutbuf == ::MB_TRUE
+ *   - Allocate memory for node->outbuf[0] + 1 byte for header
+ *   - if node->board->filter != \c NULL Set delayed_filtering flag in header to ::MB_TRUE
+ *   - if node->board->filter == \c NULL Set delayed_filtering flag in header to ::MB_FALSE
+ *   - Issue MPI_Issend() to all remote procs. node->pending_out++
+ *  - If node->flag_shareOutbuf == ::MB_FLASE
+ *   - Ensure that node->board->filter != \c NULL and 
+ *        node->flag_fdrFallback == ::MB_FALSE
+ *   - For each remote node i, if node->outcount[i] != 0
+ *    - Allocate memory for node->outbuf[i] + 1 byte for header
+ *    - Set delayed_filtering flag in header to ::MB_FALSE
+ *    - Copy tagged messages for proc i to buffer
+ *    - delete node->board->tt
+ *    - Issue MPI_Issend(). node->pending_out++
+ * -# free node->outcount
+ * -# Set node->stage == ::PROPAGATION
  * 
- * At this point, all buffers (\c node->inbuf, \c node->outbuf) and request 
- * tables (\c node->sendreq, \c node->recvreq) should be have been dealloacted
- * and set to \c NULL.
+ * Post:
+ * -# node->stage == ::PROPAGATION
+ * -# node->outcount == \c NULL
+ * -# node->outbuf != \c NULL
+ * -# node->inbuf != \c NULL
+ * -# node->board->tt == \c NULL
  * 
- * If \c node->incount was not previously allocated (it would have been if 
- * the \c node went through the ::PRE_TAGGING stage), allocate it as an
- * \c int array of size ::MBI_CommSize. \c outcount is also allocated as an 
- * \c int array of the same size.
- * 
- * We populate and distribute the \c outcount array to inform
- * remote nodes of the number of messages to expect. Count information
- * from remote nodes are received into \c node->incount.
- * If the board's ::tag_table is not present, all messages in the local board has
- * to be sent to all remote nodes, and we end up with full data replication.
- * 
- * \c MPI_Alltoall is used to distribute and receive the count arrays. This
- * will effective acts as a barrier that synchronises all procs. To avoid 
- * this, we could possibly split this routine further into two stages and 
- * use \c MPI_Issend and \c MPI_Irecv.
- * 
- * Initiating receives: by looking at \c node->incount, we know how many 
- * messages to expect from each remote board. If not \c 0, 
- * <tt>node->inbuf[?]</tt> is allocated and MPI_Irecv issued. If \c 0,
- * <tt>node->inbuf[?]</tt> is set to NULL and <tt>node->recvreq[?]</tt>
- * set to \c MPI_REQUEST_NULL.
- * 
- * Initiating sends (no tagging): All remote boards are to be sent the 
- * same data - everything in the local board. Only <tt>node->outbuf[0]</tt>
- * need to be allocate and populated. \c MPI_Issend() is used to send
- * <tt>node->outbuf[0]</tt> to all remote boards.
- * 
- * Initiating sends (with tagging): by looking at \c outcount, we know 
- * how many we need to send to each remote board. 
- * <tt>node->outbuf[?]</tt> is allocated based on this information 
- * (set to \c NULL if no messages need to be sent). Messages in the local
- * board are then copied to the appropriate <tt>node->outbuf[?]</tt> 
- * depending on the tagging. \c MPI_Issend() is used to send 
- * <tt>node->outbuf[?]</tt> to all remote boards that are expecting messages. 
- * 
- * If available, the board's ::tag_table is deleted.
- * 
- * 
- * Side effects:
- * - Tag table (\c board->tt) freed and set to \c NULL
- * - \c node->incount allocated with memory
- * - \c node->sendreq allocated with memory 
- * - \c node->recvreq allocated with memory 
- * - \c node->inbuf allocated with memory 
- * - <tt>node->inbuf[i]</tt> allocate with memory for \c i where
- *   <tt>node->incount[i] != 0</tt>. Otherwise, <tt>node->inbuf[i]</tt>
- *   set to \c NULL.
- * - <tt>node->recvreq[i]</tt> set with valid \c MPI_Request for \c i where
- *   <tt>node->incount[i] != 0</tt>. Otherwise, <tt>node->recvreq[i]</tt>
- *   set to \c MPI_REQUEST_NULL.
- * - \c node->outbuf allocated with memory 
- * - if <tt>board->tagging == MB_TRUE</tt>
- *  - if each proc \c i that has messages tagged
- *   - <tt>node->outbuf[i]</tt> allocated with memory
- *   - <tt>node->sendreq[i]</tt> set with valid MPI_Request
- *  - else
- *   - <tt>node->outbuf[i]</tt> set to \c NULL
- *   - <tt>node->sendreq[i]</tt> set t \c MPI_REQUEST_NULL
- * - if <tt>board->tagging == MB_FALSE</tt>
- *  - <tt>node->outbuf[*]</tt> set to \c NULL, except for 
- *    <tt>node->outbuf[0]</tt> which is allocated with memory
- *  - <tt>node->outbuf[0]</tt> has copy of all messages in local board
- *  - <tt>node->sendreq[*]</tt> set with valid \c MPI_Request, except for
- *    <tt>node->sendreq[::MBI+CommRank]</tt> which is set to 
- *    \c MPI_REQUEST_NULL.
- * - \c node->stage set to ::PROPAGATION
- * 
- * Possible return codes:
- *  - ::MB_SUCCESS
- *  - ::MB_ERR_MEMALLOC (could not allocate required memory)
- *  - ::MB_ERR_MPI (MPI routine call failed)
- *  - ::MB_ERR_INTERNAL (calls to internal routines failed. Run in debug mode for details)
  */ 
-int MBIt_Comm_InitPropagation(struct MBIt_commqueue *node) {
+int MBI_Comm_InitPropagation(struct MBIt_commqueue *node) {
   
-    int rc;
-    int i, w, b, p, m;
-    int tag, msgsize;
-    int *bufindex = NULL;
-    int *outcount;
+
+    int mcount;
+    int w, b, p;
+    int i, rc, tag, bufloc;
     void *msg;
-    char *row, window;
+    char *outptr, *row;
+    char *header_byte;
+    char **loc;
+    char window;
+    size_t msgsize;
     pl_address_node *pl_itr;
-    MBIt_Board *board;
     
-    assert(node != NULL);
-    assert(node->inbuf == NULL);
-    assert(node->outbuf == NULL);
-    assert(node->sendreq == NULL);
-    assert(node->recvreq == NULL);
+#ifdef _EXTRA_CHECKS
+    int *msg_copied;
+    msg_copied = (int*)calloc((size_t)MBI_CommSize, sizeof(int));
+#endif
+    
     assert(node->stage == PRE_PROPAGATION);
-    assert(MBI_CommSize != 1);
+    assert(node->outcount != NULL);
+    assert(node->incount  != NULL);
+    assert(node->sendreq  != NULL);
+    assert(node->recvreq  != NULL);
+    assert(node->pending_in  == 0);
+    assert(node->pending_out == 0);
+    assert(node->inbuf  ==  NULL);
+    assert(node->outbuf ==  NULL);
+    assert(node->board  != NULL);
     
-    /* get reference to board */
-    board = (MBIt_Board *)MBI_getMBoardRef(node->mb);
-    assert(board != NULL);
-    if(board == NULL) return MB_ERR_INTERNAL;
-    
-    /* prep memory for storing incount */
-    if (node->incount == NULL) /* if not created in previous stages */
-    {
-        node->incount = (int*)malloc(sizeof(int) * MBI_CommSize);
-        assert(node->incount != NULL);
-        if (node->incount == NULL) return MB_ERR_MEMALLOC;
-    }
-    
-    /* prepare memory for storing outcount */
-    outcount = (int*)malloc(sizeof(int) * MBI_CommSize);
-    assert(outcount != NULL);
-    if (outcount == NULL) return MB_ERR_MEMALLOC;
-    
-    /* define MPI tag to use for communication */
+    /* generate unique tag from this board */
     assert(node->mb <= MBI_TAG_BASE);
     tag = MBI_TAG_MSGDATA | node->mb;
     assert(tag < MBI_TAG_MAX);
     
-    /* -------- determine number of messages to send to each MPI task ---- */
+    /* get message size and count */
+    msgsize = node->board->data->elem_size;
+    mcount  = (int)node->board->data->count_current;
     
-    if (board->tagging == MB_FALSE || board->data->count_current == 0)
-    { /* messages not tagged or if board empty */
-        for (i = 0; i < MBI_CommSize; i++)
-        {
-            if (i == MBI_CommRank) 
-            {
-                outcount[i] = 0;
-                continue;
-            }
-            outcount[i] = (int)board->data->count_current;
-        }
-    }
-    else
-    {
-        assert(board->tt != NULL);
-        
-        /* allocate memory for buffer index */
-        bufindex = (int *)malloc(sizeof(int) * MBI_CommSize);
-        assert(bufindex != NULL);
-        if (bufindex == NULL) return MB_ERR_MEMALLOC;
-        
-        for (i = 0; i < MBI_CommSize; i++)
-        {
-            /* init bufindex value */
-            bufindex[i] = 0;
-            
-            if (i == MBI_CommRank) 
-            {
-                outcount[i] = 0;
-                continue;
-            }
-            
-            rc = tt_getcount_col(board->tt, i, &(outcount[i]));
-            assert(rc == TT_SUCCESS);
-        }
-    }
-    
-    /* ----- determine number of messages to expect from each MPI Task --- */
-    
-    /* NOTE: For simplicity, we use MPI_Alltoall. 
-     * - This is blocking and collective, so it synchronises all MPI Tasks
-     * - To optimise this, use non-blocking sends and complete the comm later
-     */
-    assert(outcount != NULL);
-    assert(node->incount != NULL);
-    rc = MPI_Alltoall(outcount, 1, MPI_INT, 
-                      node->incount, 1, MPI_INT, MBI_CommWorld);
-    assert(rc == MPI_SUCCESS);
-    if (rc != MPI_SUCCESS) return MB_ERR_MPI;
-    
-    
-    /* ---- Issue non-blocking receives ------------------------ */
-    
-    /* allocate memory for requests */
-    node->recvreq = (MPI_Request *)malloc(sizeof(MPI_Request) * MBI_CommSize);
-    assert(node->recvreq != NULL);
-    if (node->recvreq == NULL) return MB_ERR_MEMALLOC;
-    
-    /* allocate array for input buffers  */
-    node->inbuf = (void **)malloc(sizeof(void *) * MBI_CommSize);
+    /* Allocate memory for input buffers */
+    node->inbuf = (void **)malloc(sizeof(void*) * MBI_CommSize);
     assert(node->inbuf != NULL);
     if (node->inbuf == NULL) return MB_ERR_MEMALLOC;
     
-    /* determine size of message */
-    msgsize = (int)board->data->elem_size;
+    /* Allocate memory for output buffers */
+    node->outbuf = (void **)malloc(sizeof(void*) * MBI_CommSize);
+    assert(node->outbuf != NULL);
+    if (node->outbuf == NULL) return MB_ERR_MEMALLOC;
     
-    /* issue receives from appropriate MPI Tasks */
-    node->pending_in = 0;
+
+    /* ------- issue receives --------- */
+    
+    assert(node->incount[MBI_CommRank] == 0);
     for (i = 0; i < MBI_CommSize; i++)
     {
         if (node->incount[i] == 0)
         {
-            node->inbuf[i] = NULL;
+            /* no comms from this proc */
+            node->inbuf[i]   = NULL;
             node->recvreq[i] = MPI_REQUEST_NULL;
-            continue;
-        }
-        
-        /* quick check. We should not need to send any to self */
-        assert(i != MBI_CommRank);
-        
-        /* allocate memory for input buffer */
-        node->inbuf[i] = malloc((size_t)(node->incount[i] * msgsize));
-        assert(node->inbuf[i] != NULL);
-        if (node->inbuf[i] == NULL) return MB_ERR_MEMALLOC;
-        
-        /* issue non-blocking receive */
-        rc = MPI_Irecv(node->inbuf[i], node->incount[i] * msgsize, MPI_BYTE,
-                       i, tag, MBI_CommWorld, &(node->recvreq[i]));
-        assert(rc == MPI_SUCCESS);
-        if (rc != MPI_SUCCESS) return MB_ERR_MPI;
-        
-        node->pending_in ++;
-    }
-    
-    
-    /* ------ issue non-blocking sends ---------------------------- */
-    
-    /* allocate memory for requests */
-    node->sendreq = (MPI_Request *)malloc(sizeof(MPI_Request) * MBI_CommSize);
-    assert(node->sendreq != NULL);
-    if (node->sendreq == NULL) return MB_ERR_MEMALLOC;
-    
-    /* allocate array for output buffers  */
-    node->outbuf = (void **)malloc(sizeof(void *) * MBI_CommSize);
-    assert(node->outbuf != NULL);
-    if (node->outbuf == NULL) return MB_ERR_MEMALLOC;
-    
-    node->pending_out = 0;
-    
-    if (board->data->count_current > 0)
-    {
-        /* message board not tagged */
-        if (board->tagging == MB_FALSE)
-        {             
-            /* quick check */
-            assert(board->tt == NULL);
-            
-            /* we only need to allocate one output buffer since we're sending
-             * the same data to all MPI tasks */
-
-            node->outbuf[0] = malloc((size_t)(board->data->count_current * msgsize));
-            assert(node->outbuf[0] != NULL);
-            if (node->outbuf[0] == NULL) return MB_ERR_MEMALLOC;
-
-            /* copy messages into buffer */
-            i = 0;
-            for (pl_itr = PL_ITERATOR(board->data); pl_itr; pl_itr = pl_itr->next)
-            {
-                /* get reference to message object */
-                msg = PL_NODEDATA(pl_itr);
-                assert(msg != NULL);
-                
-                memcpy((char*)node->outbuf[0] + (i * msgsize), msg, (size_t)msgsize);
-                i++;
-            }
-            
-            for (i = 0; i < MBI_CommSize; i++)
-            {
-                /* don't need other outbuf since we're sharing */
-                if (i != 0) node->outbuf[i] = NULL;
-                
-                /* don't send to self */
-                if (i == MBI_CommRank)
-                {
-                    node->sendreq[i] = MPI_REQUEST_NULL;
-                    continue;
-                }
-                
-                /* issue send */
-                rc = MPI_Issend(node->outbuf[0], (int)board->data->count_current * msgsize,
-                                MPI_BYTE, i, tag, MBI_CommWorld, &(node->sendreq[i]));
-                assert(rc == MPI_SUCCESS);
-                if (rc != MPI_SUCCESS) return MB_ERR_MPI;
-                
-                node->pending_out ++;
-            }
         }
         else
         {
-            /* quick check */
-            assert(board->tt != NULL);
+            /* allocate memory for input buffer */
+            node->inbuf[i] = (void*)malloc(1 + (msgsize * node->incount[i]));
+            assert(node->inbuf[i] != NULL);
+            if (node->inbuf[i] == NULL) return MB_ERR_MEMALLOC;
             
-            /* prep output buffers */
-            for (i = 0; i < MBI_CommSize; i++)
-            {
-                if (outcount[i] == 0)
-                {
-                    node->outbuf[i]  = NULL;
-                    node->sendreq[i] = MPI_REQUEST_NULL;
-                    continue;
-                }
-                
-                /* we should never need to send to self */
-                assert(i != MBI_CommRank);
-                
-                /* allocate output buffers */
-
-                node->outbuf[i] = malloc((size_t)(outcount[i] * msgsize));
-
-                assert(node->outbuf[i] != NULL);
-                if (node->outbuf[i] == NULL) return MB_ERR_MEMALLOC;
-            }
+            /* issue non-blocking receive */
+            rc = MPI_Irecv(node->inbuf[i], 1 + (int)(msgsize * node->incount[i]), 
+                    MPI_BYTE, i, tag, MBI_CommWorld, &(node->recvreq[i]));
+            assert(rc == MPI_SUCCESS);
+            if (rc != MPI_SUCCESS) return MB_ERR_MPI;
             
-            /* copy tagged messages */
-            i = 0;
-            for (pl_itr = PL_ITERATOR(board->data); pl_itr; pl_itr = pl_itr->next)
-            {
-                /* get reference to message object */
-                msg = PL_NODEDATA(pl_itr);
-                assert(msg != NULL);
-                
-                /* get ptr to row in tag table */
-                rc = tt_getrow(board->tt, i, &row);
-                assert(rc == TT_SUCCESS);
-                assert(row != NULL);
-                if (rc != TT_SUCCESS || row == NULL) return MB_ERR_INTERNAL;
-                
-                /* w: window index within row (in units of bytes)
-                 * b: bit index within window (in units of bits)
-                 * p: process (mpi task) represented by w&b
-                 * m: offset within output buffer (in units of bytes)
-                 */
-                for (w = 0; w < (int)board->tt->row_size; w++)
-                {
-                    window = *(row + w);
-                    
-                    b = 0;
-                    while (window != ALLZEROS)
-                    {
-                        if (MSB_IS_SET(window))
-                        {
-                            /* determine which MPI task this refers to */
-                            p = (w * 8) + b;
-                            assert(p >= 0);
-                            assert(p < MBI_CommSize);
-                            assert(p != MBI_CommRank);
-                            
-                            /* calculate offser within output buffer */
-                            m = bufindex[p] * msgsize;
-                            
-                            /* copy message to appropriate output buffer */
-                            memcpy((void *)((char*)(node->outbuf[p]) + m), 
-                                   msg, (size_t)msgsize);
-                            
-                            /* move buffer index */
-                            bufindex[p]++;
-                        }
-                        
-                        /* shift bit and repeat */
-                        window = window << 1;
-                        b ++;
-                    }
-                }
-                
-                /* on to next message */
-                i++;
-                assert(i <= (int)board->data->count_current);
-            }
-            
-            /* delete tag table */
-            rc = tt_delete(&(board->tt));
-            assert(rc == TT_SUCCESS);
-            assert(board->tt == NULL);
-            if (rc != TT_SUCCESS || board->tt != NULL) return MB_ERR_INTERNAL;
-            
-            #ifdef _EXTRA_CHECKS
-            for (i = 0; i < MBI_CommSize; i++)
-            {
-                assert (outcount[i] == bufindex[i]);
-            }
-            #endif
-            
-            /* free buf index array */
-            free(bufindex);
-            
-            for (i = 0; i < MBI_CommSize; i++)
-            {
-                
-                if (outcount[i] == 0) continue;
-                
-                /* issue send */
-                rc = MPI_Issend(node->outbuf[i], outcount[i] * msgsize, MPI_BYTE,
-                                i, tag, MBI_CommWorld, &(node->sendreq[i]));
-                assert(rc == MPI_SUCCESS);
-                if (rc != MPI_SUCCESS) return MB_ERR_MPI;
-                
-                node->pending_out ++;
-            }
-
+            /* increment counter */
+            node->pending_in++;
         }
+    }
+    
+    /* ----------- build output buffers ----------------- */
+    
+    for (i = 0; i < MBI_CommSize; i++) node->outbuf[i] = NULL;
+
+    /* create output buffers and copy in messages */
+    if (MBI_CommSize == 1 || mcount == 0)
+    {
+        /* nothing to do if only one proc or no messages */
+    }
+    else if (node->flag_shareOutbuf == MB_TRUE)
+    {
+        
+        #ifdef _EXTRA_CHECKS
+        /* if filter is assigned, buffer sharing only occurs during
+         * fallback to full data replication 
+         */
+        
+        if (node->board->filter != (MBIt_filterfunc)NULL && 
+                node->board->data->count_current != 0)
+        {
+            assert(node->flag_fdrFallback == MB_TRUE);
+            if (node->flag_fdrFallback != MB_TRUE) return MB_ERR_INTERNAL;
+            
+            for (i = 0; i< MBI_CommSize; i++) 
+            {
+                if (i == MBI_CommRank)
+                {
+                    assert(node->outcount[i] == 0);
+                }
+                else
+                {
+                    assert(node->outcount[i] == mcount || node->outcount[i] == 0);
+                }
+            }
+        }
+        #endif
+        
+        /* allocate shared buffer */
+        node->outbuf[0] = (void*)malloc(1 + /* one byte for header info */
+                                       (msgsize * mcount));
+        assert(node->outbuf[0] != NULL);
+        if (node->outbuf[0] == NULL) return MB_ERR_MEMALLOC;
+        
+        /* set header byte */
+        header_byte = (char*)(node->outbuf[0]);
+        *header_byte = ALLZEROS;
+        if (node->flag_fdrFallback == MB_TRUE) /* set flag for FDR */
+            *header_byte = *header_byte | MBI_COMM_HEADERBYTE_FDR;
+        
+        /* location of message buffer is one byte after header */
+        outptr = (char*)(node->outbuf[0]) + 1;
+        
+        /* copy messages into output buffer */
+        i = 0;
+        for (pl_itr = PL_ITERATOR(node->board->data); pl_itr; pl_itr = pl_itr->next)
+        {
+            /* get reference to message object */
+            msg = PL_NODEDATA(pl_itr);
+            assert(msg != NULL);
+            
+            /* copy into buffer */
+            memcpy(outptr + (i*msgsize), msg, msgsize);
+            i++;
+        }
+        assert(i == mcount);
         
     }
-    
-    /* free memory */
-    
-    free(outcount);
-    
-    if (node->pending_in == 0)
+    else /* messages are tagged */
     {
-        if (node->inbuf != NULL) free(node->inbuf);
-        node->inbuf = NULL;
-        if (node->incount != NULL) free(node->incount);
-        node->incount = NULL;
-        if (node->recvreq != NULL) free(node->recvreq);
-        node->recvreq = NULL;
+        assert(node->board->filter != (MBIt_filterfunc)NULL);
+        assert(node->flag_fdrFallback == MB_FALSE);
+        
+        /* array of pointers to store next location in output buffer */
+        loc = (char **)malloc(sizeof(char*) * MBI_CommSize);
+        
+        /* initialise output buffers */
+        assert(node->outcount[MBI_CommRank] == 0);
+        for (i = 0; i < MBI_CommSize; i++)
+        {
+            if (node->outcount[i] == 0) 
+            {
+                loc[i] = NULL;
+            }
+            else
+            {
+                /* allocate memory for output buffers */
+                node->outbuf[i] = (void*)malloc(1 + (msgsize * node->outcount[i]));
+                assert(node->outbuf[i] != NULL);
+                if (node->outbuf[i] == NULL) return MB_ERR_MEMALLOC;
+                
+                /* set header byte */
+                header_byte = (char*)(node->outbuf[i]);
+                *header_byte = ALLZEROS;
+                
+                /* move loc to first message, after header */
+                loc[i] = (char*)(node->outbuf[i]) + 1;
+            }
+        }
+        
+        /* copy in tagged messages */
+        i = 0;
+        for (pl_itr = PL_ITERATOR(node->board->data); pl_itr; pl_itr = pl_itr->next)
+        {
+            /* get reference to message object */
+            msg = PL_NODEDATA(pl_itr);
+            assert(msg != NULL);
+            
+            /* get ptr to row in tag table */
+            rc = tt_getrow(node->board->tt, i, &row);
+            assert(rc == TT_SUCCESS);
+            assert(row != NULL);
+            if (rc != TT_SUCCESS || row == NULL) return MB_ERR_INTERNAL;
+            
+            /* w: window index within row (in units of bytes)
+             * b: bit index within window (in units of bits)
+             * p: process (mpi task) represented by w&b
+             */
+            for (w = 0; w < (int)node->board->tt->row_size; w++)
+            {
+                window = *(row + w);
+                
+                b = 0;
+                while (window != ALLZEROS)
+                {
+                    if (MSB_IS_SET(window))
+                    {
+                        /* determine which MPI task this refers to */
+                        p = (w * 8) + b;
+                        assert(p >= 0);
+                        assert(p < MBI_CommSize);
+                        assert(p != MBI_CommRank);
+                        assert(node->outcount[p] != 0);
+                        assert(loc[p] != NULL);
+                        
+                        #ifdef _EXTRA_CHECKS
+                        /* keep track of messages copied into each buffer */
+                        msg_copied[p] ++;
+                        assert(msg_copied[p] <= node->outcount[p]);
+                        #endif
+                        
+                        /* copy message to appropriate output buffer */
+                        memcpy(loc[p], msg, msgsize);
+                        
+                        /* move to next free location in buffer */
+                        loc[p] += msgsize;
+                    }
+                    
+                    /* shift bit and repeat */
+                    window = window << 1;
+                    b++;
+                }
+            }
+            
+            /* on to next message */
+            i++;
+        }
+        assert(i == (int)node->board->data->count_current);
+        free(loc);
+        
+        /* tag table no longer needed */
+        rc = tt_delete(&(node->board->tt));
+        assert(rc == TT_SUCCESS);
+        assert(node->board->tt == NULL);
+        
+        #ifdef _EXTRA_CHECKS
+        for (i = 0; i < MBI_CommSize; i++)
+        {
+            assert(msg_copied[i] == node->outcount[i]);
+        }
+        #endif
     }
     
-    if (node->pending_out == 0)
+    
+    /* ----------- issue sends ----------------- */
+    for (i = 0; i < MBI_CommSize; i++)
     {
-        if (node->outbuf != NULL) free(node->outbuf);
-        node->outbuf = NULL;
-        if (node->sendreq != NULL) free(node->sendreq);
-        node->sendreq = NULL;
+        if (node->outcount[i] == 0)
+        {
+            node->sendreq[i] = MPI_REQUEST_NULL;
+        }
+        else
+        {
+            /* choose output bufer */
+            bufloc = (node->flag_shareOutbuf == MB_TRUE) ? 0 : i;
+            assert(node->outbuf[bufloc] != NULL);
+            
+            /* issue non-blocking send */
+            rc = MPI_Issend(node->outbuf[bufloc], 
+                    1 + (int)(node->outcount[i] * msgsize), 
+                    MPI_BYTE, i, tag, MBI_CommWorld, &(node->sendreq[i]));
+            assert(rc == MPI_SUCCESS);
+            if (rc != MPI_SUCCESS) return MB_ERR_MEMALLOC;
+            
+            /* increment counter */
+            node->pending_out++;
+        }
+
     }
     
-    /* more comm to next stage */
+
+    #ifdef _EXTRA_CHECKS
+    free(msg_copied);
+    #endif
+    
+    /* outcount no longer needed */
+    free(node->outcount);
+    node->outcount = NULL;
+    
+    /* move on to next stage */
     node->stage = PROPAGATION;
     return MB_SUCCESS;
 }
@@ -944,195 +744,213 @@ int MBIt_Comm_InitPropagation(struct MBIt_commqueue *node) {
  * \param[in] node address of CommQueue node
  * \return Return Code
  *
- * This routine should only be called by processPendingComms() within
- * the communication thread when processing a node that is in the
- * ::PROPAGATION stage.
+ * This routine is to be executed during the ::PROPAGATION stage.
  * 
- * It should only be called when run in parallel (with more than one MPI task).
+ * Steps:
+ * -# if node->pending_in != 0, check receives using MPI_Testany().
+ *    For each completed comm:
+ *  -# Decrement node->pending_in
+ *  -# Check buffer header if delayed_filtering is set
+ *   - If set, run each message in buffer through node->board->filter
+ *     before adding to local board
+ *   - If not set, add all messages in buffer to local board
+ *  -# Free node->inbuf[i]
  * 
- * If there are pending sends, use \c MPI_Testsome to check
- * if any sends have completed. For each completed send, free associated memory
- * and decrement \c node->pending_out.
- * If \c node->pending_out reduces to \c 0, free the rest of
- * the associated memory.
+ * -# if node->pending_out != 0, check sends using MPI_Testany().
+ *    For each completed comm:
+ *  -# Decrement node->pending_out
+ *  -# if node->flag_shareOutbuf == ::MB_FALSE, free node->outbuf[i]
+ *  -# if node->flag_shareOutbuf == ::MB_TRUE, free node->outbuf[0] if
+ *     node->pending_out == 0
+ *
+ * -# Check if comms completed?
+ *  - if node->pending_in == 0 and node->pending_out == 0
+ *   -# free node->incount
+ *   -# free node->inbuf
+ *   -# free node->outbuf
+ *   -# free node->sendreq
+ *   -# free node->recvreq
+ *   -# Capture node->board->syncLock
+ *   -# set node->board->syncCompleted = ::MB_TRUE
+ *   -# Release node->board->syncLock
+ *   -# Signal node->board->syncCond
+ *   -# set node->stage = ::COMM_END
+ *   -# return ::MB_SUCCESS_2
+ *  - else
+ *   -# return ::MB_SUCCESS
  * 
- * If there are pending receives, use \c MPI_Testsome to 
- * determine which ones have completed. For each completed 
- * receive, copy received messages into local board, 
- * free associated memory, and decrement \c node->pending_in.
- * If \c node->pending_in reduces to \c 0, free the rest of
- * the associated memory.
  * 
- * Finally, if there are no more pending sends and receives, pop
- * \c node from CommQueue and unlock the board. Also send a signal
- * on the pthread condition variable associated to wake up the main 
- * thread if it is waiting for the sync completion of this board. 
  * 
- * Side effects:
- * - for each completed send/receive
- *  - associated buffers are freed and counters decremented.
- * - if all sends and receives have completed
- *  - \c node is removed from CommQueue and allocated memory is freed
- *  - \c board->locked set to ::MB_FALSE
- *  - \c board->syncCompleted set to ::MB_TRUE
- *  - Local board contains all relevant messages from remote boards
- *  - Signal was sent on pthread condition variable associated to board
- * 
- * Possible return codes:
- *  - ::MB_SUCCESS
- *  - ::MB_ERR_MEMALLOC (could not allocate required memory)
- *  - ::MB_ERR_MPI (MPI routine call failed)
- *  - ::MB_ERR_INTERNAL (calls to internal routines failed. Run in debug mode for details)
- * 
+ * Post:
+ * - if node->pending_in == 0 and node->pending_out == 0
+ *  - node->incount == \c NULL
+ *  - node->inbuf == \c NULL
+ *  - node->outbuf == \c NULL
+ *  - node->sendreq == \c NULL
+ *  - node->recvreq == \c NULL
+ *  - return code == MB_SUCCESS_2
+ *  - node->board->syncCompleted == ::MB_TRUE
+ *  - node->stage == ::COMM_END
  */ 
-int MBIt_Comm_CompletePropagation(struct MBIt_commqueue *node) {
+int MBI_Comm_CompletePropagation(struct MBIt_commqueue *node) {
     
-    int rc;
-    int i, p, m;
+    int i, m, p, rc;
     int completed;
-    void *mloc, *ptr_new;
-    MBIt_Board *board = NULL;
+    int filter_required;
+    void *ptr_new, *msg;
+    char *header_byte, *bufptr;
+
     
-    /* sanity check */
-    assert(node != NULL);
     assert(node->stage == PROPAGATION);
-    assert(MBI_comm_indices != NULL);
-    assert(MBI_CommSize != 1);
+    assert(node->outcount == NULL);
+    assert(node->incount  != NULL);
+    assert(node->sendreq  != NULL);
+    assert(node->recvreq  != NULL);
+    assert(node->inbuf    !=  NULL);
+    assert(node->outbuf   !=  NULL);
+    assert(node->board    != NULL);
     
-    /* process sends */
+    
+    /* ---------- check for completed sends -------------- */
     if (node->pending_out > 0)
     {
-        if (board == NULL)
-        {
-            /* get reference to board */
-            board = (MBIt_Board *)MBI_getMBoardRef(node->mb);
-            assert(board != NULL);
-            if (board == NULL) return MB_ERR_INTERNAL;
-        }
-        
+        /* check if any of the sends completed */
         rc = MPI_Testsome(MBI_CommSize, node->sendreq, &completed,
                 MBI_comm_indices, MPI_STATUSES_IGNORE);
         assert(rc == MPI_SUCCESS);
-        assert(completed < MBI_CommSize);
         if (rc != MPI_SUCCESS) return MB_ERR_MPI;
         
         if (completed > 0)
         {
-            
-            if (board->tagging == MB_TRUE)
+            /* decrement counter */
+            node->pending_out -= completed;
+
+            if (node->flag_shareOutbuf == MB_FALSE)
             {
-                for (i = 0; i < completed; i++)
+                assert(node->flag_fdrFallback == MB_FALSE);
+                
+                /* free buffer of completed sends */
+                for (p = 0; p < completed; p++) 
                 {
-                    p = MBI_comm_indices[i];
-                    assert(p >= 0);
-                    assert(p < MBI_CommSize);
+                    i = MBI_comm_indices[p];
+                    assert(i != MBI_CommRank);
+                    assert(node->outbuf[i] != NULL);
+                    assert(node->sendreq[i] == MPI_REQUEST_NULL);
                     
-                    if (node->outbuf[p] != NULL) free(node->outbuf[p]);
-                    node->outbuf[p] = NULL;
-                    node->pending_out --;
+                    free(node->outbuf[i]);
+                    node->outbuf[i] = NULL;
                 }
             }
-            else
+            else if (node->pending_out == 0) /* outbuf shared */
             {
-                node->pending_out -= completed;
-                if (node->pending_out == 0)
-                {
-                    if (node->outbuf[0] != NULL) free(node->outbuf[0]);
-                }
-            }
-            
-            /* clear up memory when all sends have completed */
-            if (node->pending_out == 0)
-            {
-                if (node->outbuf != NULL) free(node->outbuf);
-                if (node->sendreq != NULL) free(node->sendreq);
+                assert(node->outbuf[0] != NULL);
+                assert(node->flag_fdrFallback == MB_TRUE || 
+                        node->board->filter == (MBIt_filterfunc)NULL);
+                
+                /* free shared buffer */
+                free(node->outbuf[0]);
+                node->outbuf[0] = NULL;
             }
         }
     }
     
-    /* process recvs */
+    /* ---------- check for completed receives -------------- */
     if (node->pending_in > 0)
     {
-        
+        /* check if any of the sends completed */
         rc = MPI_Testsome(MBI_CommSize, node->recvreq, &completed,
                 MBI_comm_indices, MPI_STATUSES_IGNORE);
         assert(rc == MPI_SUCCESS);
-        assert(completed < MBI_CommSize);
         if (rc != MPI_SUCCESS) return MB_ERR_MPI;
         
         if (completed > 0)
         {
-            if (board == NULL)
-            {
-                /* get reference to board */
-                board = (MBIt_Board *)MBI_getMBoardRef(node->mb);
-                assert(board != NULL);
-                if (board == NULL) return MB_ERR_INTERNAL;
-            }
+            /* decrement counter */
+            node->pending_in -= completed;
             
-            for (i = 0; i < completed; i++)
+            /* for each completed receive, load messages and clear buffer */
+            for (p = 0; p < completed; p++)
             {
-                p = MBI_comm_indices[i];
-                assert(p >= 0);
-                assert(p < MBI_CommSize);
+                /* which receive completed? */
+                i = MBI_comm_indices[p];
                 
-                for(m = 0; m < node->incount[p]; m++)
+                assert(node->inbuf[i] != NULL);
+                assert(node->recvreq[i] == MPI_REQUEST_NULL); 
+                
+                /* get reference to header byte */
+                header_byte = (char*)(node->inbuf[i]);
+                
+                /* get flag indicating if filter should be run */
+                filter_required = BIT_IS_SET(*header_byte, MBI_COMM_HEADERBYTE_FDR);                 
+                
+                /* location of message buffer is after header (of size 1 byte) */
+                bufptr = (char*)(node->inbuf[i]) + 1;
+                
+                /* for each received message */
+                for (m = 0; m < node->incount[i]; m++)
                 {
-                    /* copy message into local board */
-                    rc = pl_newnode(board->data, &ptr_new);
+                    /* get pointer to message in buffer */
+                    msg = (void*)(bufptr + (node->board->data->elem_size * m));
+                    
+                    /* do we need to run msg thru filter before storing? */
+                    if (filter_required)
+                    {
+                        assert(node->board->filter != (MBIt_filterfunc)NULL);
+                        if (0 == (*node->board->filter)(msg, MBI_CommRank))
+                           continue; /* we don't want this message */
+                    }
+                    
+                    /* add new node to local board */
+                    rc = pl_newnode(node->board->data, &ptr_new);
                     assert(rc == PL_SUCCESS);
-                    mloc = (void*)((char*)node->inbuf[p] + (m * board->data->elem_size));
-                    memcpy(ptr_new, mloc, board->data->elem_size);
+                    /* copy message into node */
+                    memcpy(ptr_new, msg, node->board->data->elem_size);
+
                 }
                 
-                if (node->inbuf[p] != NULL) free(node->inbuf[p]);
-                node->pending_in --;
-                assert(node->pending_in >= 0);
-            }
-            
-            /* clear up memory when all sends have completed */
-            if (node->pending_in == 0)
-            {
-                if (node->incount != NULL) free(node->incount);
-                if (node->inbuf != NULL) free(node->inbuf);
-                if (node->recvreq != NULL) free(node->recvreq);
+                /* we can now free the buffer */
+                free(node->inbuf[i]);
+                node->inbuf[i] = NULL;
             }
         }
-        
     }
     
-    /* if sends and recvs are completed, finalise sync process */
-    if ((node->pending_in == 0 && node->pending_out == 0))
+
+    
+    /* ------------ if all comms completed, clean up and end ------------ */
+    
+    if (node->pending_in == 0 && node->pending_out == 0)
     {
+        /* free up memory */
+        free(node->incount);  node->incount = NULL;
+        free(node->inbuf);    node->inbuf = NULL;
+        free(node->outbuf);   node->outbuf = NULL;
+        free(node->sendreq);  node->sendreq = NULL;
+        free(node->recvreq);  node->recvreq = NULL;
         
-        if (board == NULL)
-        {
-            /* get reference to board */
-            board = (MBIt_Board *)MBI_getMBoardRef(node->mb);
-            assert(board != NULL);
-            if (board == NULL) return MB_ERR_INTERNAL;
-        }
-        
-        /* remove node from queue */
-        /*rc = MBI_CommQueue_Pop(node->mb);
-        assert(rc == MB_SUCCESS);*/
-        
-        /* unlock board */
-        rc = pthread_mutex_lock(&(board->syncLock));
+        /* capture lock for board */
+        rc = pthread_mutex_lock(&(node->board->syncLock));
         assert(0 == rc);
         
-        board->syncCompleted = MB_TRUE;
+        /* mark sync as completed */
+        node->board->syncCompleted = MB_TRUE;
         
-        rc = pthread_mutex_unlock(&(board->syncLock));
+        /* release lock */
+        rc = pthread_mutex_unlock(&(node->board->syncLock));
         assert(0 == rc);
         
         /* send signal to wake main thread waiting on this board */
-        rc = pthread_cond_signal(&(board->syncCond));
+        rc = pthread_cond_signal(&(node->board->syncCond));
         assert(0 == rc);
         
-        /* inform the calling routine that the Comm queue has been modified */
-        return MB_SUCCESS_2;
+        /* move to end state and indicate that we're done */
+        node->stage = COMM_END;
+        return MB_SUCCESS_2; /* node can be removed from queue */
     }
-    
-    return MB_SUCCESS;
+    else
+    {
+        /* there are still pending comms. No state change  */
+        return MB_SUCCESS;
+    }
+
 }

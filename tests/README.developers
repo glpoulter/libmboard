@@ -1,0 +1,77 @@
+The current layout is not ideal. Creating new tests within a suite is 
+reasonably easy but setting up a new test suite is not obvious. Given a chance
+to start from scratch the workflow would be a lot more streamlined, but for
+now we'll have to bear with it.
+
+Adding a new test
+=================
+
+1. Choose the testsuite to add the test to. All files related to that suite
+   will be store in the testsuite_SUITENAME directory.
+   
+2. Create a new .c file. The recommended naming convention is test_TAG_FUNC.c
+   where TAG is a keyword unique to the suite while FUNC is the function or
+   feature you wish to test.
+   
+   Do no follow the test_TAG<n>.c naming scheme used in older test suites. 
+   Those are a result of an unfortunate oversight during initial development
+   that makes looking for test functions a nightmare. 
+
+   (Alternatively, if your new test is is related to previous tests, you may 
+   choose to add the test function into an existing .c file. If so, skip to 
+   step 4)
+
+3. Modify Makefile.am by adding the new file to the lib_t_SUITENAME_la_SOURCES
+   entry. This will ensure that your new files is included in the compilation
+   process.
+   
+4. Write your function. Make sure the header_SUITENAME.h header file is include
+   in your source.
+   
+5. Add the function prototype to header_SUITENAME.h
+
+6. Add the function name and description to the TAG_test_array[] definition in 
+   the setup_suite_SUITENAME.c file.
+   
+
+Creating a new test suite
+=========================
+
+1. Create the testsuite directory. The standard naming convention is 
+   testsuite_SUITENAME where SUITENAME is a unique name that identifies your
+   suite.
+   
+2. Populate the directory with the following files. Use similar files from
+   other test suites as a template and make the necessary changes. You will 
+   need to replace occurrences of the suite name to SUITENAME. Also note that
+   the Makefile.am for parallel and serial tests are slightly different.  
+   - Makefile.am
+   - header_SUITENAME.h
+   - setup_suite_SUITENAME.c
+   
+   
+3. Modify ${ROOTDIR}/tests/Makefile.am and add your new test suite directory 
+   to SUBDIRS. Also add the appropriate lib_t_SUITENAME.la to one of the 
+   run_test_*_LDADD entries.
+   
+   If you want your test code to be analysed when "make splint" is called 
+   (recommended), you will also need to add SUITENAME to either the 
+   SERIAL_TESTSUITES or PARALLEL_TESTSUITES.
+
+4. Modify ${ROOTDIR}/tests/testing.h and include your testsuite_TAG routine
+   as defined in setup_suite_TAG.c
+   
+5. Add an entry for your test suite to ONE of the test runner programs: 
+   - ${ROOTDIR}/tests/run_test_utils.c (tests for utility modules)
+   - ${ROOTDIR}/tests/run_test_serial.c (tests for serial libmboard API)
+   - ${ROOTDIR}/tests/run_test_parallel_utils.c (tests for parallel utilities)
+   - ${ROOTDIR}/tests/run_test_parallel.c (tests for parallel libmboard API)
+   
+6. Define the setup and tear-down code for you suite within the init_TAG and 
+   clean_TAG routines in the setup_suite_SUITENAME.c file 
+
+7. Modify ${ROOTDIR}/configure.ac. Add tests/testsuite_SUITENAME/Makefile to
+   the AC_OUTPUT definition. This will be somewhere near the bottom of the
+   file.
+   
+8. You can now proceed by adding tests to your suite. See instructions above.

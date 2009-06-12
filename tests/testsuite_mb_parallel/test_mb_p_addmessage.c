@@ -156,7 +156,7 @@ void test_mb_p_addmessage_many(void) {
     
     /* Add messages */
     errfound = 0;
-    for (i = 0; i < (int)(MB_CONFIG_SERIAL_POOLSIZE * 2.5); i++)
+    for (i = 0; i < (int)(MB_CONFIG_PARALLEL_POOLSIZE * 2.5); i++)
     {
         /* assign dummy value */
         msg.ernet = i;
@@ -173,7 +173,7 @@ void test_mb_p_addmessage_many(void) {
     CU_ASSERT_PTR_NOT_NULL_FATAL(obj);
     pl = ((MBIt_Board *)obj)->data;
     
-    for (i = 0; i < (int)(MB_CONFIG_SERIAL_POOLSIZE * 2.5); i++)
+    for (i = 0; i < (int)(MB_CONFIG_PARALLEL_POOLSIZE * 2.5); i++)
     {       
         /* Get ref to internal message */
         rc = pl_getnode(pl, i, &ptr);

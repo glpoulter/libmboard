@@ -1,17 +1,15 @@
 # $Id$
 # 
-# Copyright (c) 2008 STFC Rutherford Appleton Laboratory 
+# Copyright (c) 2009 STFC Rutherford Appleton Laboratory 
 # Author: Lee-Shawn Chin 
-# Date  : Sept 2008
+# Date  : May 2009
 
 INCLUDEDIR = $(top_srcdir)/include
 
-#bin_PROGRAMS = mboard-config
-#mboard_config_SOURCES = mboard-config.c
+dist_bin_SCRIPTS = mboard-config \
+                   mboard-check-minversion
 
-dist_bin_SCRIPTS = mboard-config
-
-if COMPILE_SQLITE
+if COMPILE_MEMLOG
 bin_PROGRAMS = mboard-parse-memlogdb
 mboard_parse_memlogdb_SOURCES = mboard-parse-memlogdb.c $(INCLUDEDIR)/sqlite3.h
 mboard_parse_memlogdb_LDADD  = $(top_srcdir)/src/utils/lib_utils_sqlite3.la

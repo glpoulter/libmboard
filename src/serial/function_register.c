@@ -10,8 +10,8 @@
  * \brief Serial implementation of MB_Function_Register()
  * 
  */
-
 #include "mb_serial.h"
+#include <stdio.h>
 
 /*!
  * \brief Registers a function
@@ -19,10 +19,11 @@
  * \param[out] fh_ptr Address of Function handle
  * \param[in] filterFunc Pointer to user-defined filter function
  * 
- * This routine does nothing (message tagging no needed in serial library).
+ * This function is now DEPRECATED.
  * 
- * Possible return codes:
- *  - ::MB_SUCCESS 
+ * It now does nothing apart from printing a deprecation notice
+ * 
+ * This function will return with ::MB_SUCCESS.
  */
 
 int MB_Function_Register (
@@ -30,5 +31,6 @@ int MB_Function_Register (
         int (*filterFunc)(const void *msg, const void *params) 
         ) {
     
+    printf("[libmboard] MB_Function_Register() deprecated. Use MB_Filter_Create() instead.\n");  
     return MB_SUCCESS;
 }

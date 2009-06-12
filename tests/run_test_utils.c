@@ -45,6 +45,12 @@ int main(int argc, char ** argv) {
     /* Test Tag Table ADT */
     if(testsuite_tt() != CUE_SUCCESS) return clean_quit();
     
+    /* Test AVL Tree ADT */
+    if(testsuite_avl() != CUE_SUCCESS) return clean_quit();
+    
+    /* Test String Map */
+    if(testsuite_sm() != CUE_SUCCESS) return clean_quit();
+    
     /* -------------------------------------------------------------- */
     
     

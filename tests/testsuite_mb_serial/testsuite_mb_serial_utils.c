@@ -8,6 +8,8 @@
 
 #include "header_mb_serial.h"
 
+static int _cmp_func(const void* a, const void* b);
+static void _randomise_array(int *array, int size);
 
 /* map message sequence ID to value */
 int get_message_value_from_id(int id) {
@@ -33,6 +35,7 @@ int get_message_value_from_id(int id) {
     
     
 }
+
 /* initialise message board with content */
 int init_mb_with_content(MBt_Board *mb_ptr) {
     
@@ -56,4 +59,74 @@ int init_mb_with_content(MBt_Board *mb_ptr) {
     
     return rc;
     
+}
+
+void generate_random_unique_ints(int *array, int size) {
+    
+    int i, prev;
+    int dups;
+    
+    /* give initial values to array */
+    for (i = 0; i < size; i++) array[i] = rand();
+    
+    dups = 999; /* any non-zero value will do */
+    while (dups != 0)
+    {
+        /* reset value */
+        dups = 0;
+        
+        /* sort the values so duplicate values are adjacent to each other */
+        qsort((void*)array, (size_t)size, sizeof(int), &_cmp_func);
+        
+        /* replace duplicates with random values */
+        prev = array[0];
+        for (i = 1; i < size; i++)
+        {
+            if (array[i] == prev)
+            {
+                array[i] = rand();
+                dups++;
+            }
+            else prev = array[i];
+        }
+    }
+    
+    /* randomise the array */
+    _randomise_array(array, size);
+}
+
+int is_in_array(int *array, int size, int value) {
+    
+    int i;
+    
+    for (i = 0; i < size; i++)
+    {
+        if (array[i] == value) return (1==1);
+    }
+    
+    return (1 == 0);
+}
+
+static void _randomise_array(int *array, int size) {
+    
+    int i, temp, rnd;
+    double rnd_ratio;
+    
+    rnd_ratio = 1.0 / (RAND_MAX + 1.0); /* ratio to scale random numbers */
+    for (i = size - 1; i > 0; i--)
+    {
+        /* get a random number from 0 to i */
+        rnd = (int)(rnd_ratio * (i) * rand());
+        
+        if (rnd == i) continue; /* this value stays in place */
+        
+        /* perform swap */
+        temp = array[i];
+        array[i] = array[rnd];
+        array[rnd] = temp;
+    }
+}
+
+static int _cmp_func(const void* a, const void* b) {
+    return *(int*)a - *(int*)b;
 }

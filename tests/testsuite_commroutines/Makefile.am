@@ -11,7 +11,13 @@ if COMPILE_PARALLEL
 noinst_LTLIBRARIES  = lib_t_commroutines.la
 
 lib_t_commroutines_la_SOURCES = setup_suite_commroutines.c \
-							    test_cr1.c \
+							    test_cr_setup_teardown.c \
+							    test_cr_utils.c \
+							    test_cr_completepropagation.c \
+							    test_cr_initpropagation.c \
+							    test_cr_sendbufinfo.c \
+							    test_cr_tagmessages.c \
+							    test_cr_waitbufinfo.c \
 							    header_commroutines.h
 							 
 lib_t_commroutines_la_LIBS    = @CUNITLIBS@ @MB_PARALLEL_LIBS@ 

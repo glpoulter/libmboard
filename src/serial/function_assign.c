@@ -10,8 +10,8 @@
  * \brief Serial implementation of MB_Function_Assign()
  * 
  */
-
 #include "mb_serial.h"
+#include <stdio.h>
 
 /*!
  * \brief Assigns function handle to a message board
@@ -21,16 +21,11 @@
  * \param[in] params Pointer to input data that will be passed into filter function 
  * \param[in] param_size Size of input data (in bytes)
  * 
- * This routine does nothing apart from making sure the input \c mb us valid and not 
- * locked (message tagging no needed in serial library).
+ * This function is now DEPRECATED.
  * 
- * While a valid board is not needed, checking its validity will help users identify 
- * problems that might exist when their code is linked to the parallel library.
+ * It now does nothing apart from printing a deprecation notice.
  * 
- * Possible return codes:
- *  - ::MB_SUCCESS
- *  - ::MB_ERR_INVALID (invalid or null board given, or, invalid param size) 
- *  - ::MB_ERR_LOCKED (\c mb is locked)
+ * This function will return with ::MB_SUCCESS.
  */
 
 int MB_Function_Assign ( 
@@ -40,20 +35,6 @@ int MB_Function_Assign (
         size_t param_size
         ) {
     
-    MBIt_Board *board;
-    
-    /* check input param size. Should be >1 if params not NULL */
-    if (params != NULL && param_size < 1) return MB_ERR_INVALID;
-    
-    /* Check for NULL message board */
-    if (mb == MB_NULL_MBOARD) return MB_ERR_INVALID;
-    
-    /* get ptr to board */
-    board = (MBIt_Board*)MBI_getMBoardRef(mb);
-    if (board == NULL) return MB_ERR_INVALID;
-    
-    /* check if board is locked */
-    if (board->locked != MB_FALSE) return MB_ERR_LOCKED;
-
+    printf("[libmboard] MB_Function_Assign() deprecated. Use MB_Filter_Assign() instead.\n");
     return MB_SUCCESS;
 }

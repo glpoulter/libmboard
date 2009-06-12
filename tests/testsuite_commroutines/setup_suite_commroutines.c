@@ -10,13 +10,12 @@
 /* Define tests within this suite */
 CU_TestInfo cr_test_array[] = {
 
-    /* test_cr1.c */
-    {"MBIt_Comm_InitTagging()               ", test_cr_inittagging         },
-    {"MBIt_Comm_WaitTagInfo()               ", test_cr_waittaginfo         },
     {"MBIt_Comm_TagMessages()               ", test_cr_tagmessages         },
+    {"MBIt_Comm_SendBufInfo()               ", test_cr_sendbufinfo         },
+    {"MBIt_Comm_WaitBufInfo()               ", test_cr_waitbufinfo         },
     {"MBIt_Comm_InitPropagation()           ", test_cr_initpropagation     },
     {"MBIt_Comm_CompletePropagation()       ", test_cr_completepropagation },
-    
+
     CU_TEST_INFO_NULL,
 };
     

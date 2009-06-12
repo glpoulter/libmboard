@@ -297,7 +297,7 @@ void* MBI_objmap_pop(MBIt_objmap *map, OM_key_t handle) {
 #endif /* MB_THREADSAFE */
     
     index = (int)handle;
-    
+   
     if (index < OBJMAP_DMAP_SIZE && index >= 0)
     {
         obj = map->dmap[index];
@@ -322,6 +322,12 @@ void* MBI_objmap_pop(MBIt_objmap *map, OM_key_t handle) {
         }
     }
     
+    /* we may also need to clear the cache */
+    if (index == map->cache_id)
+    {
+        map->cache_id  = -1;
+        map->cache_obj = NULL;
+    }
 #ifdef MB_THREADSAFE
     /* release mutex lock before proceeding */
     rc = pthread_mutex_unlock(&(map->lock));

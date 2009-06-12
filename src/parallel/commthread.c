@@ -3,15 +3,15 @@
  * \file parallel/commthread.c
  * \code
  *      Author: Lee-Shawn Chin 
- *      Date  : July 2008 
- *      Copyright (c) 2008 STFC Rutherford Appleton Laboratory
+ *      Date  : June 2009
+ *      Copyright (c) 2009 STFC Rutherford Appleton Laboratory
  * \endcode
  * 
  * \brief Main routine run by communication thread
  * 
  * Routines within this file are expected to be run by a single thread
  * which will perform all communication. Therefore, the data structures
- * that it uses (e.g. CommQueue and MBI_Comm_Indices) were not designed
+ * that it uses (e.g. MBI_Comm_Indices) may not be designed
  * to be thread-safe. 
  * So, if you are planning to enhance this setup such that more than 
  * one thread can be used to perform data movement and communication,
@@ -245,27 +245,27 @@ inline static void processPendingComms(void) {
         switch(node->stage)
         {
             case PRE_TAGGING:
-                rc = MBIt_Comm_InitTagging(node);
+                rc = MBI_Comm_TagMessages(node);
                 if (rc != MB_SUCCESS) complain_and_terminate(rc, "PRE_TAGGING");
                 break;
                 
-            case TAGINFO_SENT:
-                rc = MBIt_Comm_WaitTagInfo(node);
-                if (rc != MB_SUCCESS) complain_and_terminate(rc, "TAGINFO_SENT");
+            case READY_FOR_PROP:
+                rc = MBI_Comm_SendBufInfo(node);
+                if (rc != MB_SUCCESS) complain_and_terminate(rc, "READY_FOR_PROP");
                 break;
                 
-            case TAGGING:
-                rc = MBIt_Comm_TagMessages(node);
-                if (rc != MB_SUCCESS) complain_and_terminate(rc, "TAGGING");
+            case BUFINFO_SENT:
+                rc = MBI_Comm_WaitBufInfo(node);
+                if (rc != MB_SUCCESS) complain_and_terminate(rc, "BUFINFO_SENT");
                 break;
                 
             case PRE_PROPAGATION:
-                rc = MBIt_Comm_InitPropagation(node);
+                rc = MBI_Comm_InitPropagation(node);
                 if (rc != MB_SUCCESS) complain_and_terminate(rc, "PRE_PROPAGATION");
                 break;
             
             case PROPAGATION:
-                rc = MBIt_Comm_CompletePropagation(node);
+                rc = MBI_Comm_CompletePropagation(node);
                 if (rc != MB_SUCCESS)
                 {
                     /* Comm for this node has completed. Remove from list */
@@ -294,24 +294,16 @@ inline static void processPendingComms(void) {
 inline static void initiate_board_sync(MBt_Board mb) { 
     
     int rc;
-    enum MBIt_CommStage startstage;
+#ifdef _EXTRA_CHECKS
     MBIt_Board *board;
     
+    /* check that mb is a valid board handle */
     board = (MBIt_Board*)MBI_getMBoardRef(mb);
     assert(board != NULL);
-    
-    /* check if info for tagging messages is available */
-    if (board->fh != MB_NULL_FUNCTION)
-    {
-        startstage = PRE_TAGGING;
-    }
-    else
-    {
-        startstage = PRE_PROPAGATION;
-    }
+#endif
     
     /* push board into communication queue */
-    rc = MBI_CommQueue_Push(mb, startstage);
+    rc = MBI_CommQueue_Push(mb, PRE_TAGGING);
     assert(rc == MB_SUCCESS);
 
 }

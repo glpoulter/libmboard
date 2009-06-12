@@ -192,7 +192,7 @@ typedef OM_key_t MBt_handle;
  * \var MBt_Board
  * \ingroup MB_API
  * \ingroup DT
- * \brief A handle to store Message Board objects
+ * \brief A handle to reference Message Board objects
  * 
  * Boards are objects that store messages. A board can be created (using
  * ::MB_Create()) to store data structures of arbitrary type. To store 
@@ -221,7 +221,7 @@ typedef MBt_handle MBt_Board;
  * \var MBt_Iterator
  * \ingroup MB_API
  * \ingroup DT
- * \brief A handle to store Iterator objects
+ * \brief A handle to reference Iterator objects
  * 
  * Iterators are objects that allow users to traverse the contents of a
  * Message Board (::MBt_Board). Iterators can be created from a valid 
@@ -250,7 +250,7 @@ typedef MBt_handle MBt_Iterator;
  * \var MBt_Function
  * \ingroup MB_API
  * \ingroup DT
- * \brief A handle to store Registered Functions
+ * \brief A handle to reference Registered Functions
  * 
  * Registered Functions are objects that represent user functions that have
  * been registered with the Message Board Library using 
@@ -268,6 +268,51 @@ typedef MBt_handle MBt_Iterator;
  * 
  */
 typedef MBt_handle MBt_Function;
+
+/*!
+ * \var MBt_Filter
+ * \ingroup MB_API
+ * \ingroup DT
+ * \brief A handle to reference Registered Filter
+ * 
+ * Filters are objects that represent user functions that have
+ * been registered with the Message Board Library using 
+ * ::MB_Filter_Create(). 
+ * 
+ * This registration provides a unique handle to the function that is 
+ * recognised across all processing nodes and can therefore be passed on as 
+ * filter functions to boards using ::MB_Fitler_Assign().
+ * 
+ * The Registered Function is valid until it is deleted using 
+ * ::MB_Filter_Delete().
+ * 
+ * \par See also:
+ * - ::MB_NULL_FILTER
+ * 
+ */
+typedef MBt_handle MBt_Filter;
+
+/*!
+ * \var MBt_IndexMap
+ * \ingroup MB_API
+ * \ingroup DT
+ * \brief A handle to reference Index Map objects
+ * 
+ * IndexMaps are objects representing a distributed lookup table created using 
+ * ::MB_IndexMap_Create(). 
+ * 
+ * This registration provides a unique handle to the function that is 
+ * recognised across all processing nodes and can therefore be in filters
+ * assigned to boards.
+ * 
+ * The Index Map is valid until it is freed using 
+ * ::MB_IndexMap_Delete().
+ * 
+ * \par See also:
+ * - ::MB_NULL_INDEXMAP
+ * 
+ */
+typedef MBt_handle MBt_IndexMap;
 
 /* ========== User Routines ========== */
 
@@ -334,17 +379,44 @@ int MB_SyncTest(MBt_Board mb, int *flag);
 /* Complete non-blocking synchronisation of message board */
 int MB_SyncComplete(MBt_Board mb);
 
-/* Register a function */
+/* Create a filter */
+int MB_Filter_Create(MBt_Filter *fh_ptr, 
+        int (*filterFunc)(const void *msg, int pid) );
+
+/* Assign filter to message board */
+int MB_Filter_Assign(MBt_Board mb, MBt_Filter fh);
+
+/* Delete a filter */
+int MB_Filter_Delete(MBt_Filter *fh_ptr);
+
+/* (DEPRECATED) Register a function */
+/*! \brief This function is deprecated. Use MB_Filter_Create() instead */
 int MB_Function_Register(MBt_Function *fh_ptr, 
         int (*filterFunc)(const void *msg, const void *params) );
 
-/* Assign function handle to a message board */
+/* (DEPRECATED) Assign function handle to a message board */
+/*! \brief This function is deprecated. Use MB_Filter_Assign() instead */
 int MB_Function_Assign(MBt_Board mb, MBt_Function fh, 
         void *params, size_t param_size);
 
-/* Deallocate a registered function */
+/* (DEPRECATED) Deallocate a registered function */
+/*! \brief This function is deprecated. Use MB_Filter_Delete() instead */
 int MB_Function_Free(MBt_Function *fh_ptr);
 
+/* Create a new Index Map */
+int MB_IndexMap_Create(MBt_IndexMap *im_ptr, const char *name);
+
+/* Delete an Index Map */
+int MB_IndexMap_Delete(MBt_IndexMap *im_ptr);
+
+/* Add an entry into the map */
+int MB_IndexMap_AddEntry(MBt_IndexMap im, int value);
+
+/* Sync map content across processors (blocking collective operation) */
+int MB_IndexMap_Sync(MBt_IndexMap im);
+
+/* Determine if a value exists within the map of a specific processor */
+int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
 
 /* =========== Constants ================= */
 
@@ -386,8 +458,32 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * is typically returned in place of a Registered Function that has been 
  * deleted, or after an erroneous registration of a function.
  */
-#define MB_NULL_FUNCTION   (MBt_Iterator)OM_NULL_INDEX
+#define MB_NULL_FUNCTION   (MBt_Function)OM_NULL_INDEX
 
+/*!
+ * \def MB_NULL_FILTER
+ * \ingroup MB_API
+ * \ingroup CONST
+ * \brief Null Filter
+ * 
+ * This value represents an non-existent or invalid Filter object. It
+ * is typically returned in place of a Filter that has been 
+ * deleted, or after an erroneous registration of a filter function.
+ */
+#define MB_NULL_FILTER    (MBt_Filter)OM_NULL_INDEX
+
+
+/*!
+ * \def MB_NULL_INDEXMAP
+ * \ingroup MB_API
+ * \ingroup CONST
+ * \brief Null Function
+ * 
+ * This value represents an non-existent or invalid Index Map. It
+ * is typically returned in place of an Index Map that has been 
+ * deleted, or after an erroneous creation of a map.
+ */
+#define MB_NULL_INDEXMAP   (MBt_IndexMap)OM_NULL_INDEX
 
 /*!
  * \def MB_TRUE
@@ -506,7 +602,39 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  * Specifies error due to something the user has done (or not done). See 
  * documentation or any output message for details.
  */
-#define MB_ERR_USER     8
+#define MB_ERR_USER         8
+
+/*!
+ * \def MB_ERR_NOTREADY
+ * \ingroup MB_API
+ * \ingroup RC
+ * \brief Return Code: Not Ready
+ * 
+ * The requested operation cannot be completed as the target object is not
+ * ready. Refer to the function documentation for details.
+ */
+#define MB_ERR_NOTREADY     9
+
+/*!
+ * \def MB_ERR_DUPLICATE
+ * \ingroup MB_API
+ * \ingroup RC
+ * \brief Return Code: Duplicate value
+ * 
+ * Duplicate value was entered or found. Refer to function documentaion
+ * for details
+ */
+#define MB_ERR_DUPLICATE   10
+
+/*!
+ * \def MB_ERR_NOT_FOUND
+ * \ingroup MB_API
+ * \ingroup RC
+ * \brief Return Code: Required value not found
+ * 
+ * Refer to function documentaion for details.
+ */
+#define MB_ERR_NOT_FOUND   11
 
 /*!
  * \def MB_SUCCESS_2
@@ -529,7 +657,15 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  */
 #define MB_ERR_NOT_IMPLEMENTED      111
 
-
+/*!
+ * \def MB_ERR_DEPRECATED
+ * \ingroup MB_API
+ * \ingroup RC
+ * \brief Return Code: Funtion deprecated
+ * 
+ * The function is deprecated. Please use an alternative function.
+ */
+#define MB_ERR_DEPRECATED      123
 
 #endif /*MBOARD_H_*/
 
@@ -555,6 +691,7 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  *  - ::MB_ERR_MPI (MPI Environment not yet started)
  *  - ::MB_ERR_ENV (libmboard environment already started)
  *  - ::MB_ERR_MEMALLOC (unable to allocate required memory)
+ *  - ::MB_ERR_INTERNAL (internal error, possibly a bug)
  * 
  * \endif
  */
@@ -1109,22 +1246,22 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  */
 
 /*!\if userdoc
- * \fn MB_Function_Register(MBt_Function *fh_ptr, int (*filterFunc)(const void *msg, const void *params) );
+ * \fn MB_Filter_Create(MBt_Filter *fh_ptr, int (*filterFunc)(const void *msg, int pid) );
  * \ingroup FUNC
  * \brief Registers a function
- * \param[out] fh_ptr Address to write Function Handle to
+ * \param[out] fh_ptr Address to write Filter Handle to
  * \param[in] filterFunc Pointer to user-defined function
  * 
- * Registers a filter function and returns a handle to the function via
- * \c fh_ptr. The handle is unique to that function, and is recognised across 
+ * Registers a filter function and returns a handle to the filter via
+ * \c ft_ptr. The handle is unique to that function, and is recognised across 
  * all processing nodes. 
  * 
- * Registered functions can be assigned to message boards
- * using MB_Function_Assign() to act as a filtering mechanism when retrieving
+ * Registered filters can be assigned to message boards
+ * using MB_Filter_Assign() to act as a filtering mechanism when retrieving
  * messages from remote nodes during a synchronisation. This reduces the number of
  * messages that need to be transferred and stored on each node.
  * 
- * If this routine returns with an error, \c fh_ptr will be set to :: MB_NULL_FUNCTION.
+ * If this routine returns with an error, \c fh_ptr will be set to :: MB_NULL_FILTER.
  * 
  * In the parallel debug version, this routine is blocking and will return when 
  * all processes have issued and completed the call. This effectively 
@@ -1140,71 +1277,217 @@ int MB_Function_Free(MBt_Function *fh_ptr);
  *  - ::MB_ERR_INTERNAL (Internal error, possibly a bug)
  * 
  * Usage example:
- * \include ex_mb_func.c
+ * (to be included)
  * \endif
  */
 
 /*!\if userdoc
- * \fn MB_Function_Assign(MBt_Board mb, MBt_Function fh, void *params, size_t param_size);
+ * \fn MB_Filter_Assign(MBt_Board mb, MBt_Filter fh);
  * \ingroup FUNC
- * \brief Assigns function handle to a message board
+ * \brief Assigns filter handle to a message board
  * \param[in] mb Message Board Handle
- * \param[in] fh Function Handle
- * \param[in] params Pointer to function parameters
- * \param[in] param_size Size of function parameters
+ * \param[in] fh Filter Handle
  * 
- * This routine assigns a registered function to a Message Board. The function
- * will act as a filtering mechanism when retrieving
+ * This routine assigns a registered filter to a Message Board. The associated
+ * filter function will act as a filtering mechanism when retrieving
  * messages from remote nodes during a synchronisation. This reduces the number of
  * messages that need to be transferred and stored on each node.
  * 
  * For efficiency, boards must be assigned with the same \c fh on all
  * MPI processes. It is left to the user to ensure that this is so.
- * (this limitation may be removed or changed in the future if there is
- * a compelling reason to do so).
  * 
- * \c param_size can be of diffent across all processing nodes.
- * 
- * If \c params is \c NULL, \c param_size will be ignored. \c param can only
- * be \c NULL if all processing nodes also sets it to \c NULL.
- * 
- * \c fh can be ::MB_NULL_FUNCTION, in which case \c mb will be deassociated with any 
+ * \c fh can be ::MB_NULL_FILTER, in which case \c mb will be deassociated with any 
  * function that it was previously assigned with.
- * 
- * It is the users' responsibility to ensure that \c params is valid and
- * populated with the right data before board synchronisation. Data referenced
- * to by \c param must not be modified during the synchronisation process or
- * results from the synchronisation process will be erroneous, and may result
- * in a segmentation fault.
  * 
  * Possible return codes:
  *  - ::MB_SUCCESS
- *  - ::MB_ERR_INVALID (at least one of the input parameters is invalid.)
+ *  - ::MB_ERR_INVALID (\c mb is NULL or invalid, or \c fh is invalid)
  *  - ::MB_ERR_LOCKED (\c mb is locked by another process)
  * \endif
  * 
- * Usage example: see MB_Function_Register()
+ * Usage example: see MB_Filter_Create()
  */
 
 /*!\if userdoc
- * \fn MB_Function_Free(MBt_Function *fh_ptr);
+ * \fn MB_Filter_Delete(MBt_Filter *fh_ptr);
  * \ingroup FUNC
  * \brief Deallocates a registered function
- * \param[in,out] fh_ptr Address of Function Handle
+ * \param[in,out] fh_ptr Address of Filter Handle
  * 
- * The function associated with \c fh_ptr will be deregistered, and \c fh_ptr 
- * will be set to ::MB_NULL_FUNCTION.  
+ * The filter function associated with \c fh_ptr will be deregistered, 
+ * and \c fh_ptr will be set to ::MB_NULL_FILTER.  
  * 
- * Synchronisation of a Message Board assigned with a deregistered function
- * will result in an error. It is the users' responsibility to ensure that
+ * Deleting a filter that is assigned to a board will result in an error
+ * if the board is synchronised. It is the users' responsibility to ensure that
  * this does not happen. 
+ * 
+ * If an invalid handle is give, the routine will end with ::MB_ERR_INVALID 
+ * and \c fh_ptr will not be modified.
+ * 
+ * If ::MB_NULL_FILTER is entered via \c fh_ptr, the routine will end 
+ * immediately with ::MB_SUCCESS.
  * 
  * Possible return codes:
  *  - ::MB_SUCCESS
  *  - ::MB_ERR_INVALID (\c fh_ptr is NULL or invalid)
  * \endif
  * 
- * Usage example: see MB_Function_Register()
+ * Usage example: see MB_Filter_Create()
  */
 
 
+/*!\if userdoc
+ * \fn MB_IndexMap_Create(MBt_IndexMap *im_ptr, const char *name)
+ * \ingroup FUNC
+ * \brief Instantiates a new Index Map object
+ * \param[in] name Unique string identifying the map (max of 127 chars)
+ * \param[out] im_ptr Address of Index Map handle
+ * 
+ * Creates a new Index Map for and returns a handle to the map via \c im_ptr .
+ * 
+ * \c name should be a string that uniquely identifies the map and can
+ * contain up to 127 characters. If the given string is longer than 127
+ * characters the routine will quit and return with ::MB_ERR_OVERFLOW.
+ * 
+ * In the parallel debug version, this routine is blocking and will return when 
+ * all processes have issued and completed the call. This effectively 
+ * synchronises all processes. It is the users' responsibility to ensure 
+ * that all processes issue the call (in the same order if multiple maps are to
+ * be created).
+ * 
+ * 
+ * If this routine returns with an error, \c im_ptr will be set to ::MB_NULL_INDEXMAP.
+ * 
+ * Possible return codes:
+ *  - ::MB_SUCCESS
+ *  - ::MB_ERR_MEMALLOC (unable to allocate required memory)
+ *  - ::MB_ERR_OVERFLOW (too many maps created)
+ *  - ::MB_ERR_INTERNAL (internal error, possibly a bug)
+ *  - ::MB_ERR_DUPLICATE (\c name already exists)
+ *  - ::MB_ERR_INVALID (\c name is NULL)
+ *  - ::MB_ERR_OVERFLOW (\c name is too long)
+ *  - ::MB_ERR_ENV (Message Board environment not yet initialised)
+ * 
+ * Usage example:
+ * (to be included)
+ * \endif
+ */
+
+/*!\if userdoc
+ * \fn MB_IndexMap_Delete(MBt_IndexMap *im_ptr)
+ * \ingroup FUNC
+ * \brief Deletes an Index Map
+ * \param[in,out] im_ptr Address of Index Map handle
+ * 
+ * Upon successful deletion, the handle referenced by \c im_ptr will be set 
+ * to ::MB_NULL_INDEXMAP. This handle can be reused when creating a new map.
+ * 
+ * If an error occurs, this routine will return an error code, and \c im_ptr 
+ * will remain unchanged.
+ * 
+ * If a null board (::MB_NULL_INDEXMAP) is given, the routine will return 
+ * immediately with ::MB_SUCCESS
+ * 
+ * 
+ * Possible return codes:
+ *  - ::MB_SUCCESS
+ *  - ::MB_ERR_INVALID (\c im is invalid)
+ *  - ::MB_ERR_INTERNAL (internal error, possibly a bug)
+ * 
+ * Usage example:
+ * (to be included)
+ * \endif
+ */
+
+/*!\if userdoc
+ * \fn MB_IndexMap_AddEntry(MBt_IndexMap im, int value)
+ * \ingroup FUNC
+ * \brief Adds an entry into the Index Map
+ * \param[in] im Index Map handle
+ * \param[in] value Integer value of entry to add into the map
+ * 
+ * Entry will be added to the local map. In the parallel version, this entry
+ * will be searchable on other processors after MB_IndexMap_Sync() is called.
+ * 
+ * Adding an entry that already exists will have no effect on the map and the
+ * routine will return successfully.
+ * 
+ * Possible return codes:
+ *  - ::MB_SUCCESS
+ *  - ::MB_ERR_INVALID (\c im is null or invalid)
+ *  - ::MB_ERR_MEMALLOC (unable to allocate required memory)
+ *  - ::MB_ERR_INTERNAL (internal error, possibly a bug)
+ * 
+ * Usage example:
+ * (to be included)
+ * \endif
+ */
+
+/*!\if userdoc
+ * \fn MB_IndexMap_Sync(MBt_IndexMap im)
+ * \ingroup FUNC
+ * \brief Distributes/gathers the map content across/from all processors
+ * \param[in] im Index Map handle
+ * 
+ * In the serial library, this routine does nothing and returns immediately 
+ * with ::MB_SUCCESS. It will however return with an appropriate error code
+ * if an invalid or null map is given.
+ * 
+ * In parallel, this routine is a blocking and collective operation. It is the
+ * users' responsibility to ensure that the routine is called on all processors
+ * to avoid deadlocks.
+ * 
+ * Contents of the map is distributed across all processors such that every 
+ * processor will be able to determine if an entry exists in a map of any
+ * other processor using the MB_IndexMap_MemberOf() routine.
+ * 
+ * This routine should be called after all entries are added to the map (using
+ * MB_IndexMap_AddEntry()) and before and queries are made (using 
+ * MB_IndexMap_MemberOf()).
+ * 
+ * Possible return codes:
+ *  - ::MB_SUCCESS
+ *  - ::MB_ERR_INVALID (\c im is null or invalid)
+ *  - ::MB_ERR_MEMALLOC (unable to allocate required memory)
+ *  - ::MB_ERR_INTERNAL (internal error, possibly a bug)
+ *  - ::MB_ERR_MPI (Error returned from MPI calls, possibly a bug)
+ * 
+ * Usage example:
+ * (to be included)
+ * \endif
+ */
+
+/*!\if userdoc
+ * \fn MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value)
+ * \ingroup FUNC
+ * \brief Query the map to determine if a value exists on a particular processor
+ * \param[in] im Index Map handle
+ * \param[in] pid Target processor ID
+ * \param[in] value Value of entry to query for
+ * 
+ * Returns ::MB_TRUE or ::MB_FALSE depending on whether \c value exists in
+ * the map of processor with ID \c pid. 
+ * 
+ * MB_IndexMap_Sync() must be called on the map before this routine can be used.
+ * 
+ * In the serial library, \c pid is ignored and the call to MB_IndexMap_Sync() 
+ * is not compulsory but advisable.
+ * 
+ * \warning This is the only IndexMap routine that will be called very 
+ * frequently during the simulation. We want it to be fast fast fast, 
+ * so all checks are only done in debug mode!!! It is therefore crucial 
+ * that end-users always test their code with the debug version of 
+ * libmboard before using it in earnest. 
+ * 
+ * 
+ * Possible return codes:
+ *  - ::MB_TRUE (\c value exists in the specified map)
+ *  - ::MB_FALSE (\c value does not exist in the specified map)
+ *  - ::MB_ERR_NOTREADY (map has not been synchronised using MB_IndexMap_Sync())
+ *  - ::MB_ERR_INVALID (\c pid or \c im is invalid or null)
+ *  - ::MB_ERR_INTERNAL (internal error, possibly a bug)
+ * 
+ * Usage example:
+ * (to be included)
+ * \endif
+ */

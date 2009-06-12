@@ -1,3 +1,22 @@
+2009-xx-xx Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
+	* src/progs/mboard-check-minversion.in: Added script to allow users to 
+	  check if the installed libmboard meets a minimum version requirement
+	  
+	* src/utils/avltree.c, include/mb_avltree.h: Added utility to create
+	  search and manipulate an AVL binary search tree
+	* src/utils/string_map.c, include/mb_string_map.h: Added utility to
+	  keep track of unique strings. Used by MB_IndexMap_Create()
+	  
+	* src/*/indexmap_*:Introduction of the MB_IndexMap_*() routines
+	* src/*/filter_*:Introduction of the MB_Filter_*() routines
+	* src/*/function_*:Deprecation of the MB_Function_*() rutines
+	
+	* src/parallel/comm.c:All communication routines are now asynchronous and non-blocking
+	* src/parallel/comm.c:Communication now falls back to full data replication if message tagging
+	  leads to buffers that are larger than the total board size. Filtering
+	  is instead performed by the recipient.
+	  
+
 2009-05-08 Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
 
 	* m4/acx_pthread.m4, m4/check_parallel.m4: Added support pthreads-win32.

@@ -24,8 +24,12 @@
 
 #include "mb_objmap.h"
 #include "mb_pooled_list.h"
+#include "mb_string_map.h"
+#include "mb_avltree.h"
+#include "mb_utils.h"
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 
 /* status variables (initialised and documented in env_init.c) */
 extern int MBI_STATUS_initialised;
@@ -50,6 +54,17 @@ extern int MBI_STATUS_finalised;
  * Iterator (MB_Iterator_CreateFiltered()).
  */
 #define MB_CONFIG_PARALLEL_POOLSIZE  512
+
+/*! \brief String lenght of Index Map name */
+/* NOTE: IF YOU UPDATE THIS, PLEASE ALSO UPDATE DOXYGEN COMMENTS
+ * FOR MB_IndexMap_Create() IN mboard.h
+ * -- set all instantances of 'maximum character lenght" to 
+ *    that of (MB_INDEXMAP_NAMELENGTH - 1).
+ */
+#define MB_INDEXMAP_NAMELENGTH 128
+
+/*! \brief string map to names used for creating index maps */
+extern MBIt_stringmap *MBI_indexmap_nametable;
 
 /* global variables (initialised and documented in env_init.c) */
 extern int MBI_CommRank;
@@ -88,7 +103,7 @@ typedef struct {
  * both its arguments, and returns <tt>int</tt>.
  * 
  * */
-typedef int (*MBIt_filterfunc)(const void *, const void *);
+typedef int (*MBIt_filterfunc)(const void *, int);
 
 /*! \brief Wrapper for pointer to filter function 
  * 
@@ -108,12 +123,15 @@ typedef struct {
 #define OM_TYPE_MBOARD    (0x0a01)
 /*! \brief Constant representing Object Type: Iterator */
 #define OM_TYPE_ITERATOR  (0x0a02)
-/*! \brief Constant representing Object Type: Function */
-#define OM_TYPE_FUNCTION  (0x0a03)
+/*! \brief Constant representing Object Type: Filter */
+#define OM_TYPE_FILTER    (0x0a03)
+/*! \brief Constant representing Object Type: IndexMap */
+#define OM_TYPE_INDEXMAP  (0x0a04)
 
 /* (initialised and documented in env_init.c) */
 extern MBIt_objmap *MBI_OM_mboard;
 extern MBIt_objmap *MBI_OM_iterator;
-extern MBIt_objmap *MBI_OM_function;
+extern MBIt_objmap *MBI_OM_filter;
+extern MBIt_objmap *MBI_OM_indexmap;
 
 #endif /*MB_COMMON_H_*/

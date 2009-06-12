@@ -10,41 +10,51 @@
 /* Define tests within this suite */
 CU_TestInfo mbs_test_array[] = {
     
-    /* test_mb_s1.c */
+
     {"MB Environment initialisation                 ", test_mb_s_init            },
     {"Board Creation / Deletion                     ", test_mb_s_create_delete   },
     {"Multiple board creation                       ", test_mb_s_create_multiple },
-    /* test_mb_s2.c */
+
     {"Message Add                                   ", test_mb_s_addmessage      },
     {"Message Add beyond single block               ", test_mb_s_addmessage_many },
-    /* test_mb_s3.c */
+
     {"Board Clearance                               ", test_mb_s_clear           },
-    /* test_mb_s4.c */
+
     {"Board Synchronisation (start)                 ", test_mb_s_sync_start      },
     {"Sync Completion test                          ", test_mb_s_sync_test       },
     {"Board Synchronisation (complete)              ", test_mb_s_sync_complete   },
-    /* test_mb_s5.c */
+
     {"Creating Iterator                             ", test_mb_s_iter_create     },
     {"Reading messages from Iterator                ", test_mb_s_iter_getmsg     },
     {"Deleting Iterator                             ", test_mb_s_iter_delete     },
-    /* test_mb_s6.c */
+
     {"Creating Sorted Iterator                      ", test_mb_s_iter_create_sorted   },
     {"Reading messages from Sorted Iterator         ", test_mb_s_iter_sorted_getmsg   },
-    /* test_mb_s7.c */
+
     {"Creating Filtered Iterator                    ", test_mb_s_iter_create_filtered },
     {"Reading messages from Filtered Iterator       ", test_mb_s_iter_filtered_getmsg },
-    /* test_mb_s10.c */
+
     {"Creating Filtered+Sorted Iterator             ", test_mb_s_iter_create_filteredsorted },
     {"Reading messages from Filtered+Sorted Iterator", test_mb_s_iter_filteredsorted_getmsg },
-    /* test_mb_s8.c */
-    {"Rewinding Iterator                            ", test_mb_s_iter_rewind       },
-    /* test_mb_s9.c */
-    {"Randomising Iterator                          ", test_mb_s_iter_randomise    },
-    /* test_mb_s12.c */
-    {"Registering a function                        ", test_mb_s_function_register },
-    {"Assigning a function to board                 ", test_mb_s_function_assign   },
-    {"Freeing a function                            ", test_mb_s_function_free     },
 
+    {"Rewinding Iterator                            ", test_mb_s_iter_rewind       },
+
+    {"Randomising Iterator                          ", test_mb_s_iter_randomise    },
+
+    {"Creating filter                               ", test_mb_s_filter_create     },
+    {"Assigning filter to board                     ", test_mb_s_filter_assign     },
+    {"Deleting filter                               ", test_mb_s_filter_delete     },
+
+    /* testing indexmap */
+    {"Creating Index Maps                           ", test_mb_s_indexmap_create   },
+    {"Deleting Index Maps                           ", test_mb_s_indexmap_delete   },
+    {"Adding entries to Index Map                   ", test_mb_s_indexmap_addentry },
+    {"Adding entries to Index Map with duplicates   ", test_mb_s_indexmap_addentry_withdups },
+    {"Adding random entries to Index Map (with dups)", test_mb_s_indexmap_addentry_randomvals },
+    {"Querying an Index Map                         ", test_mb_s_indexmap_memberof },
+    {"Querying an Index Map with duplicates         ", test_mb_s_indexmap_memberof_withdups },
+    {"Querying an Index Map with large spread + dups", test_mb_s_indexmap_memberof_randomvals },
+    {"Synchronising Index Maps                      ", test_mb_s_indexmap_sync     },
     CU_TEST_INFO_NULL,
 };
     

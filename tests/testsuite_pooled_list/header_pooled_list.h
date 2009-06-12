@@ -43,8 +43,6 @@ void destroy_pl_object(pooled_list **pl);
 
 /* ===== Begin Function prototype for test cases ===== */
 
-/* ----- Source File : test_pl1.c ----- */
-
 /* test object creation and deletion */
 void test_pl_create_delete(void);
 
@@ -53,8 +51,6 @@ void test_pl_multisize(void);
 
 /* test using invalid input */
 void test_pl_create_invalid(void);
-
-/* ----- Source File: test_pl2.c ----- */
 
 /* test adding nodes */
 void test_pl_addnodes(void);
@@ -65,8 +61,6 @@ void test_pl_addnode_invalid(void);
 /* test memblock growth */
 void test_pl_memblocks(void);
 
-/* ----- Source File: test_pl3.c ----- */
-
 /* test linked list traversal */
 void test_pl_traverse(void);
 
@@ -76,7 +70,6 @@ void test_pl_traverse2(void);
 /* test getting node by index */
 void test_pl_getnode(void);
 
-/* ----- Source File: test_pl4.c ----- */
 /* test pl_recycle() */
 void test_pl_recycle(void);
 

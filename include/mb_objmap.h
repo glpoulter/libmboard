@@ -47,8 +47,6 @@
  * \note We use the khash Hashtable available from 
  * http://www.freewebs.com/attractivechaos/khash.h.html
  * 
- * \warning This implementation was not designed to be thread-safe.
- * 
  * @{*/
 
 /* Uncomment to allow MBI_objmap_push to recycle used keys 

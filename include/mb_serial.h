@@ -20,7 +20,6 @@
 
 #include "mboard.h"
 #include "mb_common.h"
-#include "mb_utils.h"
 
 /*! \brief Data structure of a MessageBoard instance */
 typedef struct {
@@ -30,6 +29,17 @@ typedef struct {
     /*! \brief pooled-list to hold messages */
     pooled_list *data;
 } MBIt_Board;
+
+/*! \brief Data structure of an IndexMap instance */
+typedef struct {
+    
+    /*! \brief map name */
+    const char *name;
+    
+    /*! \brief AVL tree of elements */
+    MBIt_AVLtree *tree;
+
+} MBIt_IndexMap;
 
 /* Uncomment to use pl_recycle() instead of pl_reset() */
 /* #define MB_CONFIG_RECYCLE_MEMPOOL */

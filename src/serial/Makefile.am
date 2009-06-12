@@ -16,6 +16,9 @@ common_sources   = 	addmessage.c \
 				    env_finalised.c \
 				    env_init.c \
 				    env_initialised.c \
+				    filter_assign.c \
+				    filter_delete.c \
+				    filter_create.c \
 				    function_assign.c \
 				    function_free.c \
 				    function_register.c \
@@ -27,12 +30,18 @@ common_sources   = 	addmessage.c \
 				    iterator_getmessage.c \
 				    iterator_randomise.c \
 				    iterator_rewind.c \
+				    indexmap_create.c \
+				    indexmap_delete.c \
+				    indexmap_sync.c \
+				    indexmap_memberof.c \
+				    indexmap_addentry.c \
 				    serial_utils.c \
 				    synccomplete.c \
 				    syncstart.c \
 				    synctest.c \
                     $(INCLUDEDIR)/mb_objmap.h \
                     $(INCLUDEDIR)/mb_pooled_list.h \
+                    $(INCLUDEDIR)/mb_avltree.h \
                     $(INCLUDEDIR)/mboard.h \
                     $(INCLUDEDIR)/mb_utils.h \
                     $(INCLUDEDIR)/mb_common.h \

@@ -10,106 +10,25 @@
  * \brief Parallel implementation of MB_Function_Register()
  * 
  */
-
 #include "mb_parallel.h"
+#include <stdio.h>
 
-#ifdef _EXTRA_CHECKS
-    static void check_all_fh_equal(OM_key_t key, MBIt_filterfunc fptr);
-    
-    struct fdata_t {
-        MBt_Function handle;
-        MBIt_filterfunc fptr;
-    };
-    
-#endif /*_EXTRA_CHECKS*/
-    
 /*!
  * \brief Registers a function
  * \ingroup MB_API
  * \param[out] fh_ptr Address of Function handle
  * \param[in] filterFunc Pointer to user-defined filter function
  * 
- * Function pointer is placed in a newly allocated ::MBIt_filterfunc_wrapper
- * object and registered with the ::MBI_OM_function map. The associated 
- * function handle is returned through \c fh_ptr.
+ * This function is now DEPRECATED.
  * 
- * Possible return codes:
- *  - ::MB_SUCCESS 
- *  - ::MB_ERR_INVALID (\c filterFunc is \c NULL)
- *  - ::MB_ERR_MEMALLOC (unable to allocate required memory)
- *  - ::MB_ERR_OVERFLOW (ObjectMap overflow. Too many functions registered.)
- *  - ::MB_ERR_INTERNAL (Internal error. Possibly a bug.)
+ * It now does nothing apart from printing a deprecation notice
+ * 
+ * This function will return with ::MB_SUCCESS.
  */
 int MB_Function_Register(MBt_Function *fh_ptr, 
         int (*filterFunc)(const void *msg, const void *params) ) {
     
-    OM_key_t rc_fh;
-    MBIt_filterfunc_wrapper *fwrap;
-    
-    /* first, assign fh_ptr to NULL FUNC */
-    *fh_ptr = MB_NULL_FUNCTION;
-    
-    /* Check if func ptr is null */
-    if (filterFunc == NULL) return MB_ERR_INVALID;
-    
-    /* create and populate func ptr wrapper so it can be placed in the map */
-    fwrap = (MBIt_filterfunc_wrapper *)malloc(sizeof(MBIt_filterfunc_wrapper));
-    assert(fwrap != NULL);
-    if (fwrap == NULL) return MB_ERR_MEMALLOC;
-    fwrap->func = filterFunc; /* set func ptr in wrapper */
-    
-    /* add func ptr to map. Get back fh. Make sure it is valid */
-    assert(MBI_OM_function != NULL);
-    assert(MBI_OM_function->type == OM_TYPE_FUNCTION);
-    rc_fh = MBI_objmap_push(MBI_OM_function, (void*)fwrap);
-    if (rc_fh > OM_MAX_INDEX)
-    {
-        if (rc_fh == OM_ERR_MEMALLOC)
-        {
-            return MB_ERR_MEMALLOC;
-        }
-        else if (rc_fh == OM_ERR_OVERFLOW)
-        {
-        	return MB_ERR_OVERFLOW;
-        }
-        else
-        {
-            return MB_ERR_INTERNAL;
-        }
-    }
-    
-    /* debug: make sure same fh on all procs */
-#ifdef _EXTRA_CHECKS
-    check_all_fh_equal(rc_fh, filterFunc);
-#endif /*_EXTRA_CHECKS*/
-    
-    /* assign fh */
-    *fh_ptr = (MBt_Function)rc_fh;
-    
-    /* return success */
+    printf("[libmboard] MB_Function_Register() deprecated. Use MB_Filter_Create() instead.\n");
     return MB_SUCCESS;
 }
 
-
-#ifdef _EXTRA_CHECKS
-
-
-static void check_all_fh_equal(OM_key_t key, MBIt_filterfunc fptr) {
-    
-    int rc;
-    struct fdata_t fdata; 
-    
-    if (MASTERNODE)
-    {
-        fdata.handle = key;
-        fdata.fptr   = fptr;
-    }
-    
-    rc = MPI_Bcast(&fdata, (int)sizeof(struct fdata_t), MPI_BYTE, 0, MBI_CommWorld);
-    assert(rc == MPI_SUCCESS);
-    assert(fdata.handle == key);
-    assert(fdata.fptr   == fptr);
-
-}
-
-#endif /*_EXTRA_CHECKS*/

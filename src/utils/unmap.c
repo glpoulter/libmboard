@@ -58,20 +58,40 @@ void * MBI_getIteratorRef(MBt_Iterator iter) {
 
 
 /*! 
- * \brief wrapper routine for mapping Function handle to object reference 
- * \param[in] fh Function handle
- * \return pointer to Function wrapper (\c NULL if handle invalid)
+ * \brief wrapper routine for mapping Filter handle to object reference 
+ * \param[in] ft Filter handle
+ * \return pointer to filter function wrapper (\c NULL if handle invalid)
  * 
  * Performs the necessary assertions (if compiled in debug mode) and obtains
- * the associated Function reference from the appropriate ObjectMap.
+ * the associated Filter function reference from the appropriate ObjectMap.
  */
-void * MBI_getFunctionRef(MBt_Function fh) {
+void * MBI_getFilterRef(MBt_Filter ft) {
     
-    /* make sure mboard object map valid */
-    assert(MBI_OM_function != NULL);
-    assert((int)MBI_OM_function->type == OM_TYPE_FUNCTION);
+    /* make sure function object map valid */
+    assert(MBI_OM_filter != NULL);
+    assert((int)MBI_OM_filter->type == OM_TYPE_FILTER);
     
-    /* return object mapped to mb handle */
-    return MBI_objmap_getobj(MBI_OM_function, (OM_key_t)fh);
+    /* return object mapped to handle */
+    return MBI_objmap_getobj(MBI_OM_filter, (OM_key_t)ft);
 
 }
+
+/*! 
+ * \brief wrapper routine for mapping Index Map handle to object reference 
+ * \param[in] ih Index Map handle
+ * \return pointer to Index Map object (\c NULL if handle invalid)
+ * 
+ * Performs the necessary assertions (if compiled in debug mode) and obtains
+ * the associated Map object reference from the appropriate ObjectMap.
+ */
+void * MBI_getIndexMapRef(MBt_IndexMap ih) {
+    
+    /* make sure indexmap object map valid */
+    assert(MBI_OM_indexmap != NULL);
+    assert((int)MBI_OM_indexmap->type == OM_TYPE_INDEXMAP);
+    
+    /* return object mapped to handle */
+    return MBI_objmap_getobj(MBI_OM_indexmap, (OM_key_t)ih);
+
+}
+

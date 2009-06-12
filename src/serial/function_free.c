@@ -10,22 +10,23 @@
  * \brief Serial implementation of MB_Function_Free()
  * 
  */
-
 #include "mb_serial.h"
+#include <stdio.h>
 
 /*!
  * \brief Deallocates a registered function
  * \ingroup MB_API
  * \param[in,out] fh_ptr Address of Function handle
  * 
- * This routine does nothing apart from setting fh to ::MB_NULL_FUNCTION 
- * (message tagging no needed in serial library).
+ * This function is now DEPRECATED.
  * 
- * Possible return codes:
- *  - ::MB_SUCCESS 
+ * It now does nothing apart from printing a deprecation notice
+ * 
+ * This function will return with ::MB_SUCCESS.
  */
 
 int MB_Function_Free ( MBt_Function *fh_ptr ) {
-    *fh_ptr = MB_NULL_FUNCTION;
+    
+    printf("[libmboard] MB_Function_Free() deprecated. Use MB_Filter_Delete() instead.\n");
     return MB_SUCCESS;
 }

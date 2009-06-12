@@ -2,9 +2,9 @@
 # $Id$
 # ===========================================================================
 #
-# Copyright (c) 2008 STFC Rutherford Appleton Laboratory 
+# Copyright (c) 2009 STFC Rutherford Appleton Laboratory 
 # Author: Lee-Shawn Chin 
-# Date  : Oct 2008
+# Date  : May 2009
 #
 # File  : mboard-config
 # Desc  : Script to output compilation flags needed to compile external
@@ -112,13 +112,20 @@ EOF
 
 # print library version
 function print_version {
-    echo "Message Board Library ($MB_PACKAGE_VERSION)"
+	echo ""
+    echo "  Message Board Library (Version $MB_PACKAGE_VERSION)"
+    echo "  Copyright (c) 2009 STFC Rutherford Appleton Laboratory"
+    echo ""
+    echo "For info on package configuration, run $0 --query"
 }
 
 # print full usage info and exit successfully
 function print_usage {
 
 	cat << EOF
+Message Board Library (Version $MB_PACKAGE_VERSION)
+Copyright (c) 2009 STFC Rutherford Appleton Laboratory
+
 Usage: mboard-config [OPTION]...
 
 mboard-config is the Message Board Library  configuration  utility.  It

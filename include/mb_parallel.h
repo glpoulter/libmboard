@@ -15,7 +15,6 @@
 #define MB_PARALLEL_H_
 
 #include "mboard.h"
-#include "mb_utils.h"
 #include "mb_common.h"
 #include "mb_tag_table.h"
 
@@ -40,16 +39,10 @@ typedef struct {
     unsigned int syncCompleted :1;
     /*! \brief flag indicating 'locked' status */
     unsigned int locked :1;
-    /*! \brief flag indicating if messages were tagged */
-    unsigned int tagging :1;
     
     /*! \brief filter function used for tagging messages we need from 
      * remote nodes */
-    MBt_Function fh;
-    /* \brief parameters to be passed to fh */
-    void * fparams;
-    /* \brief size of \c fparams data to be passed to fh */
-    size_t fparams_size;
+    MBIt_filterfunc filter;
     
     /*! \brief table for managing message tagging */
     MBIt_TagTable *tt;
@@ -66,6 +59,28 @@ typedef struct {
     
 } MBIt_Board;
 
+/*! \brief Data structure of an IndexMap instance */
+typedef struct {
+    
+    /*! \brief flag indicating that the map has been synchronised */
+    unsigned int synced :1;
+    
+    /*! \brief map name */
+    const char *name;
+    
+    /*! \brief AVL tree of locally added elements (pre-sync) */
+    MBIt_AVLtree *tree_local;
+    
+    /*! \brief AVL tree of complete map space (all procs) */
+    MBIt_AVLtree *tree;
+
+    /*! \brief Pointer to cached leaf (most recently accessed) */
+    void *cache_leaf_ptr;
+    /*! \brief Value cached leaf (most recently accessed) */
+    int cache_leaf_value;
+    
+} MBIt_IndexMap;
+
 /* constants for calculating MPI tags (for labelling communication) */
 /* LAM MPI supports a rather small MAX TAG value, and does not have the 
  * courtesy to set the MPI_TAG_UB. Boooo!
@@ -76,9 +91,24 @@ typedef struct {
  */ 
 #define MBI_TAG_MAX      (0x7fff)
 #define MBI_TAG_BASE     (0x0fff)
-#define MBI_TAG_FHDATA   (0x1000)
-#define MBI_TAG_MSGDATA  (0x2000)
-/* max MBI_TAG_*DATA = (0x7000) */
+#define MBI_TAG_MSGDATA  (0x1000)
+/* max MBI_TAG_*DATA = (0x6000) */
+/* (0x7000 - 0x7fff) reserved for individually set tags */
+#define MBI_TAG_INDEXMAX_SYNC   (0x7000)
+
+
+/*! \brief bitmask for communication buffer header byte: full data replication
+ * 
+ * The first byte of a communication buffer (for propagating messages) is
+ * reserved for header information.
+ * 
+ * This first bit is used to indicate if filtering was not performed by the
+ * sender (fallback to full data replication) and the filtering has to be
+ * performed by the recipient.
+ * 
+ * */
+#define MBI_COMM_HEADERBYTE_FDR (0x01)
+
 
 /*The number of available simulataneous comms limits the number of 
  * boards we can have

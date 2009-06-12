@@ -11,7 +11,10 @@ if TESTS_CONFIGURED
 noinst_LTLIBRARIES  = lib_t_objmap.la
 
 lib_t_objmap_la_SOURCES = setup_suite_om.c \
-						  test_om1.c \
+						  test_om_new.c \
+						  test_om_push.c \
+						  test_om_pop.c \
+						  test_om_getobj.c \
 						  testsuite_om_utils.c \
 					      header_objmap.h
 						

@@ -19,6 +19,12 @@ CU_ErrorCode testsuite_om(void);
 /* Test suite for Tag Table */
 CU_ErrorCode testsuite_tt(void);
 
+/* Test suite for AVL Binary search tree */
+CU_ErrorCode testsuite_avl(void);
+
+/* Test suite for String Map */
+CU_ErrorCode testsuite_sm(void);
+
 /* Test suite for Serial Libmboard */
 CU_ErrorCode testsuite_mb_serial(void);
 

@@ -96,10 +96,7 @@ inline static int newBoardObj(MBt_Board *mb_ptr, size_t msgsize) {
     mb_obj->syncCompleted = MB_FALSE; 
     
     /* initialise message tagging function data */
-    mb_obj->fh = MB_NULL_FUNCTION;
-    mb_obj->tagging = MB_FALSE;
-    mb_obj->fparams_size = 0;
-    mb_obj->fparams = NULL;
+    mb_obj->filter = NULL;
     mb_obj->tt = NULL;
 
     

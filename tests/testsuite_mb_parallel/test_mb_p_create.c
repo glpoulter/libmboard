@@ -75,10 +75,7 @@ static void check_board_initial_values(MBt_Board mb, size_t msgsize) {
     CU_ASSERT_EQUAL(board->data->elem_size, (unsigned int)msgsize);
     
     /* check intial values for message tagging function */
-    CU_ASSERT_EQUAL(board->fh, MB_NULL_FUNCTION);
-    CU_ASSERT_EQUAL(board->tagging, MB_FALSE);
-    CU_ASSERT_EQUAL(board->fparams_size, 0);
-    CU_ASSERT_PTR_NULL(board->fparams);
+    CU_ASSERT_EQUAL(board->filter, (MBIt_filterfunc)NULL);
     CU_ASSERT_PTR_NULL(board->tt);
     
     /* make sure lock initialised */

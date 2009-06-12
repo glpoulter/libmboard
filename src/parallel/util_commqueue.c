@@ -11,8 +11,7 @@
  * 
  */
 
-/* splint directive needed due to uthash implementation */
-/*@+ignoresigns@*/
+
 
 #include "mb_parallel.h"
 #include "mb_commqueue.h"
@@ -126,14 +125,18 @@ int MBI_CommQueue_Push(MBt_Board mb, enum MBIt_CommStage startstage) {
     
     /* initialise values */
     node->mb = mb;
-    node->incount = NULL;
-    node->inbuf   = NULL;
-    node->outbuf  = NULL;
-    node->sendreq = NULL;
-    node->recvreq = NULL;
+    node->board    = NULL;
+    node->outcount = NULL;
+    node->incount  = NULL;
+    node->inbuf    = NULL;
+    node->outbuf   = NULL;
+    node->sendreq  = NULL;
+    node->recvreq  = NULL;
+    node->stage    = startstage;
     node->pending_in  = 0;
     node->pending_out = 0;
-    node->stage   = startstage;
+    node->flag_fdrFallback = MB_FALSE;
+    node->flag_shareOutbuf = MB_FALSE;
     
     /* Add to Queue */
     if (CommQ != NULL) CommQ->prev = node;

@@ -46,6 +46,8 @@ void test_cq_newnode(void) {
     CU_ASSERT_PTR_NULL(node->sendreq);
     CU_ASSERT_PTR_NULL(node->recvreq);
     CU_ASSERT_PTR_NULL(node->incount);
+    CU_ASSERT_PTR_NULL(node->outcount);
+    CU_ASSERT_PTR_NULL(node->board);
     CU_ASSERT_EQUAL(node->stage, PRE_TAGGING)
     
     /* get ref to second node */
@@ -57,6 +59,8 @@ void test_cq_newnode(void) {
     CU_ASSERT_PTR_NULL(node->sendreq);
     CU_ASSERT_PTR_NULL(node->recvreq);
     CU_ASSERT_PTR_NULL(node->incount);
+    CU_ASSERT_PTR_NULL(node->outcount);
+    CU_ASSERT_PTR_NULL(node->board);
     CU_ASSERT_EQUAL(node->stage, PRE_TAGGING)
     
     /* make sure this is last node */

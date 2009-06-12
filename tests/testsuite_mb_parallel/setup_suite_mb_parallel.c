@@ -14,37 +14,52 @@ int testsuite_mpi_rank, testsuite_mpi_size;
 /* Define tests within this suite */
 CU_TestInfo mbp_test_array[] = {
     
-    /* test_mb_p1.c */
+    /* initialising MB environment */
     {"MB Environment initialisation                 ", test_mb_p_init                 },
-    /* test_mb_p2.c */
+    /* basic board operations */
     {"Creating and deleting message board           ", test_mb_p_create               },
-    /* test_mb_p4.c */
     {"Adding message                                ", test_mb_p_addmessage           },
     {"Adding messages beyond single block           ", test_mb_p_addmessage_many      },
-    /* test_mb_p3.c */
     {"Clearing message board                        ", test_mb_p_clear                },
-    /* test_mb_p5.c */
+    /* Iterators */
     {"Creating Iterator                             ", test_mb_p_iter_create          },
     {"Reading messages from Iterator                ", test_mb_p_iter_getmsg          },
     {"Deleting Iterator                             ", test_mb_p_iter_delete          },
-    /* test_mb_p6.c */
     {"Creating Sorted Iterator                      ", test_mb_p_iter_create_sorted   },
     {"Reading messages from Sorted Iterator         ", test_mb_p_iter_sorted_getmsg   },
-    /* test_mb_p7.c */
     {"Creating Filtered Iterator                    ", test_mb_p_iter_create_filtered },
     {"Reading messages from Filtered Iterator       ", test_mb_p_iter_filtered_getmsg },
-    /* test_mb_p10.c */
     {"Creating Filtered+Sorted Iterator             ", test_mb_p_iter_create_filteredsorted },
     {"Reading messages from Filtered+Sorted Iterator", test_mb_p_iter_filteredsorted_getmsg },
-    /* test_mb_p8.c */
     {"Rewinding Iterator                            ", test_mb_p_iter_rewind          },
-    /* test_mb_p9.c */
     {"Randomising Iterator                          ", test_mb_p_iter_randomise       },
-    /* test_mb_p11.c */
-    {"Registering and freeing Functions             ", test_mb_p_function_register    },
-    {"Assigning Function to Board                   ", test_mb_p_function_assign      },
-    /* test_mb_p1.c */
+    /* testing indexmap */
+    {"Creating Index Maps                           ", test_mb_p_indexmap_create   },
+    {"Deleting Index Maps                           ", test_mb_p_indexmap_delete   },
+    {"Adding entries to Index Map                   ", test_mb_p_indexmap_addentry },
+    {"Adding entries to Index Map with duplicates   ", test_mb_p_indexmap_addentry_withdups },
+    {"Adding random entries to Index Map (with dups)", test_mb_p_indexmap_addentry_randomvals },
+    {"Querying an Index Map                         ", test_mb_p_indexmap_memberof },
+    {"Querying an Index Map with duplicates         ", test_mb_p_indexmap_memberof_withdups },
+    {"Querying an Index Map with large spread + dups", test_mb_p_indexmap_memberof_randomvals },
+    {"Querying an Index Map with no par' overlaps   ", test_mb_p_indexmap_memberof_nooverlaps },
+    {"Querying an Index Map with some par' overlaps ", test_mb_p_indexmap_memberof_someoverlaps },
+    {"Synchronising Index Maps                      ", test_mb_p_indexmap_sync     },
+    /* filters */
+    {"Creating filter objects                       ", test_mb_p_filter_create     },
+    {"Assigning filters to boards                   ", test_mb_p_filter_assign     },
+    {"Deleting filter objects                       ", test_mb_p_filter_delete     },
+    /* synchronising distributed boards */
+    {"Sync routines (basic tests)                   ", test_mb_p_sync_basic        },
+    {"Checking board content after sync             ", test_mb_p_sync_checkcontent },
+    {"Checking board content after sync (filter)    ", test_mb_p_sync_withfilter   },
+    {"Checking fallback to full data replication    ", test_mb_p_sync_withfilter_fdr  },
+    {"Checking with filters that use Index Map      ", test_mb_p_sync_indexmap  },
+    /* TODO: sync with filters */
+    /* TODO: sync with fallback to data replication */
+    /* finalising MB environment */
     {"MB Environment finalisation                   ", test_mb_p_finalise             },
+    
     
     CU_TEST_INFO_NULL,
 };
@@ -74,6 +89,19 @@ int init_mb_parallel(void) {
 
 int clean_mb_parallel(void) {
     int rc;
+    
+    /* message to users */
+    if (testsuite_mpi_size < 4 && testsuite_mpi_rank == 0)
+    {
+        printf("\n\n");
+        printf("=====================================================================\n");
+        printf("\n");
+        printf("  NOTICE: You should repeat this test with at least 4 MPI tasks\n");
+        printf("          for a more thorough test of the communication routines\n");
+        printf("\n");
+        printf("=====================================================================\n");
+        printf("\n");
+    }
     
     /* finalise MB environment */
     if (MB_Env_Finalised() != MB_SUCCESS)

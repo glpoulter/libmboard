@@ -47,8 +47,12 @@ int init_mb_with_content(MBt_Board *mb_ptr);
 /* map message sequence ID to value */
 int get_message_value_from_id(int id);
 
+/* get list of random unique integers */
+void generate_random_unique_ints(int *array, int size);
 
-/* ----- Source File : test_mb_s1.c ----- */
+int is_in_array(int *array, int size, int value);
+
+
 
 /* MB Environment initialisation */
 void test_mb_s_init(void);
@@ -59,20 +63,14 @@ void test_mb_s_create_delete(void);
 /* test creation of multiple boards */
 void test_mb_s_create_multiple(void);
 
-/* ----- Source File : test_mb_s2.c ----- */
-
 /* test adding message to board */
 void test_mb_s_addmessage(void);
 
 /* test adding many message to board (beyond single pool block) */
 void test_mb_s_addmessage_many(void);
 
-/* ----- Source File : test_mb_s3.c ----- */
-
 /* test clearing message board */
 void test_mb_s_clear(void);
-
-/* ----- Source File : test_mb_s4.c ----- */
 
 /* Test MB_SyncStart */
 void test_mb_s_sync_start(void);
@@ -92,8 +90,6 @@ void test_mb_s_sync_complete(void);
 /* Test MB_SyncCompleteGroup */
 void test_mb_s_sync_completegroup(void);
 
-/* ----- Source File : test_mb_s5.c ----- */
-
 /* Test MB_Iterator_Create */
 void test_mb_s_iter_create(void);
 
@@ -103,15 +99,11 @@ void test_mb_s_iter_getmsg(void);
 /* Test MB_Iterator_Delete */
 void test_mb_s_iter_delete(void);
 
-/* ----- Source File : test_mb_s6.c ----- */
-
 /* Test MB_Iterator_CreateSorted */
 void test_mb_s_iter_create_sorted(void);
 
 /* Test MB_Iterator_GetMessage on Sorted Iterator */
 void test_mb_s_iter_sorted_getmsg(void);
-
-/* ----- Source File : test_mb_s7.c ----- */
 
 /* Test MB_Iterator_CreateFiltered */
 void test_mb_s_iter_create_filtered(void);
@@ -119,17 +111,11 @@ void test_mb_s_iter_create_filtered(void);
 /* Test MB_Iterator_GetMessage on Filtered Iterator */
 void test_mb_s_iter_filtered_getmsg(void);
 
-/* ----- Source File : test_mb_s8.c ----- */
-
 /* Test MB_Iterator_Rewind */
 void test_mb_s_iter_rewind(void);
 
-/* ----- Source File : test_mb_s9.c ----- */
-
 /* Test MB_Iterator_Randomise */
 void test_mb_s_iter_randomise(void);
-
-/* ----- Source File : test_mb_s10.c ----- */
 
 /* Test MB_Iterator_CreateFilteredSorted */
 void test_mb_s_iter_create_filteredsorted(void);
@@ -137,14 +123,24 @@ void test_mb_s_iter_create_filteredsorted(void);
 /* Test MB_Iterator_GetMessage on Filtered+Sorted Iterator */
 void test_mb_s_iter_filteredsorted_getmsg(void);
 
-/* ----- Source File : test_mb_s12.c ----- */
-
 /* testing MB_Function_Register() */
-void test_mb_s_function_register(void);
+void test_mb_s_filter_create(void);
 
 /* testing MB_Function_Assign() */
-void test_mb_s_function_assign(void);
+void test_mb_s_filter_assign(void);
 
 /* testing MB_Function_Free() */
-void test_mb_s_function_free(void);
+void test_mb_s_filter_delete(void);
+
+/* testing index map */
+void test_mb_s_indexmap_create(void);
+void test_mb_s_indexmap_delete(void);
+void test_mb_s_indexmap_sync(void);
+void test_mb_s_indexmap_memberof(void);
+void test_mb_s_indexmap_memberof_withdups(void);
+void test_mb_s_indexmap_memberof_randomvals(void);
+void test_mb_s_indexmap_addentry(void);
+void test_mb_s_indexmap_addentry_withdups(void);
+void test_mb_s_indexmap_addentry_randomvals(void);
+
 #endif /*HEADER_MB_SERIAL_H_*/

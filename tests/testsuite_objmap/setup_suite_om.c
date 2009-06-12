@@ -10,7 +10,6 @@
 /* Define tests within this suite */
 CU_TestInfo om_test_array[] = {
     
-    /* test_om1.c */
     {"Object creation and deletion                ", test_om_new_destroy   },
     {"Pushing object into Map                     ", test_om_push          },
     {"Popping object from Map                     ", test_om_pop           },

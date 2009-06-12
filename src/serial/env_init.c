@@ -28,12 +28,17 @@ MBIt_objmap *MBI_OM_mboard   = NULL;
 /*! \brief reference to Iterator ObjectMap */
 MBIt_objmap *MBI_OM_iterator = NULL;   
 /*! \brief reference to Function ObjectMap */
-MBIt_objmap *MBI_OM_function = NULL;   
+MBIt_objmap *MBI_OM_filter = NULL;   
+/*! \brief reference to IndexMap ObjectMap */
+MBIt_objmap *MBI_OM_indexmap = NULL;   
 
 /*! \brief Dummy MPI Task ID */
 int MBI_CommRank;
 /*! \brief Dummy Number of MPI Tasks */
 int MBI_CommSize;
+
+/*! \brief string map to names used for creating index maps */
+MBIt_stringmap *MBI_indexmap_nametable;
 
 /*!
  * \brief Initialises the libmboard environment
@@ -49,11 +54,15 @@ int MBI_CommSize;
  *  - ::MB_SUCCESS
  *  - ::MB_ERR_MEMALLOC (error allocating memory for ObjectMaps)
  *  - ::MB_ERR_ENV (libmboard environment already started)
+ *  - ::MB_ERR_INTERNAL (internal error, possibly a bug)
  */
 int MB_Env_Init(void) {
     
     /* Check if environment already initialised */
     if (MBI_STATUS_initialised == MB_TRUE) return MB_ERR_ENV;
+    
+    /* print banner */
+    MBI_print_banner();
     
     /* set dummy values */
     MBI_CommSize = 1;
@@ -69,17 +78,25 @@ int MB_Env_Init(void) {
     /* Allocate object maps */
     MBI_OM_mboard   = (MBIt_objmap*)MBI_objmap_new();
     MBI_OM_iterator = (MBIt_objmap*)MBI_objmap_new();
-    if (!MBI_OM_mboard || !MBI_OM_iterator) 
+    MBI_OM_indexmap = (MBIt_objmap*)MBI_objmap_new();
+    if (!MBI_OM_mboard || !MBI_OM_iterator || !MBI_OM_indexmap) 
     {   /* if allocation failed, release mem and return with error */
         MBI_objmap_destroy(&MBI_OM_mboard);
         MBI_objmap_destroy(&MBI_OM_iterator);
+        MBI_objmap_destroy(&MBI_OM_indexmap);
         return MB_ERR_MEMALLOC;
     }
     else
     {   /* set type */
         MBI_OM_mboard   ->type = OM_TYPE_MBOARD;
         MBI_OM_iterator ->type = OM_TYPE_ITERATOR;
+        MBI_OM_indexmap ->type = OM_TYPE_INDEXMAP;
     }
+    
+    /* Allocate string map */
+    MBI_indexmap_nametable = MBI_stringmap_Create();
+    assert(MBI_indexmap_nametable != NULL);
+    if (MBI_indexmap_nametable == NULL) return MB_ERR_INTERNAL;
     
     /* set initialised status and return */
     MBI_STATUS_initialised = MB_TRUE;

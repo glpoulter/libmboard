@@ -32,8 +32,6 @@ void delete_om_obj(MBIt_objmap **mymap);
 
 /* ===== Begin Function prototype for test cases ===== */
 
-/* ----- Source File : test_om1.c ----- */
-
 /* test object creation and deletion */
 void test_om_new_destroy(void);
 

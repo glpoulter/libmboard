@@ -11,10 +11,10 @@ if TESTS_CONFIGURED
 noinst_LTLIBRARIES  = lib_t_pooled_list.la
 
 lib_t_pooled_list_la_SOURCES = setup_suite_pl.c \
-						 	   test_pl1.c \
-						 	   test_pl2.c \
-						 	   test_pl3.c \
-						 	   test_pl4.c \
+						 	   test_pl_create.c \
+						 	   test_pl_addnode.c \
+						 	   test_pl_traversal.c \
+						 	   test_pl_reset_recycle.c \
 						 	   testsuite_pl_utils.c \
 					           header_pooled_list.h
 

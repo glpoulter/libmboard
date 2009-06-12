@@ -17,6 +17,8 @@ SUBDIRS = testsuite_commqueue \
           testsuite_objmap \
           testsuite_tag_table \
           testsuite_pooled_list \
+          testsuite_string_map \
+          testsuite_avltree \
           testsuite_syncqueue
           
 DIST_SUBDIRS = $(SUBDIRS)
@@ -36,7 +38,7 @@ run_test_parallel_utils_LDADD   =  \
                                   $(testcode_dir)/testsuite_syncqueue/lib_t_syncqueue.la \
                                   $(testcode_dir)/testsuite_commroutines/lib_t_commroutines.la \
                                   $(top_srcdir)/src/parallel/lib_mb_pd.la \
-                                  $(top_srcdir)/src/utils/lib_utils.la \
+                                  $(top_srcdir)/src/utils/lib_utils_pd.la \
 						  		  @CUNITLIBS@ @MB_PARALLEL_LIBS@
 						    	  
 						    	  
@@ -47,7 +49,7 @@ run_test_parallel_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @DEBUG_CFLAGS@ @MB_PAR
 run_test_parallel_LDADD   = \
 							$(testcode_dir)/testsuite_mb_parallel/lib_t_mb_parallel.la \
 						    $(top_srcdir)/src/parallel/lib_mb_pd.la \
-						    $(top_srcdir)/src/utils/lib_utils.la \
+						    $(top_srcdir)/src/utils/lib_utils_pd.la \
 						    @CUNITLIBS@ @MB_PARALLEL_LIBS@ 
 						    
 
@@ -59,7 +61,9 @@ run_test_utils_CFLAGS   = -I$(INCLUDEDIR) @CUNITCFLAGS@ @DEBUG_CFLAGS@
 run_test_utils_LDADD    = $(testcode_dir)/testsuite_objmap/lib_t_objmap.la \
                           $(testcode_dir)/testsuite_pooled_list/lib_t_pooled_list.la \
                           $(testcode_dir)/testsuite_tag_table/lib_t_tag_table.la \
-						  $(top_srcdir)/src/utils/lib_utils.la \
+                          $(testcode_dir)/testsuite_avltree/lib_t_avltree.la \
+                          $(testcode_dir)/testsuite_string_map/lib_t_string_map.la \
+						  $(top_srcdir)/src/utils/lib_utils_d.la \
 						  @CUNITLIBS@
 
                
@@ -68,7 +72,7 @@ run_test_serial_LDFLAGS = @CUNITLDFLAGS@
 run_test_serial_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @DEBUG_CFLAGS@
 run_test_serial_LDADD   = $(testcode_dir)/testsuite_mb_serial/lib_t_mb_serial.la \
 						  $(top_srcdir)/src/serial/lib_mb_sd.la \
-						  $(top_srcdir)/src/utils/lib_utils.la \
+						  $(top_srcdir)/src/utils/lib_utils_d.la \
 						  @CUNITLIBS@
 						  
 
@@ -89,7 +93,7 @@ endif
 # -D__sigset_t=int hides problems with splint trying to parse headers
 # used by pthread.h
 SPLINT_OPTIONS = -weak -D__sigset_t=int -warnposix
-SERIAL_TESTSUITES = objmap tag_table pooled_list mb_serial
+SERIAL_TESTSUITES = objmap tag_table pooled_list mb_serial avltree string_map
 PARALLEL_TESTSUITES = syncqueue commqueue commroutines mb_parallel 
 
 splint:

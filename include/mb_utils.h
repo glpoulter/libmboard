@@ -27,7 +27,13 @@ extern inline void * MBI_getMBoardRef(MBt_Board mb);
 /* Dereference Iterator Handle */
 extern inline void * MBI_getIteratorRef(MBt_Iterator iter);
 
+/* Dereference Filter Handle */
+extern inline void * MBI_getFilterRef(MBt_Filter fh);
+
 /* Dereference Function Handle */
-extern inline void * MBI_getFunctionRef(MBt_Function fh);
+extern inline void * MBI_getIndexMapRef(MBt_IndexMap ih);
+
+/* .... see src/utils/banner.c .... */
+extern void MBI_print_banner(void);
 
 #endif /*MB_UTILS_H_*/

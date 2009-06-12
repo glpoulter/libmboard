@@ -41,7 +41,12 @@ int MB_Env_Finalise(void) {
     /* deallocate Object Maps */
     MBI_objmap_destroy(&MBI_OM_mboard);
     MBI_objmap_destroy(&MBI_OM_iterator);
-    MBI_objmap_destroy(&MBI_OM_function);
+    MBI_objmap_destroy(&MBI_OM_filter);
+    MBI_objmap_destroy(&MBI_OM_indexmap);
+    
+    /* deallocate string map */
+    rc = MBI_stringmap_Delete(&MBI_indexmap_nametable);
+    assert(rc == MB_SUCCESS);
     
     /* free our MPI_Communicator */
     MPI_Comm_free(&MBI_CommWorld);

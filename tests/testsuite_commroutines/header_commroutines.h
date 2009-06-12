@@ -11,44 +11,39 @@
 #include "CUnit/CUnit.h"
 #include "header_commroutines.h"
 #include "mb_commqueue.h"
-#include "mb_syncqueue.h"
-#include "mb_objmap.h"
 #include "mb_parallel.h"
-#include <unistd.h> /* for sleep() */
-#include <stdio.h>
+#include "mboard.h"
 
-#define TCR_MCOUNT 10
-/* dummy message */
-typedef struct  {
-    int id;
-    double value;
-} tcr_msg_t;
+#define SMALLNUM 10
+/* must be an even number! */
+#define TEST_MESSAGE_COUNT (int)(MB_CONFIG_PARALLEL_POOLSIZE * 2 + SMALLNUM)
 
-/* filter functions to be used for testing */
-int tcr_filter_even(const void *msg, const void *params);
-int tcr_filter_minimum(const void *msg, const void *params);
+/* global vars */
+extern MBt_Board mb_nofilter, mb_filter, mb_filter_fdr;
+extern MBt_Board mb_empty, mb_empty_filter;
+extern MBt_Filter filter_map, filter_fdr;
+extern MBt_IndexMap indexmap;
 
-/* ----- Source file: test_cr1.c ----- */
+extern struct MBIt_commqueue *node_nofilter;
+extern struct MBIt_commqueue *node_filter;
+extern struct MBIt_commqueue *node_filter_fdr;
+extern struct MBIt_commqueue *node_empty;
+extern struct MBIt_commqueue *node_empty_filter;
 
-/* initialise test environment */
+/* ... in test_cr_utils.c */
+int filter_func_map(const void *m, int pid);
+int filter_func_fdr(const void *m, int pid);
+int _initialise_map_values(MBt_IndexMap map);
+
+/* setup and teardown routines */
 int init_cr(void);
-
-/* clean up test environment */
 int clean_cr(void);
 
-/* testing MBIt_Comm_InitTagging() */
-void test_cr_inittagging(void);
-
-/* testing MBIt_Comm_WaitTagInfo() */
-void test_cr_waittaginfo(void);
-
-/* testing MBIt_Comm_TagMessages() */
+/* test routines */
 void test_cr_tagmessages(void);
-
-/* testing MBIt_Comm_InitPropagation() */
+void test_cr_sendbufinfo(void);
+void test_cr_waitbufinfo(void);
 void test_cr_initpropagation(void);
-
-/* testing MBIt_Comm_CompletePropagation() */
 void test_cr_completepropagation(void);
 
 #endif /*HEADER_COMMQUEUE_H_*/

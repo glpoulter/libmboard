@@ -10,37 +10,22 @@
  * \brief Parallel implementation of MB_Function_Free()
  * 
  */
-
 #include "mb_parallel.h"
+#include <stdio.h>
 
 /*!
  * \brief Deallocates a registered function
  * \ingroup MB_API
  * \param[in,out] fh_ptr Address of Function handle
  * 
- * The associated function object is removed from the map and deallocated.
+ * This function is now DEPRECATED.
  * 
- * On success, \c fh_ptr is set to MB_NULL_FUNCTION. On error, \c fh_ptr
- * will remain unchanged, and an appropriate error code is returned.
+ * It now does nothing apart from printing a deprecation notice
  * 
- * Possible return codes:
- *  - ::MB_SUCCESS 
- *  - ::MB_ERR_INVALID (invalid or null function handle) 
+ * This function will return with ::MB_SUCCESS.
  */
 int MB_Function_Free(MBt_Function *fh_ptr) {
     
-    void *obj;
-    
-    /* make sure fh_ptr not null */
-    if (*fh_ptr == MB_NULL_FUNCTION) return MB_ERR_INVALID;
-    
-    /* remove from board */
-    obj = MBI_objmap_pop(MBI_OM_function, (OM_key_t)*fh_ptr);
-    if (obj == NULL) return MB_ERR_INVALID;
-    
-    /* free object and return */
-    free(obj);
-    *fh_ptr = MB_NULL_FUNCTION;
-    
+    printf("[libmboard] MB_Function_Free() deprecated. Use MB_Filter_Delete() instaed.\n");
     return MB_SUCCESS;
 }

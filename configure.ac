@@ -5,13 +5,15 @@
 # 
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT(libmboard, 0.1.6, shawn.chin@_NOSPAM_stfc.ac.uk)
+# Note: first 3 segments of version number must only contain digits!!
+AC_INIT(libmboard, 0.2.0.pre-release, shawn.chin@_NOSPAM_stfc.ac.uk)
 AM_INIT_AUTOMAKE
 
 #AM_MAINTAINER_MODE
 
 AC_PREREQ(2.59)
 AC_REVISION($Revision$)
+AC_COPYRIGHT([Copyright (c) 2007-2009 STFC Rutherford Appleton Laboratory])
 
 AC_CONFIG_SRCDIR([src/serial/env_init.c])
 AC_CONFIG_HEADER([include/mb_config.h])
@@ -116,8 +118,12 @@ AC_SUBST(MEMLOG_CFLAGS)
 # provide some extra info to *.in files
 MB_CONFIG_ARGS=$ac_configure_args
 AC_SUBST(MB_CONFIG_ARGS)
+AC_DEFINE_UNQUOTED(INFO_CONFIG_ARGS, "${MB_CONFIG_ARGS}", [Options used to configure package])
+
 MB_CONFIG_DATE=`date`
 AC_SUBST(MB_CONFIG_DATE)
+AC_DEFINE_UNQUOTED(INFO_CONFIG_DATE, "${MB_CONFIG_DATE}", [Date package was configure])
+
 MB_SRC_DIR=`pwd`
 AC_SUBST(MB_SRC_DIR)
 
@@ -155,6 +161,7 @@ src/serial/Makefile
 src/parallel/Makefile
 src/progs/Makefile
 src/progs/mboard-config
+src/progs/mboard-check-minversion
 src/progs/compile_coverage.sh
 tests/Makefile
 tests/testsuite_commqueue/Makefile
@@ -165,6 +172,8 @@ tests/testsuite_objmap/Makefile
 tests/testsuite_tag_table/Makefile
 tests/testsuite_pooled_list/Makefile
 tests/testsuite_syncqueue/Makefile
+tests/testsuite_avltree/Makefile
+tests/testsuite_string_map/Makefile
 ])dnl
 
 # Some external header files (such as pthread.h for pthreads-win32) may look
