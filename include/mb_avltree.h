@@ -59,7 +59,7 @@ struct _MBIt_AVLnode {
      * 
      * We only need values between -2 and 2 
      */ 
-    int balance :4;
+    signed int balance :4;
     
     /*! \brief value of the node */
     int key;

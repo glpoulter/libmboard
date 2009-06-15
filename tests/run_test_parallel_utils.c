@@ -27,6 +27,9 @@ int main(int argc, char ** argv) {
     
     CU_ErrorCode rc;
     
+    /* initialise MPI environment */
+    MPI_Init(&argc, &argv);
+    
     /* initialize the CUnit test registry */
     if (CUE_SUCCESS != CU_initialize_registry())
     {
@@ -51,6 +54,9 @@ int main(int argc, char ** argv) {
     /* Run all tests using the CUnit Basic interface */
     CU_basic_set_mode(CU_BRM_VERBOSE);
     rc = CU_basic_run_tests();
+    
+    /* finalise MPI environment */
+    MPI_Finalize();
     
     /* clean up registry and quit */
     return clean_quit();

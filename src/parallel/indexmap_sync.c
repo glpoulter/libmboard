@@ -14,6 +14,10 @@
 #include "mb_parallel.h"
 #include "mb_objmap.h"
 
+#ifdef _EXTRA_CHECKS
+static void _check_map_equal(OM_key_t key);
+#endif
+
 static int _assign_bitboard_to_nodes(MBIt_AVLnode *node);
 inline static void _get_bitdata(int pid, int *byte_offset, char *mask);
 static void _update_tree_with_new_data(MBIt_AVLtree *tree, int pid, int *databuf, int count);
@@ -55,6 +59,10 @@ int MB_IndexMap_Sync(MBt_IndexMap im) {
     assert(im_obj->tree_local != NULL);
     if (im_obj->tree_local == NULL) return MB_ERR_INVALID;
     
+    /* -------- Check that we're syncing the same map ------ */
+#ifdef _EXTRA_CHECKS
+    _check_map_equal((OM_key_t)im);
+#endif 
     
     /* -------- Allocate required memory ---------------- */
 
@@ -315,3 +323,18 @@ inline static void _get_bitdata(int pid, int *byte_offset, char *mask) {
     *byte_offset = pid / 8;
     *mask = 0x80 >> (pid % 8);
 }
+
+#ifdef _EXTRA_CHECKS
+static void _check_map_equal(OM_key_t key) {
+    
+    int rc;
+    OM_key_t mkey;
+    if (MASTERNODE) mkey = key;
+    
+    /* master broadcast key to all other procs */
+    rc = MPI_Bcast(&mkey, (int)sizeof(OM_key_t), MPI_BYTE, 0, MBI_CommWorld);
+    assert(rc == MPI_SUCCESS);
+    assert(key == mkey); /* compare master key with our key */
+    
+}
+#endif

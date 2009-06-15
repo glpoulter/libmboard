@@ -9,7 +9,7 @@
 
 void test_avl_getnode(void) {
     
-    int i, v, errcount;
+    int i, v, rc, errcount;
     int temp = 0;
     int testvals[TEST_AVL_TREESIZE];
     MBIt_AVLtree *tree = NULL;
@@ -29,13 +29,14 @@ void test_avl_getnode(void) {
     node = MBI_AVLtree_getnode(tree, 0);
     CU_ASSERT_PTR_NULL(node);
     
-    /* it shouldn't matter if we do get duplicate values in the tree */
+    /* get list of random+unique ints */
+    generate_random_unique_ints(testvals, TEST_AVL_TREESIZE);
+    
+    /* insert values into tree */
     for (i = 0; i < TEST_AVL_TREESIZE; i++) 
     { 
-        v = rand();
-        testvals[i] = v; /* remember values used */
-        
-        MBI_AVLtree_insert(tree, v, NULL);
+        rc = MBI_AVLtree_insert(tree, testvals[i], NULL);
+        if (rc != AVL_SUCCESS) CU_FAIL("MBI_AVLtree_insert() failed");
     }
 
     check_tree_integrity(tree);

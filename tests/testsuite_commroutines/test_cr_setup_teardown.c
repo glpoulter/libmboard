@@ -23,18 +23,9 @@ struct MBIt_commqueue *node_empty_filter;
 /* initialise test environment */
 int init_cr(void) {
     
-    int rc, flag, i, v;
+    int rc, i, v;
     struct MBIt_commqueue *node;
     MBIt_Board *board;
-    
-    /* check that MPI environment is initialised */
-    rc = MPI_Initialized(&flag);
-    if (rc != MPI_SUCCESS) return rc;
-    if (!flag) 
-    {
-        rc = MPI_Init(NULL, NULL);
-        if (rc != MPI_SUCCESS) return rc;
-    }
     
     /* We don't want to call MB_Env_Init as we do not want to start
      * the communication thread.
@@ -254,10 +245,7 @@ int clean_cr(void) {
     
     /* free our MPI_Communicator */
     MPI_Comm_free(&MBI_CommWorld);
-    
-    /* finalise MPI */
-    MPI_Finalize();
-    
+
     /* message to users */
     if (MBI_CommSize < 4 && MBI_CommRank == 0)
     {
