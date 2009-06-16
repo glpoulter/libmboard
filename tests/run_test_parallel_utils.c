@@ -9,6 +9,7 @@
 
 #include "CUnit/Basic.h"
 #include "testing.h"
+#include <mpi.h>
 
 static int clean_quit(void) {
     
@@ -29,6 +30,9 @@ int main(int argc, char ** argv) {
     
     /* initialise MPI environment */
     MPI_Init(&argc, &argv);
+    
+    /* seed rng */
+    srand((int)time(NULL));
     
     /* initialize the CUnit test registry */
     if (CUE_SUCCESS != CU_initialize_registry())

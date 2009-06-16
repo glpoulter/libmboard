@@ -7,7 +7,7 @@
  */
 
 #include "header_mb_parallel.h"
-
+static int _sync_arrays(int **arr, int pcount, int elemcount);
 void test_mb_p_indexmap_memberof(void) {
     
     int expected_rc;
@@ -307,24 +307,36 @@ void test_mb_p_indexmap_memberof_randomvals(void) {
     int expected_rc;
     int i, v, rc, p;
     MBt_IndexMap im;
-    int randomints[PARALLEL_TEST_MSG_COUNT];
+    int **randomints;
     
     /* Create a map */
     rc = MB_IndexMap_Create(&im, "testmap");
     CU_ASSERT_EQUAL(rc, MB_SUCCESS);
     
-    generate_random_unique_ints(randomints, PARALLEL_TEST_MSG_COUNT);
+    /* allocate memory for random ints (diff on all procs) */
+    randomints = (int**)malloc(sizeof(int*) * MBI_CommSize);
+    CU_ASSERT_PTR_NOT_NULL_FATAL(randomints);
+    for (p = 0; p < MBI_CommSize; p++)
+    {
+        randomints[p] = (int*)malloc(sizeof(int) * PARALLEL_TEST_MSG_COUNT);
+        CU_ASSERT_PTR_NOT_NULL_FATAL(randomints[p]);
+        generate_random_unique_ints(randomints[p], PARALLEL_TEST_MSG_COUNT);
+    }
     
     /* Add entries to the map */
     for (i = 0; i < PARALLEL_TEST_MSG_COUNT; i++)
     {
-        rc = MB_IndexMap_AddEntry(im, randomints[i]);
+        rc = MB_IndexMap_AddEntry(im, randomints[MBI_CommRank][i]);
         if (rc != MB_SUCCESS)
         {
             CU_FAIL("MB_IndexMap_AddEntry() returned an error")
             break;
         }
     }
+    
+    /* sync random array */
+    rc = _sync_arrays(randomints, MBI_CommSize, PARALLEL_TEST_MSG_COUNT);
+    CU_ASSERT_EQUAL_FATAL(rc, MB_SUCCESS);
     
     /* sync map */
     rc = MB_IndexMap_Sync(im);
@@ -333,7 +345,8 @@ void test_mb_p_indexmap_memberof_randomvals(void) {
     /* Throw in some random duplicate ones, just because we can */
     for (i = 0; i < (PARALLEL_TEST_MSG_COUNT / 2); i++)
     {
-        rc = MB_IndexMap_AddEntry(im, randomints[rand() % PARALLEL_TEST_MSG_COUNT]);
+        rc = MB_IndexMap_AddEntry(im, 
+                randomints[MBI_CommRank][rand() % PARALLEL_TEST_MSG_COUNT]);
         if (rc != MB_SUCCESS)
         {
             CU_FAIL("MB_IndexMap_AddEntry() returned an error")
@@ -351,7 +364,7 @@ void test_mb_p_indexmap_memberof_randomvals(void) {
         for (i = 0; i < PARALLEL_TEST_MSG_COUNT; i++)
         {
             v = rand();
-            if (is_in_array(randomints, PARALLEL_TEST_MSG_COUNT, v)) expected_rc = MB_TRUE;
+            if (is_in_array(randomints[p], PARALLEL_TEST_MSG_COUNT, v)) expected_rc = MB_TRUE;
             else expected_rc = MB_FALSE;
             
             rc = MB_IndexMap_MemberOf(im, p, v);
@@ -365,7 +378,7 @@ void test_mb_p_indexmap_memberof_randomvals(void) {
         /* check valid values */
         for (i = 0; i < PARALLEL_TEST_MSG_COUNT; i++)
         {
-            v = randomints[i];
+            v = randomints[p][i];
             expected_rc = MB_TRUE;
             
             rc = MB_IndexMap_MemberOf(im, p, v);
@@ -377,8 +390,62 @@ void test_mb_p_indexmap_memberof_randomvals(void) {
         }
     }
     
+    for (p = 0; p < MBI_CommSize; p++) free(randomints[p]);
+    free(randomints);
+    
     /* delete the map */
     rc = MB_IndexMap_Delete(&im);
     CU_ASSERT_EQUAL(im, MB_NULL_INDEXMAP);
     CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+}
+
+static int _sync_arrays(int **arr, int pcount, int elemcount) {
+    
+    int i, rc;
+    MPI_Request *sendreq, *recvreq;
+    
+    /* allocate memory for request arrays */
+    sendreq = (MPI_Request*)malloc(sizeof(MPI_Request) * pcount);
+    if (sendreq == NULL) return MB_ERR_MEMALLOC;
+    recvreq = (MPI_Request*)malloc(sizeof(MPI_Request) * pcount);
+    if (recvreq == NULL) return MB_ERR_MEMALLOC;
+    
+    /* issue receives */
+    for (i = 0; i < pcount; i++)
+    {
+        if (i == MBI_CommRank)
+        {
+            recvreq[i] = MPI_REQUEST_NULL;
+            continue;
+        }
+        rc = MPI_Irecv(arr[i], elemcount, MPI_INT, i, 100, 
+                MPI_COMM_WORLD, &(recvreq[i]));
+        if (rc != MPI_SUCCESS) return MB_ERR_MPI;
+    }
+    
+    /* issue sends */
+    for (i = 0; i < pcount; i++)
+    {
+        if (i == MBI_CommRank)
+        {
+            sendreq[i] = MPI_REQUEST_NULL;
+            continue;
+        }
+        rc = MPI_Issend(arr[MBI_CommRank], elemcount, MPI_INT, i, 100, 
+                MPI_COMM_WORLD, &(sendreq[i]));
+        if (rc != MPI_SUCCESS) return MB_ERR_MPI;
+    }
+    
+    /* wait for all receives to end */
+    rc = MPI_Waitall(pcount, recvreq, MPI_STATUSES_IGNORE);
+    if (rc != MPI_SUCCESS) return MB_ERR_MPI;
+    
+    /* wait for all sends to end */
+    rc = MPI_Waitall(pcount, sendreq, MPI_STATUSES_IGNORE);
+    if (rc != MPI_SUCCESS) return MB_ERR_MPI;
+    
+    free(sendreq);
+    free(recvreq);
+    
+    return MB_SUCCESS;
 }

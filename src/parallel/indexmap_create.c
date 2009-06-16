@@ -21,7 +21,7 @@
     static void check_all_name_equal(OM_key_t key, const char *name);
     
     struct namedata_t {
-        MBt_Function handle;
+        OM_key_t handle;
         char name[MB_INDEXMAP_NAMELENGTH];
     };
     
@@ -141,7 +141,7 @@ static void check_all_name_equal(OM_key_t key, const char *name) {
         strcpy((namedata.name), name);
     }
     
-    rc = MPI_Bcast(&name, (int)sizeof(struct namedata_t), MPI_BYTE, 0, MBI_CommWorld);
+    rc = MPI_Bcast(&namedata, (int)sizeof(struct namedata_t), MPI_BYTE, 0, MBI_CommWorld);
     assert(rc == MPI_SUCCESS);
     assert(namedata.handle == key);
     rc = strcmp((const char *)namedata.name, name);

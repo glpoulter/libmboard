@@ -9,6 +9,8 @@
 #ifndef TESTING_H_
 #define TESTING_H_
 #include "CUnit/CUnit.h"
+#include <stdlib.h>
+#include <sys/time.h>
 
 /* Test suite for Pooled List */
 CU_ErrorCode testsuite_pl(void);

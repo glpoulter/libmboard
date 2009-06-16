@@ -106,14 +106,15 @@ splint:
 		exit 1; \
 	fi; \
 	)
-	@echo -e "\n----- (in ./tests: Checking ./*.c)"
-	@splint $(SPLINT_OPTIONS) -I$(INCLUDEDIR) -I/usr/local/include *.c 
+
 	@( \
 	iflags=""; \
 	for i in dummy @MB_PARALLEL_CFLAGS@ @CUNITCFLAGS@ ; do \
 		f=`echo $${i} | grep '^-I'`; \
 		iflags="$${iflags} $${f}"; \
 	done; \
+	echo -e "\n----- (in ./tests: Checking ./*.c)"; \
+	splint $(SPLINT_OPTIONS) $${iflags} -I$(INCLUDEDIR) -I/usr/local/include *.c; \ 
 	for ts in $(SERIAL_TESTSUITES); do \
 		echo -e "\n----- (in ./tests: Checking ./testsuite_$${ts}/*.c)"; \
 		splint $(SPLINT_OPTIONS) $${iflags} -I$(INCLUDEDIR) -I/usr/local/include testsuite_$${ts}/*.c; \

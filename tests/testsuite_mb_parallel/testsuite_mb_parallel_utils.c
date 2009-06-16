@@ -8,6 +8,10 @@
 
 #include "header_mb_parallel.h"
 
+/* get random value, but only don't completely rely on rand() being different 
+ * across all procs */
+#define _RANDVAL ((rand() % (RAND_MAX - MBI_CommSize)) + MBI_CommRank)
+
 static int _cmp_func(const void* a, const void* b);
 static void _randomise_array(int *array, int size);
 
@@ -66,7 +70,7 @@ void generate_random_unique_ints(int *array, int size) {
     int dups;
     
     /* give initial values to array */
-    for (i = 0; i < size; i++) array[i] = rand();
+    for (i = 0; i < size; i++) array[i] = _RANDVAL;
     
     dups = 999; /* any non-zero value will do */
     while (dups != 0)
@@ -83,7 +87,7 @@ void generate_random_unique_ints(int *array, int size) {
         {
             if (array[i] == prev)
             {
-                array[i] = rand();
+                array[i] = _RANDVAL;
                 dups++;
             }
             else prev = array[i];
@@ -129,3 +133,5 @@ static void _randomise_array(int *array, int size) {
 static int _cmp_func(const void* a, const void* b) {
     return *(int*)a - *(int*)b;
 }
+
+
