@@ -28,7 +28,7 @@ int main(int argc, char ** argv) {
     CU_ErrorCode rc;
     
     /* seed rng */
-    srand((int)time(NULL));
+    srand((unsigned int)time(NULL));
     
     /* initialize the CUnit test registry */
     if (CUE_SUCCESS != CU_initialize_registry())

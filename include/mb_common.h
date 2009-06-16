@@ -81,7 +81,7 @@ typedef struct {
     unsigned int iterating :1; 
     
     /*! \brief size of message being referenced */
-    int msgsize; 
+    unsigned int msgsize; 
     
     /*! \brief handle to corresponding MessageBoard */
     MBt_Board mb;  

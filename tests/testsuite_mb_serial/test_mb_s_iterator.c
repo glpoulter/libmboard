@@ -50,7 +50,7 @@ void test_mb_s_iter_create(void) {
     CU_ASSERT_NOT_EQUAL(itr, MB_NULL_ITERATOR);
     iterator = (MBIt_Iterator *)MBI_getIteratorRef(itr);
     CU_ASSERT_PTR_NOT_NULL(iterator);
-    CU_ASSERT_EQUAL((int)board->data->elem_size, iterator->msgsize);
+    CU_ASSERT_EQUAL(board->data->elem_size, iterator->msgsize);
     CU_ASSERT_EQUAL(iterator->iterating, 0);
     CU_ASSERT_PTR_NULL(iterator->cursor);
     CU_ASSERT_EQUAL(iterator->mb, mb);

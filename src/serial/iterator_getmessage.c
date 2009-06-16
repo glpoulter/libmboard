@@ -84,7 +84,7 @@ int MB_Iterator_GetMessage(MBt_Iterator itr, void **msg_ptr) {
     }
     
     /* allocate memory for output message */
-    *msg_ptr = malloc((size_t)iter->msgsize);
+    *msg_ptr = malloc(iter->msgsize);
     assert(*msg_ptr != NULL);
     if ((*msg_ptr) == NULL) return MB_ERR_MEMALLOC;
     

@@ -73,9 +73,9 @@ int MB_Iterator_Create(MBt_Board mb, MBt_Iterator *itr_ptr) {
     if (iter == NULL) return MB_ERR_MEMALLOC;
     
     /* assign mb handle to iterator */
-    iter->mb = mb;
-    iter->msgsize = (int)board->data->elem_size;
-    iter->cursor = NULL;
+    iter->mb        = mb;
+    iter->msgsize   = board->data->elem_size;
+    iter->cursor    = NULL;
     iter->iterating = 0;
     
     /* allocate memory for address list */

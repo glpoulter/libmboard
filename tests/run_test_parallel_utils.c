@@ -32,7 +32,7 @@ int main(int argc, char ** argv) {
     MPI_Init(&argc, &argv);
     
     /* seed rng */
-    srand((int)time(NULL));
+    srand((unsigned int)time(NULL));
     
     /* initialize the CUnit test registry */
     if (CUE_SUCCESS != CU_initialize_registry())
