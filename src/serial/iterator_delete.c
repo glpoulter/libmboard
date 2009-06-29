@@ -36,13 +36,21 @@ int MB_Iterator_Delete(MBt_Iterator *itr_ptr) {
     MBIt_Iterator *iter;
 
     /* nothing to do for null iterator */
-    if (*itr_ptr == MB_NULL_ITERATOR) return MB_SUCCESS;
+    if (*itr_ptr == MB_NULL_ITERATOR) 
+    {
+        P_WARNING("Deletion of null iterator (MB_NULL_ITERATOR)");
+        return MB_SUCCESS;
+    }
     
     /* pop iterator from object map */
     assert(MBI_OM_iterator != NULL);
     assert(MBI_OM_iterator->type == OM_TYPE_ITERATOR);
     iter = (MBIt_Iterator *)MBI_objmap_pop(MBI_OM_iterator, (OM_key_t)*itr_ptr);
-    if (iter == NULL) return MB_ERR_INVALID;
+    if (iter == NULL) 
+    {
+        P_FUNCFAIL("Invalid iterator handle (%d)", (int)*itr_ptr);
+        return MB_ERR_INVALID;
+    }
     
     assert(iter != NULL);
     assert(iter->data != NULL);
@@ -54,8 +62,15 @@ int MB_Iterator_Delete(MBt_Iterator *itr_ptr) {
     /* deallocate iterator object */
     free(iter);
     
-    if (rc != PL_SUCCESS) return MB_ERR_INTERNAL;
+    if (rc != PL_SUCCESS) 
+    {
+        P_FUNCFAIL("pl_delete() returned with err code %d", rc);
+        return MB_ERR_INTERNAL;
+    }
     
+    *itr_ptr = MB_NULL_ITERATOR;
+    
+    P_INFO("Deleted iterator (%d)", (int)*itr_ptr);
     *itr_ptr = MB_NULL_ITERATOR;
     
     return MB_SUCCESS;

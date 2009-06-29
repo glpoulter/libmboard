@@ -27,7 +27,7 @@
  * 
  * Possible return codes:
  *  - ::MB_SUCCESS
- *  - ::MB_ERR_INVALID  (Invalid board)
+ *  - ::MB_ERR_INVALID  (Invalid board, or board is not being synced)
  * 
  */
 int MB_SyncComplete(MBt_Board mb) {
@@ -35,7 +35,11 @@ int MB_SyncComplete(MBt_Board mb) {
     MBIt_Board *board;
     
     /* Check for NULL message board */
-    if (mb == MB_NULL_MBOARD) return MB_SUCCESS;
+    if (mb == MB_NULL_MBOARD) 
+    {
+        P_WARNING("Completing sync on null board (MB_NULL_MBOARD)");
+        return MB_SUCCESS;
+    }
     
     /* make sure mboard object map valid */
     assert(MBI_OM_mboard != NULL);
@@ -43,15 +47,22 @@ int MB_SyncComplete(MBt_Board mb) {
     
     /* get object mapped to mb handle */
     board = (MBIt_Board *)MBI_getMBoardRef(mb);
-    if (board == NULL) return MB_ERR_INVALID;
-    
+    if (board == NULL)
+    {
+        P_FUNCFAIL("Invalide board handle (%d)", (int)mb);
+        return MB_ERR_INVALID;
+    }
     /* Check if board is locked */
-    if (board->locked != MB_TRUE) return MB_ERR_INVALID;
-    
+    if (board->locked != MB_TRUE)
+    {
+        P_FUNCFAIL("Board (%d) is not locked by sync process", (int)mb);
+        return MB_ERR_INVALID;
+    }
     /* unlock the board */
     board->locked = MB_FALSE;
     
     /* nothing much to do for serial implementation :) */
+    P_INFO("Serial version of MB_SyncComplete() does nothing interesting");
     
     /* return success */
     return MB_SUCCESS;

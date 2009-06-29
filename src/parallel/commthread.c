@@ -72,6 +72,7 @@ int MBI_CommThread_Init(void) {
     assert(0 == rc);
     if (0 != rc) return MB_ERR_INTERNAL;
     
+    P_INFO("Communication Thread initialised");
     return MB_SUCCESS;
 }
 
@@ -109,6 +110,7 @@ int MBI_CommThread_Finalise(void) {
     assert(0 == rc);
     if (0 != rc) return rc;
     
+    P_INFO("Communication Thread finalised");
     return MB_SUCCESS;
 }
 
@@ -185,6 +187,7 @@ inline static void commthread_sendTerminationSignal(void) {
     
     int rc;
     
+    P_INFO("Sending TERM signal to Communication Thread");
     /* set termination flag */
     TERMINATE = 1;
     

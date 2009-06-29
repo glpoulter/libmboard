@@ -27,26 +27,39 @@
  * Possible return codes:
  *  - ::MB_SUCCESS
  *  - ::MB_ERR_INVALID  (Invalid board)
- * 
+ *  - ::MB_ERR_LOCKED (board is locked)
  */
 int MB_SyncStart(MBt_Board mb) {
     
     MBIt_Board *board;
     
     /* Check for NULL message board */
-    if (mb == MB_NULL_MBOARD) return MB_SUCCESS;
+    if (mb == MB_NULL_MBOARD) 
+    {
+        P_WARNING("Synching null board (MB_NULL_MBOARD)");
+        return MB_SUCCESS;
+    }
       
     /* get object mapped to mb handle */
     board = (MBIt_Board *)MBI_getMBoardRef(mb);
-    if (board == NULL) return MB_ERR_INVALID;
+    if (board == NULL)
+    {
+        P_FUNCFAIL("Invalide board handle (%d)", (int)mb);
+        return MB_ERR_INVALID;
+    }
 
     /* Check if board is locked */
-    if (board->locked == MB_TRUE) return MB_ERR_LOCKED;
+    if (board->locked == MB_TRUE)    
+    {
+        P_FUNCFAIL("Board (%d) is locked", (int)mb);
+        return MB_ERR_LOCKED;
+    }
     
     /* lock the board */
     board->locked = MB_TRUE;
     
     /* nothing much to do for serial implementation :) */
+    P_INFO("Serial version of MB_SyncStart() does nothing interesting");
     
     /* return success */
     return MB_SUCCESS;

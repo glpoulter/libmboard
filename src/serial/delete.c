@@ -38,19 +38,35 @@ int MB_Delete(MBt_Board *mb_ptr) {
     MBIt_Board *board;
     
     /* Check for NULL message board */
-    if (*mb_ptr == MB_NULL_MBOARD) return MB_SUCCESS;
+    if (*mb_ptr == MB_NULL_MBOARD) 
+    {
+        P_WARNING("Deletion of null board (MB_NULL_MBOARD)");
+        return MB_SUCCESS;
+    }
     
     /* get reference to mboard object */
     board = (MBIt_Board *)MBI_getMBoardRef(*mb_ptr);
-    if (board == NULL) return MB_ERR_INVALID;
+    if (board == NULL)
+    {
+        P_FUNCFAIL("Invalid board handle (%d)", (int)*mb_ptr);
+        return MB_ERR_INVALID;
+    }
     assert(board->data != NULL);
     
     /* If message board locked by other process */
-    if (board->locked == MB_TRUE) return MB_ERR_LOCKED;
-
+    if (board->locked == MB_TRUE) 
+    {
+        P_FUNCFAIL("Board is locked and cannot be deleted");
+        return MB_ERR_LOCKED;
+    }
+    
+    P_INFO("Deleting board (%d, count: %d, msgsize: %d)", (int)*mb_ptr, 
+            (int)board->data->count_current, (int)board->data->elem_size);
+    
     /* Delete object from map*/
     obj = MBI_objmap_pop(MBI_OM_mboard, (OM_key_t)*mb_ptr);
     assert(obj == (void*)board);
+
     
     /* free object memory */
     rc = pl_delete(&(board->data));
@@ -63,7 +79,11 @@ int MB_Delete(MBt_Board *mb_ptr) {
     *mb_ptr = MB_NULL_MBOARD;
     
     /* indicate internal error if any */
-    if (rc != PL_SUCCESS) return MB_ERR_INTERNAL;
+    if (rc != PL_SUCCESS) 
+    {
+        P_FUNCFAIL("MBI_objmap_pop() returned with err code %d", rc);
+        return MB_ERR_INTERNAL;
+    }
     
     return MB_SUCCESS;
 }

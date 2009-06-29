@@ -52,6 +52,8 @@ int MBI_CommQueue_Init(void) {
     assert(MBI_comm_indices != NULL);
     if (MBI_comm_indices == NULL) return MB_ERR_MEMALLOC;
     
+    P_INFO("CommQueue initialised");
+    
     return MB_SUCCESS;
 }
 
@@ -77,6 +79,8 @@ int MBI_CommQueue_Pop(struct MBIt_commqueue *node) {
         node->prev->next = node->next;
         if (node->next != NULL) node->next->prev = node->prev;
     }
+    
+    P_INFO("Board (%d) removed from CommQueue", (int)node->mb);
     
     free(node);
     return MB_SUCCESS;
@@ -104,6 +108,8 @@ int MBI_CommQueue_Delete(void) {
     
     /* free temporary indices array */
     free(MBI_comm_indices);
+    
+    P_INFO("CommQueue deleted");
     
     return MB_SUCCESS;
 }
@@ -143,6 +149,8 @@ int MBI_CommQueue_Push(MBt_Board mb, enum MBIt_CommStage startstage) {
     node->next = CommQ;
     node->prev = NULL;
     CommQ = node;
+    
+    P_INFO("Board (%d) added to CommQueue", (int)mb);
     
     return MB_SUCCESS;
 }

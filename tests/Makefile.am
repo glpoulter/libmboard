@@ -114,7 +114,7 @@ splint:
 		iflags="$${iflags} $${f}"; \
 	done; \
 	echo -e "\n----- (in ./tests: Checking ./*.c)"; \
-	splint $(SPLINT_OPTIONS) $${iflags} -I$(INCLUDEDIR) -I/usr/local/include *.c; \ 
+	splint $(SPLINT_OPTIONS) $${iflags} -I$(INCLUDEDIR) -I/usr/local/include *.c; \
 	for ts in $(SERIAL_TESTSUITES); do \
 		echo -e "\n----- (in ./tests: Checking ./testsuite_$${ts}/*.c)"; \
 		splint $(SPLINT_OPTIONS) $${iflags} -I$(INCLUDEDIR) -I/usr/local/include testsuite_$${ts}/*.c; \

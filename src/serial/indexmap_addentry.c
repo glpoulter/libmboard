@@ -33,19 +33,35 @@ int MB_IndexMap_AddEntry(MBt_IndexMap im, int value) {
     MBIt_IndexMap *map;
     
     /* check if im is null */
-    if (im == MB_NULL_INDEXMAP) return MB_ERR_INVALID;
+    if (im == MB_NULL_INDEXMAP) 
+    {
+        P_FUNCFAIL("Cannot add entry to null map (MB_NULL_INDEXMAP)");
+        return MB_ERR_INVALID;
+    }
     
     /* get reference to index map object */
     map = (MBIt_IndexMap *)MBI_getIndexMapRef(im);
-    if (map == NULL) return MB_ERR_INVALID;
+    if (map == NULL) 
+    {
+        P_FUNCFAIL("Invalid index map handle (%d)", (int)im);
+        return MB_ERR_INVALID;
+    }
     assert(map->tree != NULL);
     
     /* add value to map */
     rc = MBI_AVLtree_insert(map->tree, value, NULL);
     if (rc != AVL_SUCCESS)
     {
-        if (rc == AVL_ERR_MEMALLOC) return MB_ERR_MEMALLOC;
-        else return MB_ERR_INTERNAL;
+        if (rc == AVL_ERR_MEMALLOC) 
+        {
+            P_FUNCFAIL("Could not allocate required memory");
+            return MB_ERR_MEMALLOC;
+        }
+        else 
+        {
+            P_FUNCFAIL("MBI_AVLtree_insert() returned with err code %d", rc);
+            return MB_ERR_INTERNAL;
+        }
     }
     
 	return MB_SUCCESS;

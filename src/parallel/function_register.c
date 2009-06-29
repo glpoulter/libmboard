@@ -28,7 +28,7 @@
 int MB_Function_Register(MBt_Function *fh_ptr, 
         int (*filterFunc)(const void *msg, const void *params) ) {
     
-    printf("[libmboard] MB_Function_Register() deprecated. Use MB_Filter_Create() instead.\n");
+    fprintf(stderr, "[libmboard] MB_Function_Register() deprecated. Use MB_Filter_Create() instead.\n");
     return MB_SUCCESS;
 }
 

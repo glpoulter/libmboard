@@ -55,7 +55,9 @@ int MB_Env_Finalise(void) {
         memlog_milestone("F");
         memlog_finalise();
     #endif
-
+        
+    P_INFO("Message Board environment finalised");
+    
     /* set initialised status and return */
     MBI_STATUS_finalised   = MB_TRUE;
     MBI_STATUS_initialised = MB_FALSE;

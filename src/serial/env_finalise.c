@@ -30,8 +30,16 @@ int MB_Env_Finalise(void) {
     int rc;
     
     /* Check if environment not initialised */
-    if (MBI_STATUS_initialised != MB_TRUE) return MB_ERR_ENV;
-    if (MBI_STATUS_finalised == MB_TRUE) return MB_ERR_ENV;
+    if (MBI_STATUS_initialised != MB_TRUE) 
+    {
+        P_FUNCFAIL("Message Board environment not yet initialised");
+        return MB_ERR_ENV;
+    }
+    if (MBI_STATUS_finalised == MB_TRUE)
+    {
+        P_FUNCFAIL("Message Board environment already finalised");
+        return MB_ERR_ENV;
+    }
     
     /* deallocate Object Maps */
     MBI_objmap_destroy(&MBI_OM_mboard);
@@ -50,5 +58,6 @@ int MB_Env_Finalise(void) {
     /* set initialised status and return */
     MBI_STATUS_finalised   = MB_TRUE;
     MBI_STATUS_initialised = MB_FALSE;
+    P_INFO("Message Board environment finalised");
     return MB_SUCCESS;
 }

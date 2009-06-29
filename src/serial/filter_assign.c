@@ -35,14 +35,27 @@ int MB_Filter_Assign(MBt_Board mb, MBt_Filter ft) {
     MBIt_Board *board;
     
     /* Check for NULL message board */
-    if (mb == MB_NULL_MBOARD) return MB_ERR_INVALID;
+    if (mb == MB_NULL_MBOARD) 
+    {
+        P_FUNCFAIL("Cannot assign filter to null board (MB_NULL_MBOARD)");
+        return MB_ERR_INVALID;
+    }
     
     /* get ptr to board */
     board = (MBIt_Board*)MBI_getMBoardRef(mb);
-    if (board == NULL) return MB_ERR_INVALID;
+    if (board == NULL) 
+    {
+        P_FUNCFAIL("Invalid board handle (%d)", (int)mb);
+        return MB_ERR_INVALID;
+    }
     
     /* check if board is locked */
-    if (board->locked != MB_FALSE) return MB_ERR_LOCKED;
-
+    if (board->locked != MB_FALSE) 
+    {
+        P_FUNCFAIL("Board (%d) is locked", (int)mb);
+        return MB_ERR_LOCKED;
+    }
+    
+    P_WARNING("Serial version of MB_Filter_Assign() does nothing interesing");
     return MB_SUCCESS;
 }

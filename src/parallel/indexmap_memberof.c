@@ -54,7 +54,11 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value) {
 
 #ifdef _EXTRA_CHECKS
     /* check if im is null */
-    if (im == MB_NULL_INDEXMAP) return MB_ERR_INVALID;
+    if (im == MB_NULL_INDEXMAP)
+    {
+        P_FUNCFAIL("Cannot query null index map (MB_NULL_INDEXMAP)");
+        return MB_ERR_INVALID;
+    }
 #endif
     
     /* get reference to index map object */
@@ -62,13 +66,29 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value) {
 
 #ifdef _EXTRA_CHECKS
     /* check that the map exist */
-    if (map == NULL) return MB_ERR_INVALID;
+    if (map == NULL) 
+    {
+        P_FUNCFAIL("Invalid map handle (%d)", (int)im);
+        return MB_ERR_INVALID;
+    }
     /* check that it is a valid map object */
-    if (map->tree_local == NULL) return MB_ERR_INVALID;
+    if (map->tree_local == NULL)
+    {
+        P_FUNCFAIL("Corrupted map object");
+        return MB_ERR_INVALID;
+    }
     /* if not yet synced */
-    if (map->synced == MB_FALSE) return MB_ERR_NOTREADY;
+    if (map->synced == MB_FALSE)
+    {
+        P_FUNCFAIL("Map (%s) not yet synced", map->name);
+        return MB_ERR_NOTREADY;
+    }
     /* check the main tree exists */
-    if (map->tree == NULL ) return MB_ERR_INVALID;
+    if (map->tree == NULL )
+    {
+        P_FUNCFAIL("Corrupted map object");
+        return MB_ERR_INVALID;
+    }
 #endif
     
     /* check cache */
@@ -94,7 +114,16 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value) {
     
 #ifdef _EXTRA_CHECKS
     /* check return code */
-    if (rc != AVL_SUCCESS || bitboard == NULL) return MB_ERR_INTERNAL;
+    if (rc != AVL_SUCCESS)
+    {
+        P_FUNCFAIL("tt_getrow() returned with err code %d", rc);
+        return MB_ERR_INTERNAL;
+    }
+    if (bitboard == NULL)
+    {
+        P_FUNCFAIL("tt_getrow() returned a NULL value");
+        return MB_ERR_INTERNAL;
+    }
 #endif
 
     /* magic! */

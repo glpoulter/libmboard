@@ -62,11 +62,19 @@ int MB_Iterator_GetMessage(MBt_Iterator itr, void **msg_ptr) {
     void *data_addr;
     
     /* nothing to do for null iterator */
-    if (itr == MB_NULL_ITERATOR) return MB_ERR_INVALID;
+    if (itr == MB_NULL_ITERATOR) 
+    {
+        P_FUNCFAIL("Cannot iterator null iterator (MB_NULL_ITERATOR)");
+        return MB_ERR_INVALID;
+    }
 
     /* Get reference to iter object */
     iter = (MBIt_Iterator *)MBI_getIteratorRef(itr);
-    if (!iter) return MB_ERR_INVALID;
+    if (iter == NULL) 
+    {
+        P_FUNCFAIL("Invalid iterator handle (%d)", (int)itr);
+        return MB_ERR_INVALID;
+    }
     assert(iter->data != NULL);
     
     if (iter->iterating == 0) /* first time iterator is called */
@@ -86,7 +94,11 @@ int MB_Iterator_GetMessage(MBt_Iterator itr, void **msg_ptr) {
     /* allocate memory for output message */
     *msg_ptr = malloc(iter->msgsize);
     assert(*msg_ptr != NULL);
-    if ((*msg_ptr) == NULL) return MB_ERR_MEMALLOC;
+    if ((*msg_ptr) == NULL) 
+    {
+        P_FUNCFAIL("Could not allocate required memory");
+        return MB_ERR_MEMALLOC;
+    }
     
     /* copy message to allocated buffer */
     /*memcpy(&data_addr, PL_NODEDATA(iter->cursor), iter->data->elem_size);*/

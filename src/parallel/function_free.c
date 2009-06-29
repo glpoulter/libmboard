@@ -26,6 +26,6 @@
  */
 int MB_Function_Free(MBt_Function *fh_ptr) {
     
-    printf("[libmboard] MB_Function_Free() deprecated. Use MB_Filter_Delete() instaed.\n");
+    fprintf(stderr, "[libmboard] MB_Function_Free() deprecated. Use MB_Filter_Delete() instaed.\n");
     return MB_SUCCESS;
 }

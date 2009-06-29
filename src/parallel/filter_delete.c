@@ -25,20 +25,34 @@
  * 
  * Possible return codes:
  *  - ::MB_SUCCESS 
- *  - ::MB_ERR_INVALID (invalid or null function handle) 
+ *  - ::MB_ERR_INVALID (invalid or null handle) 
  */
 int MB_Filter_Delete(MBt_Filter *fh_ptr) {
     
     void *obj;
     
-    if (fh_ptr == NULL) return MB_ERR_INVALID;
+    if (fh_ptr == NULL)
+    {
+        P_FUNCFAIL("NULL pointer given");
+        return MB_ERR_INVALID;
+    }
     
     /* make sure fh_ptr not null */
-    if (*fh_ptr == MB_NULL_FILTER) return MB_SUCCESS;
+    if (*fh_ptr == MB_NULL_FILTER)
+    {
+        P_WARNING("Deletion of null filter (MB_NULL_FILTER)");
+        return MB_SUCCESS;
+    }
+    
+    P_INFO("Deleting filter %d", (int)*fh_ptr);
     
     /* remove from board */
     obj = MBI_objmap_pop(MBI_OM_filter, (OM_key_t)*fh_ptr);
-    if (obj == NULL) return MB_ERR_INVALID;
+    if (obj == NULL)
+    {
+    	P_FUNCFAIL("MBI_objmap_pop() failed");
+    	return MB_ERR_INVALID;
+    }
     
     /* free object and return */
     free(obj);

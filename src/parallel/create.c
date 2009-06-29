@@ -51,20 +51,31 @@ int MB_Create(MBt_Board *mb_ptr, size_t msgsize) {
     *mb_ptr = MB_NULL_MBOARD;
     
     /* check for invalid input size */
-    if ((int)msgsize <= 0) return MB_ERR_INVALID;
+    if ((int)msgsize <= 0) 
+    {
+        P_FUNCFAIL("Invalid message size (%d)", (int)msgsize);
+        return MB_ERR_INVALID;
+    }
     
     /* create board object */
     rc = newBoardObj(&mb, msgsize);
     assert(rc == MB_SUCCESS);
     *mb_ptr = mb;
     
+    if ((int)mb > MBI_MAX_BOARDS) 
+    {
+        P_FUNCFAIL("Too many boards created. Try recompiling libmboard "
+                   "with -DOBJMAP_CYCLE_KEY");
+        return MB_ERR_OVERFLOW;
+    }
     assert((int)mb <= MBI_MAX_BOARDS);
-    if ((int)mb > MBI_MAX_BOARDS) return MB_ERR_OVERFLOW;
     
     /* debug: make sure same mb on all procs */
 #ifdef _EXTRA_CHECKS
     check_all_mb_equal(mb, msgsize);
 #endif /*_EXTRA_CHECKS*/
+    
+    P_INFO("Created Board (%d, msgsize: %d)", (int)mb, (int)msgsize);
     
     return MB_SUCCESS;
 }
@@ -88,6 +99,7 @@ inline static int newBoardObj(MBt_Board *mb_ptr, size_t msgsize) {
     assert(mb_obj != NULL);
     if (mb_obj == NULL) /* on error */
     {
+        P_FUNCFAIL("Could not allocate required memory");
         return MB_ERR_MEMALLOC;
     }
     
@@ -105,6 +117,8 @@ inline static int newBoardObj(MBt_Board *mb_ptr, size_t msgsize) {
     assert(0 == rc);
     if (rc != 0) 
     {
+        P_FUNCFAIL("pthread_mutex_init(board->syncLock) returned "
+                   "err code %d", rc);
         free(mb_obj);
         return MB_ERR_INTERNAL;
     }
@@ -112,6 +126,8 @@ inline static int newBoardObj(MBt_Board *mb_ptr, size_t msgsize) {
     assert(0 == rc);
     if (rc != 0) 
     {
+        P_FUNCFAIL("pthread_cond_init(board->syncCond) returned "
+                   "err code %d", rc);
         pthread_mutex_destroy(&(mb_obj->syncLock));
         free(mb_obj);
         return MB_ERR_INTERNAL;
@@ -122,8 +138,16 @@ inline static int newBoardObj(MBt_Board *mb_ptr, size_t msgsize) {
     if (rc != PL_SUCCESS)
     {
         free(mb_obj);
-        if (rc == PL_ERR_MALLOC) return MB_ERR_MEMALLOC;
-        else return MB_ERR_INTERNAL;
+        if (rc == PL_ERR_MALLOC) 
+        {
+            P_FUNCFAIL("Could not allocate required memory");
+            return MB_ERR_MEMALLOC;
+        }
+        else 
+        {
+            P_FUNCFAIL("pl_create(board->data) returned err code %d", rc);
+            return MB_ERR_INTERNAL;
+        }
     }
     
     
@@ -135,10 +159,12 @@ inline static int newBoardObj(MBt_Board *mb_ptr, size_t msgsize) {
     {
         if (rc_om == OM_ERR_MEMALLOC)
         {
+            P_FUNCFAIL("Could not allocate required memory");
             return MB_ERR_MEMALLOC;
         }
         else
         {
+            P_FUNCFAIL("MBI_objmap_push() returned err code %d", rc_om);
             return MB_ERR_INTERNAL;
         }
     }

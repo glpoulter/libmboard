@@ -113,6 +113,8 @@ int MBI_Comm_TagMessages(struct MBIt_commqueue *node) {
     assert(node->board != NULL);
     if (node->board == NULL) return MB_ERR_INVALID;
     
+    P_INFO("COMM: Preparing (Board %d) for sync process", node->mb);
+    
     /* check board state */
     assert(node->board->locked == MB_TRUE);
     assert(node->board->syncCompleted == MB_FALSE);
@@ -145,6 +147,7 @@ int MBI_Comm_TagMessages(struct MBIt_commqueue *node) {
     }
     else /* filter assigned */
     {        
+        P_INFO("COMM: (Board %d) is filtered. Tagging messages", (int)node->mb);
         /* create tag_table and assign to board */
         rc = tt_create(&tt, mcount, MBI_CommSize);
         assert(rc == TT_SUCCESS);
@@ -228,6 +231,9 @@ int MBI_Comm_TagMessages(struct MBIt_commqueue *node) {
         /* Should we fall back to full data replication? */
         if (total_tagged > mcount)
         {
+            P_INFO("COMM: (Board %d) Tagged messages <%d> exceeds message count <%d>. "
+                    "Delegating filtering to recipient", 
+                    (int)node->mb, total_tagged, mcount);
             /* we don't need the tagtable any more */
             node->board->tt = NULL;
             rc = tt_delete(&tt);
@@ -244,6 +250,7 @@ int MBI_Comm_TagMessages(struct MBIt_commqueue *node) {
     }
     
     /* move on to next stage */
+    P_INFO("COMM: (Board %d) moving to READY_FOR_PROP stage", node->mb);
     node->stage = READY_FOR_PROP;
     return MB_SUCCESS;
     
@@ -284,6 +291,8 @@ int MBI_Comm_SendBufInfo(struct MBIt_commqueue *node) {
     assert(node->outcount != NULL);
     assert(node->incount  == NULL);
     assert(node->board != NULL);
+    
+    P_INFO("COMM: (Board %d) propagating expected buffer sizes", node->mb);
     
     /* allocate memory for incount */
     node->incount = (int*)malloc(MBI_CommSize * sizeof(int));
@@ -344,6 +353,7 @@ int MBI_Comm_SendBufInfo(struct MBIt_commqueue *node) {
     node->pending_out = 1;
     
     /* move on to next stage */
+    P_INFO("COMM: (Board %d) moving to BUFINFO_SENT stage", node->mb);
     node->stage = BUFINFO_SENT;
     return MB_SUCCESS;
     
@@ -388,7 +398,11 @@ int MBI_Comm_WaitBufInfo(struct MBIt_commqueue *node) {
         assert(rc == MPI_SUCCESS);
         if (rc != MPI_SUCCESS) return MB_ERR_MPI;
         
-        if (flag) node->pending_in = 0;
+        if (flag)
+        {
+            P_INFO("COMM: (Board %d) all buffer sizes received", node->mb);
+            node->pending_in = 0;
+        }
     }
     
     /* check sends */
@@ -398,12 +412,17 @@ int MBI_Comm_WaitBufInfo(struct MBIt_commqueue *node) {
         assert(rc == MPI_SUCCESS);
         if (rc != MPI_SUCCESS) return MB_ERR_MPI;
         
-        if (flag) node->pending_out = 0;
+        if (flag) 
+        {
+            P_INFO("COMM: (Board %d) all buffer sizes sent", node->mb);
+            node->pending_out = 0;
+        }
     }
     
     /* if all done, move on to next stage */
     if (node->pending_in == 0 && node->pending_out == 0)
     {
+        P_INFO("COMM: (Board %d) moving to PRE_PROPAGATION stage", node->mb);
         node->stage = PRE_PROPAGATION;
     }
 
@@ -507,6 +526,7 @@ int MBI_Comm_InitPropagation(struct MBIt_commqueue *node) {
             /* no comms from this proc */
             node->inbuf[i]   = NULL;
             node->recvreq[i] = MPI_REQUEST_NULL;
+            P_INFO("COMM: (Board %d) no data expected from P%d", (int)node->mb, i);
         }
         else
         {
@@ -520,6 +540,9 @@ int MBI_Comm_InitPropagation(struct MBIt_commqueue *node) {
                     MPI_BYTE, i, tag, MBI_CommWorld, &(node->recvreq[i]));
             assert(rc == MPI_SUCCESS);
             if (rc != MPI_SUCCESS) return MB_ERR_MPI;
+            
+            P_INFO("COMM: (Board %d) expecting %d messages from P%d", 
+                    (int)node->mb, node->incount[i], i);
             
             /* increment counter */
             node->pending_in++;
@@ -719,6 +742,9 @@ int MBI_Comm_InitPropagation(struct MBIt_commqueue *node) {
             assert(rc == MPI_SUCCESS);
             if (rc != MPI_SUCCESS) return MB_ERR_MEMALLOC;
             
+            P_INFO("COMM: (Board %d) sending %d messages to P%d", 
+                    (int)node->mb, node->outcount[i], i);
+            
             /* increment counter */
             node->pending_out++;
         }
@@ -735,6 +761,7 @@ int MBI_Comm_InitPropagation(struct MBIt_commqueue *node) {
     node->outcount = NULL;
     
     /* move on to next stage */
+    P_INFO("COMM: (Board %d) moving to PROPAGATION stage", node->mb);
     node->stage = PROPAGATION;
     return MB_SUCCESS;
 }
@@ -839,6 +866,8 @@ int MBI_Comm_CompletePropagation(struct MBIt_commqueue *node) {
                     
                     free(node->outbuf[i]);
                     node->outbuf[i] = NULL;
+                    
+                    P_INFO("COMM: (Board %d) send to P%d completed", (int)node->mb, i);
                 }
             }
             else if (node->pending_out == 0) /* outbuf shared */
@@ -850,6 +879,8 @@ int MBI_Comm_CompletePropagation(struct MBIt_commqueue *node) {
                 /* free shared buffer */
                 free(node->outbuf[0]);
                 node->outbuf[0] = NULL;
+                
+                P_INFO("COMM: (Board %d) all sends completed", (int)node->mb);
             }
         }
     }
@@ -883,6 +914,15 @@ int MBI_Comm_CompletePropagation(struct MBIt_commqueue *node) {
                 /* get flag indicating if filter should be run */
                 filter_required = BIT_IS_SET(*header_byte, MBI_COMM_HEADERBYTE_FDR);                 
                 
+                P_INFO("COMM: (Board %d) receive from P%d completed", (int)node->mb, i);
+                #ifdef _EXTRA_INFO
+                if (filter_required)
+                {
+                    P_INFO("COMM: (Board %d) performing delayed filtering on messages", 
+                            (int)node->mb);
+                }
+                #endif
+                
                 /* location of message buffer is after header (of size 1 byte) */
                 bufptr = (char*)(node->inbuf[i]) + 1;
                 
@@ -911,8 +951,16 @@ int MBI_Comm_CompletePropagation(struct MBIt_commqueue *node) {
                 /* we can now free the buffer */
                 free(node->inbuf[i]);
                 node->inbuf[i] = NULL;
+
             }
         }
+        
+        #ifdef _EXTRA_INFO
+        if (node->pending_in == 0)
+        {
+            P_INFO("COMM: (Board %d) all receives completed", (int)node->mb);
+        }
+        #endif
     }
     
 
@@ -944,6 +992,7 @@ int MBI_Comm_CompletePropagation(struct MBIt_commqueue *node) {
         assert(0 == rc);
         
         /* move to end state and indicate that we're done */
+        P_INFO("COMM: (Board %d) sync process completed", node->mb);
         node->stage = COMM_END;
         return MB_SUCCESS_2; /* node can be removed from queue */
     }

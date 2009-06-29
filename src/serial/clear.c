@@ -40,29 +40,51 @@ int MB_Clear(MBt_Board mb) {
     int rc;
     MBIt_Board *board;
     
-    if (mb == MB_NULL_MBOARD) return MB_ERR_INVALID;
+    if (mb == MB_NULL_MBOARD)
+    {
+        P_FUNCFAIL("Cannot clear null board (MB_NULL_MBOARD)");
+        return MB_ERR_INVALID;
+    }
     
     /* get ref to board object */
     board = (MBIt_Board *)MBI_getMBoardRef(mb);
     
     /* if mb not valid */
-    if (board == NULL) return MB_ERR_INVALID;
+    if (board == NULL) 
+    {
+        P_FUNCFAIL("Invalid board handle (%d)", (int)mb);
+        return MB_ERR_INVALID;
+    }
     
     /* simple sanity check */
     assert(board->data != NULL);
         
     /* if board locked */
-    if (board->locked != MB_FALSE) return MB_ERR_LOCKED;
+    if (board->locked != MB_FALSE)
+    {
+        P_FUNCFAIL("Board (%d) is locked", (int)mb);
+        return MB_ERR_LOCKED;
+    }
     
     /* clear pooled_list */
     
 #ifdef MB_CONFIG_RECYCLE_MEMPOOL
+    P_INFO("Clearing board (%d) - memory recycled", (int)mb);
     rc = pl_recycle(board->data);
+    if (rc != PL_SUCCESS) 
+    {
+        P_FUNCFAIL("pl_recycle() returned with err code %d", rc);
+        return MB_ERR_INTERNAL;
+    }
 #else
+    P_INFO("Clearing board (%d)", (int)mb);
     rc = pl_reset(board->data);
+    if (rc != PL_SUCCESS) 
+    {
+        P_FUNCFAIL("pl_reset() returned with err code %d", rc);
+        return MB_ERR_INTERNAL;
+    }
 #endif
     
-    if (rc != PL_SUCCESS) return MB_ERR_INTERNAL;
-   
     return MB_SUCCESS;
 }

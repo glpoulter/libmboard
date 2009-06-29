@@ -46,23 +46,42 @@ int MB_IndexMap_Sync(MBt_IndexMap im) {
     int *outbuf, **inbuf;
     
     /* check for null boards */
-    if (im == MB_NULL_INDEXMAP) return MB_ERR_INVALID;
+    if (im == MB_NULL_INDEXMAP)
+    {
+        P_FUNCFAIL("Cannot sync a null map (MB_NULL_INDEXMAP)");
+        return MB_ERR_INVALID;
+    }
     
     /* get reference to indexmap object */
     im_obj = (MBIt_IndexMap *)MBI_getIndexMapRef(im);
-    if (im_obj == NULL) return MB_ERR_INVALID;
-    if (im_obj->synced == MB_TRUE) assert(im_obj->tree != NULL);
+    if (im_obj == NULL) 
+    {
+        P_FUNCFAIL("Invalid map handle (%d)", (int)im);
+        return MB_ERR_INVALID;
+    }
+    #ifdef _EXTRA_CHECKS
+    if (im_obj->synced == MB_TRUE) 
+    {
+        assert(im_obj->tree != NULL);
+    }
+    #endif
     
     /* make sure local tree is intact. This will be tripped if users
      * define their own object instead of using _Create()
      */
     assert(im_obj->tree_local != NULL);
-    if (im_obj->tree_local == NULL) return MB_ERR_INVALID;
+    if (im_obj->tree_local == NULL)
+    {
+        P_FUNCFAIL("Corrupted map object");
+        return MB_ERR_INVALID;
+    }
     
     /* -------- Check that we're syncing the same map ------ */
 #ifdef _EXTRA_CHECKS
     _check_map_equal((OM_key_t)im);
 #endif 
+    
+    P_INFO("Synching Index Map (%d) '%s' ", (int)im, im_obj->name);
     
     /* -------- Allocate required memory ---------------- */
 
@@ -92,6 +111,7 @@ int MB_IndexMap_Sync(MBt_IndexMap im) {
         if (sendreq) free(sendreq);
         if (recvreq) free(recvreq);
         
+        P_FUNCFAIL("Could not allocate required memory");
         return MB_ERR_MEMALLOC;
     }
     
@@ -101,11 +121,24 @@ int MB_IndexMap_Sync(MBt_IndexMap im) {
     rc = MBI_AVLtree_dump(im_obj->tree_local, &outbuf, &treecount);
     if (rc != AVL_SUCCESS)
     {
-        if (rc == AVL_ERR_MEMALLOC) return MB_ERR_MEMALLOC;
-        else return MB_ERR_INTERNAL;
+        if (rc == AVL_ERR_MEMALLOC) 
+        {
+            P_FUNCFAIL("Could not allocate required memory");
+            return MB_ERR_MEMALLOC;
+        }
+        else 
+        {
+            P_FUNCFAIL("MBI_AVLtree_dump() return with err code %d", rc);
+            return MB_ERR_INTERNAL;
+        }
     }
-    if (treecount != 0) assert(outbuf != NULL);
-
+    #ifdef _EXTRA_CHECKS
+    if (treecount != 0) 
+    {
+        assert(outbuf != NULL);
+    }
+    #endif
+    
     /* assign outgoing count */
     for (i = 0; i < MBI_CommSize; i++) outcount[i] = treecount;
     outcount[MBI_CommRank] = 0;
@@ -113,8 +146,11 @@ int MB_IndexMap_Sync(MBt_IndexMap im) {
     /* distribute/gather to/from all procs */
     rc = MPI_Alltoall(outcount, 1, MPI_INT, count, 1, MPI_INT, MBI_CommWorld);
     assert(rc == MPI_SUCCESS);
-    if (rc != MPI_SUCCESS) return MB_ERR_MPI;
-    
+    if (rc != MPI_SUCCESS)
+    {
+        P_FUNCFAIL("MPI_Alltoall() return with err code %d", rc);
+        return MB_ERR_MPI;
+    }
     /* we no longer need outcount */
     free(outcount);
     
@@ -139,6 +175,11 @@ int MB_IndexMap_Sync(MBt_IndexMap im) {
         rc = MPI_Irecv(inbuf[i], count[i], MPI_INT, i, MBI_TAG_INDEXMAX_SYNC,\
                 MBI_CommWorld, &(recvreq[i]));
         assert(rc == MPI_SUCCESS);
+        if (rc != MPI_SUCCESS) 
+        {
+            P_FUNCFAIL("MPI_Irecv() returned with err code %d", rc);
+            return MB_ERR_MPI;
+        }
         
         /* update counter */
         pending_in++;
@@ -158,7 +199,11 @@ int MB_IndexMap_Sync(MBt_IndexMap im) {
         rc = MPI_Issend(outbuf, treecount, MPI_INT, i, MBI_TAG_INDEXMAX_SYNC,\
                 MBI_CommWorld, &(sendreq[i]));
         assert(rc == MPI_SUCCESS);
-        if (rc != MPI_SUCCESS) return MB_ERR_MPI;
+        if (rc != MPI_SUCCESS) 
+        {
+            P_FUNCFAIL("MPI_Issend() returned with err code %d", rc);
+            return MB_ERR_MPI;
+        }
     }
     
     /* -------------- move tree_local data into main tree ------------- */
@@ -333,6 +378,19 @@ static void _check_map_equal(OM_key_t key) {
     
     /* master broadcast key to all other procs */
     rc = MPI_Bcast(&mkey, (int)sizeof(OM_key_t), MPI_BYTE, 0, MBI_CommWorld);
+    
+    #ifdef _PRINT_WARNINGS
+    if (rc != MPI_SUCCESS)
+    {
+        P_WARNING("MPI_Bcast() returned with err code %d", rc);
+    }
+    if (key != mkey)
+    {
+        P_WARNING("IndexMap sync being done out of order (master:%d, mine:%d)", 
+                (int)mkey, (int)key);
+    }
+    #endif
+    
     assert(rc == MPI_SUCCESS);
     assert(key == mkey); /* compare master key with our key */
     

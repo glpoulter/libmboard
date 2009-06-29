@@ -41,16 +41,23 @@ int MB_Create(MBt_Board *mb_ptr, size_t msgsize) {
     
     /* make sure MB environment has been set up */
     assert(MB_Env_Initialised() == MB_SUCCESS);
-    if (MB_Env_Initialised() != MB_SUCCESS) return MB_ERR_ENV;
-    
+    if (MB_Env_Initialised() != MB_SUCCESS)
+    {
+        P_FUNCFAIL("Message Board environment not yet initialised");
+        return MB_ERR_ENV;
+    }
     /* check for invalid input size */
-    if ((int)msgsize <= 0) return MB_ERR_INVALID;
-    
+    if ((int)msgsize <= 0) 
+    {
+        P_FUNCFAIL("Message size must be a positive integer (given %d)", (int)msgsize);
+        return MB_ERR_INVALID;
+    }
     /* allocate message board object */
     mb_obj = (MBIt_Board *)malloc(sizeof(MBIt_Board));
     assert(mb_obj != NULL);
     if (mb_obj == NULL) /* on error */
     {
+        P_FUNCFAIL("Could not allocate required memory");
         return MB_ERR_MEMALLOC;
     }
     
@@ -61,8 +68,16 @@ int MB_Create(MBt_Board *mb_ptr, size_t msgsize) {
     if (rc != PL_SUCCESS)
     {
         free(mb_obj);
-        if (rc == PL_ERR_MALLOC) return MB_ERR_MEMALLOC;
-        else return MB_ERR_INTERNAL;
+        if (rc == PL_ERR_MALLOC) 
+        {
+            P_FUNCFAIL("Could not allocate required memory");
+            return MB_ERR_MEMALLOC;
+        }
+        else 
+        {
+            P_FUNCFAIL("pl_create() returned with err code %d", rc);
+            return MB_ERR_INTERNAL;
+        }
     }
     
     /* register new mboard object */
@@ -73,10 +88,12 @@ int MB_Create(MBt_Board *mb_ptr, size_t msgsize) {
     {
         if (rc_om == OM_ERR_MEMALLOC)
         {
+            P_FUNCFAIL("Could not allocate required memory");
             return MB_ERR_MEMALLOC;
         }
         else
         {
+            P_FUNCFAIL("MBI_objmap_push() returned with err code %d", rc_om);
             return MB_ERR_INTERNAL;
         }
     }
@@ -84,5 +101,6 @@ int MB_Create(MBt_Board *mb_ptr, size_t msgsize) {
     /* assign handle to new mboard */
     *mb_ptr  = (MBt_Board)rc_om;
     
+    P_INFO("Created Board (%d, msgsize: %d)", (int)*mb_ptr, (int)msgsize);
     return MB_SUCCESS;
 }

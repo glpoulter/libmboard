@@ -47,12 +47,20 @@ int MBI_SyncQueue_Init(void) {
     
     /* initialise mutex lock */
     rc = pthread_mutex_init(&MBI_SRQLock, NULL);
-    if (rc != 0) errfound++;
+    if (rc != 0) 
+    {
+        P_FUNCFAIL("pthread_mutex_init() return error code %d", rc);
+        errfound++;
+    }
     assert(rc == 0);
 
     /* initialise pthread condition */
     rc = pthread_cond_init(&MBI_SRQCond, NULL);
-    if (rc != 0) errfound++;
+    if (rc != 0) 
+    {
+        P_FUNCFAIL("pthread_cond_init() return error code %d", rc);
+        errfound++;
+    }
     assert(rc == 0);
     
     /* initialise values in queue */
@@ -61,7 +69,11 @@ int MBI_SyncQueue_Init(void) {
     SRQ.tail  = NULL;
     
     if (errfound != 0) return MB_ERR_INTERNAL;
-    else return MB_SUCCESS;
+    else 
+    {
+        P_INFO("SyncQueue initialised");
+        return MB_SUCCESS;
+    }
     
 }
 
@@ -73,19 +85,31 @@ int MBI_SyncQueue_Delete(void) {
     
     /* destroy mutex lock */
     rc = pthread_mutex_destroy(&MBI_SRQLock);
-    if (rc != 0) errfound++;
+    if (rc != 0) 
+    {
+        P_FUNCFAIL("pthread_mutex_destroy() return error code %d", rc);
+        errfound++;
+    }
     assert(rc == 0);
     
     /* destroy pthread condition var */
     rc = pthread_cond_destroy(&MBI_SRQCond);
-    if (rc != 0) errfound++;
+    if (rc != 0) 
+    {
+        P_FUNCFAIL("pthread_cond_destroy() return error code %d", rc);
+        errfound++;
+    }
     assert(rc == 0);
     
     /* initialise values in queue */
     resetSRQ(&SRQ);
     
     if (errfound != 0) return MB_ERR_INTERNAL;
-    else return MB_SUCCESS;
+    else 
+    {
+        P_INFO("SyncQueue deleted");
+        return MB_SUCCESS;
+    }
 }   
 
 /* clear linked list */
@@ -121,6 +145,9 @@ int MBI_SyncQueue_Push(MBt_Board mb) {
     int rc;
     
     struct MBIt_SyncRequest_queuenode *node;
+    
+    P_INFO("Adding board (%d) to SyncQueue", (int)mb);
+    
     node = (struct MBIt_SyncRequest_queuenode *)
             malloc(sizeof(struct MBIt_SyncRequest_queuenode));
     assert(node != NULL);
@@ -204,6 +231,8 @@ int MBI_SyncQueue_Pop(MBt_Board *mb) {
     SRQ.count--;
     *mb = node->mb;
     free(node);
+    
+    P_INFO("Board (%d) popped from SyncQueue", (int)*mb);
     
     rc = pthread_mutex_unlock(&MBI_SRQLock); /* release lock */
     assert(0 == rc);

@@ -34,16 +34,35 @@ int MB_IndexMap_Delete(MBt_IndexMap *im_ptr) {
     MBIt_IndexMap *im_obj;
     
     /* check for null boards */
-    if (*im_ptr == MB_NULL_INDEXMAP) return MB_SUCCESS;
+    if (*im_ptr == MB_NULL_INDEXMAP)
+    {
+        P_WARNING("Deletion of null index map (MB_NULL_INDEXMAP)");
+        return MB_SUCCESS;
+    }
     
     /* get reference to indexmap object */
     im_obj = (MBIt_IndexMap *)MBI_getIndexMapRef(*im_ptr);
-    if (im_obj == NULL) return MB_ERR_INVALID;
-    if (im_obj->synced == MB_TRUE) assert(im_obj->tree != NULL);
+    if (im_obj == NULL) 
+    {
+        P_FUNCFAIL("Invalid map handle (%d)", (int)*im_ptr);
+        return MB_ERR_INVALID;
+    }
+    #ifdef _EXTRA_CHECKS
+    if (im_obj->synced == MB_TRUE) 
+    {
+        assert(im_obj->tree != NULL);
+    }
+    #endif
     
     /* free up name for other maps */
     rc = MBI_stringmap_RemoveString(MBI_indexmap_nametable, im_obj->name);
-    if (rc != MB_SUCCESS) return MB_ERR_INTERNAL;
+    if (rc != MB_SUCCESS) 
+    {
+        P_FUNCFAIL("MBI_stringmap_RemoveString() returned with err code %d", rc);
+        return MB_ERR_INTERNAL;
+    }
+    
+    P_INFO("Deleting index map (%d) '%s'", (int)*im_ptr, im_obj->name);
     
     /* Delete object from map*/
     obj = MBI_objmap_pop(MBI_OM_indexmap, (OM_key_t)*im_ptr);
@@ -73,9 +92,11 @@ int MB_IndexMap_Delete(MBt_IndexMap *im_ptr) {
 
 static int _delete_bitboard_data(MBIt_AVLnode *node) {
     
+    tag_table *tt;
     if (node->data != NULL)
     {
-        tt_delete((tag_table**)&(node->data));
+        tt = (tag_table*)node->data;
+        tt_delete(&tt);
         node->data = NULL;
     }
     

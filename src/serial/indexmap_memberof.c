@@ -31,12 +31,22 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value) {
     
     MBIt_IndexMap *map;
     
+#ifdef _EXTRA_CHECKS
     /* check if im is null */
-    if (im == MB_NULL_INDEXMAP) return MB_ERR_INVALID;
+    if (im == MB_NULL_INDEXMAP)
+    {
+        P_FUNCFAIL("Cannot query null index map (MB_NULL_INDEXMAP)");
+        return MB_ERR_INVALID;
+    }
+#endif
     
     /* get reference to index map object */
     map = (MBIt_IndexMap *)MBI_getIndexMapRef(im);
-    if (map == NULL) return MB_ERR_INVALID;
+    if (map == NULL) 
+    {
+        P_FUNCFAIL("Invalid map handle (%d)", (int)im);
+        return MB_ERR_INVALID;
+    }
     assert(map->tree != NULL);
     
     /* query AVL tree */

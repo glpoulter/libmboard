@@ -39,11 +39,19 @@ int MB_Iterator_Randomise(MBt_Iterator itr) {
     MBIt_Iterator *iter;
     
     /* can't rewind a null iterator */
-    if (itr == MB_NULL_ITERATOR) return MB_ERR_INVALID;
+    if (itr == MB_NULL_ITERATOR) 
+    {
+        P_FUNCFAIL("Cannot randomise null iterator (MB_NULL_ITERATOR)");
+        return MB_ERR_INVALID;
+    }
     
     /* Get reference to iter object */
     iter = (MBIt_Iterator *)MBI_getIteratorRef(itr);
-    if (iter == NULL) return MB_ERR_INVALID;
+    if (iter == NULL) 
+    {
+        P_FUNCFAIL("Invalid iterator handle (%d)", (int)itr);
+        return MB_ERR_INVALID;
+    }
     assert(iter->data != NULL);
 
     /* reset flag and cursor */
@@ -53,7 +61,11 @@ int MB_Iterator_Randomise(MBt_Iterator itr) {
     /* randomise pooled list */
     rc = pl_randomise(iter->data);
     
-    if (rc != PL_SUCCESS) return MB_ERR_INTERNAL;
+    if (rc != PL_SUCCESS) 
+    {
+        P_FUNCFAIL("pl_randomise() returned with err code %d", rc);
+        return MB_ERR_INTERNAL;
+    }
    
     return MB_SUCCESS;
 }

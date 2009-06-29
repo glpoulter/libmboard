@@ -22,6 +22,7 @@
 #include "mb_memlog.h"
 #endif
 
+#include "mb_reporting.h"
 #include "mb_objmap.h"
 #include "mb_pooled_list.h"
 #include "mb_string_map.h"
@@ -30,6 +31,8 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+
+
 
 /* status variables (initialised and documented in env_init.c) */
 extern int MBI_STATUS_initialised;

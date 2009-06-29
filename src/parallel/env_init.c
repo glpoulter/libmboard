@@ -22,6 +22,7 @@
  */
 
 #include "mb_parallel.h"
+#include "mb_banner.h"
 #include <time.h>
 
 /* ---- Initialise global variables (Defined as extern in mb_common.h) ---- */
@@ -72,22 +73,32 @@ int MB_Env_Init(void) {
     int flag;
     
     /* Check if environment already initialised */
-    if (MBI_STATUS_initialised == MB_TRUE) return MB_ERR_ENV;
+    if (MBI_STATUS_initialised == MB_TRUE)
+    {
+    	P_FUNCFAIL("Message Board environment already initialised");
+    	return MB_ERR_ENV;
+    }
     
     /* print banner */
     MBI_print_banner();
     
     /* Check if MPI environment has been initialised */
     MPI_Initialized(&flag);
-    if (!flag) return MB_ERR_MPI;
+    if (!flag)
+    {
+    	P_FUNCFAIL("MPI environment not initialised");
+    	return MB_ERR_MPI;
+    }
     
     /* Set up our communicator */
     MPI_Comm_dup(MPI_COMM_WORLD, &MBI_CommWorld);
     MPI_Comm_rank(MBI_CommWorld, &MBI_CommRank);
     MPI_Comm_size(MBI_CommWorld, &MBI_CommSize);
     
-    /* seed rng */
-    srand((unsigned)time(NULL)); 
+    /* seed rng during production runs */
+	#ifdef _EXTRA_CHECKS
+    srand((unsigned int)time(NULL)); 
+	#endif
     
     #ifdef _LOG_MEMORY_USAGE
         memlog_init();
@@ -104,6 +115,7 @@ int MB_Env_Init(void) {
         MBI_objmap_destroy(&MBI_OM_iterator);
         MBI_objmap_destroy(&MBI_OM_filter);
         MBI_objmap_destroy(&MBI_OM_indexmap);
+        P_FUNCFAIL("Could not allocate required memory for Object Maps");
         return MB_ERR_MEMALLOC;
     }
     else
@@ -122,7 +134,13 @@ int MB_Env_Init(void) {
     /* Allocate string map */
     MBI_indexmap_nametable = MBI_stringmap_Create();
     assert(MBI_indexmap_nametable != NULL);
-    if (MBI_indexmap_nametable == NULL) return MB_ERR_INTERNAL;
+    if (MBI_indexmap_nametable == NULL) 
+    {
+    	P_FUNCFAIL("Could not allocate String Map for indexmap name table");
+    	return MB_ERR_INTERNAL;
+    }
+    
+    P_INFO("Message Board environment initialised");
     
     /* set initialised status and return */
     MBI_STATUS_initialised = MB_TRUE;

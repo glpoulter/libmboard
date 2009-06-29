@@ -38,16 +38,25 @@ int MB_Iterator_Rewind(MBt_Iterator itr) {
     MBIt_Iterator *iter;
 
     /* can't rewind a null iterator */
-    if (itr == MB_NULL_ITERATOR) return MB_ERR_INVALID;
+    if (itr == MB_NULL_ITERATOR) 
+    {
+        P_FUNCFAIL("Cannot randomise null iterator (MB_NULL_ITERATOR)");
+        return MB_ERR_INVALID;
+    }
     
     /* Get reference to iter object */
     iter = (MBIt_Iterator *)MBI_getIteratorRef(itr);
-    if (iter == NULL) return MB_ERR_INVALID;
+    if (iter == NULL) 
+    {
+        P_FUNCFAIL("Invalid iterator handle (%d)", (int)itr);
+        return MB_ERR_INVALID;
+    }
     assert(iter->data != NULL);
     
     /* reset flag and cursor */
     iter->cursor = NULL;
     iter->iterating = 0;
     
+    /* P_INFO("Iterator (%d) rewound", int(itr)); */
     return MB_SUCCESS;
 }

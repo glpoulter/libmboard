@@ -44,26 +44,48 @@ int MB_AddMessage(MBt_Board mb, void *msg) {
     MBIt_Board  *board;
     
     /* if message board is null */
-    if (mb == MB_NULL_MBOARD) return MB_ERR_INVALID;
+    if (mb == MB_NULL_MBOARD) 
+    {
+        P_FUNCFAIL("Cannot add to message to null board (MB_NULL_MBOARD)");
+        return MB_ERR_INVALID;
+    }
     
     /* if message pointer is null */
-    if (!msg) return MB_ERR_INVALID;
+    if (!msg)
+    {
+        P_FUNCFAIL("NULL message pointer");
+        return MB_ERR_INVALID;
+    }
     
     /* map handle to object */
     board = (MBIt_Board *)MBI_getMBoardRef(mb);
-    if (board == NULL) return MB_ERR_INVALID;
-
+    if (board == NULL)
+    {
+        P_FUNCFAIL("Unknown board handle (%d)", (int)mb);
+        return MB_ERR_INVALID;
+    }
     /* do not add message if board is locked */
-    if (board->locked == MB_TRUE) return MB_ERR_LOCKED;
-    
+    if (board->locked == MB_TRUE) 
+    {
+        P_FUNCFAIL("Board is locked");
+        return MB_ERR_LOCKED;
+    }
     /* get access to internal data */
     pl = board->data;
     assert(pl != NULL);
     
     /* create new node in pooled list */
     rc = pl_newnode(pl, &ptr_new);
-    if (rc == PL_ERR_MALLOC) return MB_ERR_MEMALLOC;
-    if (rc != PL_SUCCESS) return MB_ERR_INTERNAL;
+    if (rc == PL_ERR_MALLOC) 
+    {
+        P_FUNCFAIL("Could not allocate required memory");
+        return MB_ERR_MEMALLOC;
+    }
+    else if (rc != PL_SUCCESS) 
+    {
+        P_FUNCFAIL("Internal error. pl_newnode() returned code %d", rc);
+        return MB_ERR_INTERNAL;
+    }
     
     /* copy data into mboard node */
     memcpy(ptr_new, msg, (size_t)pl->elem_size);

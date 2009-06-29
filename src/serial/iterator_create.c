@@ -57,20 +57,36 @@ int MB_Iterator_Create(MBt_Board mb, MBt_Iterator *itr_ptr) {
     
     
 	/* Check for NULL message board */
-    if (mb == MB_NULL_MBOARD) return MB_ERR_INVALID;
+    if (mb == MB_NULL_MBOARD) 
+    {
+        P_FUNCFAIL("Cannot create iterator for null board (MB_NULL_MBOARD)");
+        return MB_ERR_INVALID;
+    }
     
     /* get ptr to board */
     board = (MBIt_Board*)MBI_getMBoardRef(mb);
-    if (board == NULL) return MB_ERR_INVALID;
+    if (board == NULL) 
+    {
+        P_FUNCFAIL("Invalid board handle (%d)", (int)mb);
+        return MB_ERR_INVALID;
+    }
     mcount = (int)board->data->count_current;
     
     /* check if board is locked */
-    if (board->locked != MB_FALSE) return MB_ERR_LOCKED;
+    if (board->locked == MB_TRUE) 
+    {
+        P_FUNCFAIL("Board (%d) is locked", (int)mb);
+        return MB_ERR_LOCKED;
+    }
     
     /* Allocate Iterator object */
     iter = (MBIt_Iterator*)malloc(sizeof(MBIt_Iterator));
     assert(iter != NULL);
-    if (iter == NULL) return MB_ERR_MEMALLOC;
+    if (iter == NULL) 
+    {
+        P_FUNCFAIL("Could not allocate required memory");
+        return MB_ERR_MEMALLOC;
+    }
     
     /* assign mb handle to iterator */
     iter->mb        = mb;
@@ -83,8 +99,16 @@ int MB_Iterator_Create(MBt_Board mb, MBt_Iterator *itr_ptr) {
     if (rc != PL_SUCCESS)
     {
         free(iter);
-        if (rc == PL_ERR_MALLOC) return MB_ERR_MEMALLOC;
-        else return MB_ERR_INTERNAL;
+        if (rc == PL_ERR_MALLOC) 
+        {
+            P_FUNCFAIL("Could not allocate required memory");
+            return MB_ERR_MEMALLOC;
+        }
+        else 
+        {
+            P_FUNCFAIL("pl_create() returned with err code %d", rc);
+            return MB_ERR_INTERNAL;
+        }
     }
     
     /* populate iterator */
@@ -107,20 +131,26 @@ int MB_Iterator_Create(MBt_Board mb, MBt_Iterator *itr_ptr) {
     {
         if (rc_om == OM_ERR_MEMALLOC)
         {
+            P_FUNCFAIL("Could not allocate required memory");
             return MB_ERR_MEMALLOC;
         }
         else if (rc_om == OM_ERR_OVERFLOW)
         {
-        	return MB_ERR_OVERFLOW;
+            P_FUNCFAIL("Too many iterators created. Objmap key overflow");
+            return MB_ERR_OVERFLOW;
         }
         else
         {
+            P_FUNCFAIL("MBI_objmap_push() returned with err code %d", rc);
             return MB_ERR_INTERNAL;
         }
     }
     
     /* assign return pointer */
     *itr_ptr  = (MBt_Iterator)rc_om;
+    
+    P_INFO("Iterator created (iter:%d, board:%d, mcount:%d)", 
+            (int)rc_om, (int)mb, mcount);
     
     return MB_SUCCESS;
 }

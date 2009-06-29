@@ -42,6 +42,7 @@ int MB_SyncTest(MBt_Board mb, int *flag) {
     /* Check for NULL message board */
     if (mb == MB_NULL_MBOARD) 
     {
+        P_WARNING("Testing null board (MB_NULL_MBOARD)");
         *flag = MB_TRUE;
         return MB_SUCCESS;
     }
@@ -50,6 +51,16 @@ int MB_SyncTest(MBt_Board mb, int *flag) {
     board = (MBIt_Board *)MBI_getMBoardRef(mb);
     if (board == NULL || board->locked != MB_TRUE) 
     {
+        #ifdef _PRINT_WARNINGS
+        if (board == NULL)
+        {
+            P_FUNCFAIL("Invalide board handle (%d)", (int)mb);
+        }
+        else if (board->locked != MB_TRUE)
+        {
+            P_FUNCFAIL("Board (%d) is not locked by sync process", (int)mb);
+        }
+        #endif
         *flag = MB_FALSE;
         return MB_ERR_INVALID;
     }
@@ -59,6 +70,7 @@ int MB_SyncTest(MBt_Board mb, int *flag) {
     /* unlock board */
     board->locked = MB_FALSE;
     
+    P_INFO("Serial version of MB_SyncTest() does nothing interesting");
     /* return success */
     *flag = MB_TRUE;
     return MB_SUCCESS;

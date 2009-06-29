@@ -37,14 +37,26 @@ int MB_SyncStart(MBt_Board mb) {
     MBIt_Board *board;
     
     /* Check for NULL message board */
-    if (mb == MB_NULL_MBOARD) return MB_SUCCESS;
+    if (mb == MB_NULL_MBOARD) 
+    {
+        P_FUNCFAIL("Cannot sync null board (MB_NULL_MBOARD)");
+        return MB_SUCCESS;
+    }
       
     /* get object mapped to mb handle */
     board = (MBIt_Board *)MBI_getMBoardRef(mb);
-    if (board == NULL) return MB_ERR_INVALID;
+    if (board == NULL) 
+    {
+        P_FUNCFAIL("Unknown board handle (%d)", (int)mb);
+        return MB_ERR_INVALID;
+    }
     
     /* Check if board is locked */
-    if (board->locked == MB_TRUE) return MB_ERR_LOCKED;
+    if (board->locked == MB_TRUE) 
+    {
+        P_FUNCFAIL("Board is locked");
+        return MB_ERR_LOCKED;
+    }
     
     /* lock the board */
     board->locked = MB_TRUE;
@@ -52,6 +64,7 @@ int MB_SyncStart(MBt_Board mb) {
     /* nothing to do if we're not running in parallel */
     if (MBI_CommSize == 1)
     {
+        P_INFO("Nothing to sync (single proc run). Marked as completed");
         board->syncCompleted = MB_TRUE;
         return MB_SUCCESS;
     }

@@ -26,5 +26,6 @@
  */
 int MB_Filter_Delete(MBt_Filter *ft_ptr) {
     *ft_ptr = MB_NULL_FUNCTION;
+    P_WARNING("Serial version of MB_Filter_Delete() does nothing interesing");
     return MB_SUCCESS;
 }

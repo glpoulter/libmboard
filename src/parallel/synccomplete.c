@@ -31,6 +31,9 @@ int MB_SyncComplete(MBt_Board mb) {
     
     int rc;
     MBIt_Board *board;
+    #ifdef _EXTRA_INFO
+    double sleep_time;
+    #endif
     
     /* Check for NULL message board */
     if (mb == MB_NULL_MBOARD) return MB_SUCCESS;
@@ -50,8 +53,17 @@ int MB_SyncComplete(MBt_Board mb) {
     /* if sync not complete, wait till it is */
     while(board->syncCompleted != MB_TRUE)
     {
+        #ifdef _EXTRA_INFO
+        sleep_time = MPI_Wtime();
+        #endif
+        P_INFO("Board (%d) sync incomplete. Sleeping ... ", (int)mb);
         rc = pthread_cond_wait(&(board->syncCond), &(board->syncLock));
         assert(rc == 0);
+        
+        #ifdef _EXTRA_INFO
+        P_INFO("Board (%d) sync completed. Asleep for %.3f seconds", 
+                (int)mb, MPI_Wtime() - sleep_time);
+        #endif
     }
     
     /* release lock */
@@ -61,6 +73,7 @@ int MB_SyncComplete(MBt_Board mb) {
     
     /* unlock board */
     board->locked = MB_FALSE;
+    P_INFO("Board (%d) unlocked", (int)mb);
     
     /* return */
     return MB_SUCCESS;

@@ -23,6 +23,9 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_PROG_CC
 AC_PROG_MAKE_SET
 AC_DISABLE_SHARED
+
+# temporarily set CFLAGS first so AC_PROG_LIBTOOL does not add -g -O2
+CFLAGS="" 
 AC_PROG_LIBTOOL
 
 # Checks for $CC -c -o. Needed to allow pre-target flags
@@ -83,6 +86,12 @@ AC_TYPE_SIZE_T
 #AC_CHECK_FUNCS([sqrt],[],[AC_MSG_ERROR(sqrt() is required)])
 #AC_CHECK_FUNCS([floor],[],[AC_MSG_ERROR(floor() is required)])
 
+# Check support for variadic macros
+LSC_C_C99_VARIADIC_MACROS
+LSC_C_GNU_VARIADIC_MACROS
+
+# check for __func__ support
+AC_C_VAR_FUNC
 
 # Allow users to enable instrumentation of memory usage
 MEMLOG_CFLAGS="-D_LOG_MEMORY_USAGE"
@@ -114,6 +123,32 @@ else
 fi
 AC_SUBST(WANT_MEMLOG)
 AC_SUBST(MEMLOG_CFLAGS)
+
+# Allow users to enable verbose printing of warning/debug messages
+VERBOSE_CFLAGS="-D_EXTRA_INFO"
+AC_ARG_ENABLE([verbose], 
+              [AC_HELP_STRING([--enable-verbose],
+                              [Print warning and info messages (in debug version)])],
+              [want_verbose=yes],
+              [want_verbose=no]
+             )
+if test "x${want_verbose}" = xyes;
+then
+	DEBUG_CFLAGS="${VERBOSE_CFLAGS} ${DEBUG_CFLAGS}"
+fi
+
+# Allow users to enable verbose printing of warning/debug messages
+WARNING_CFLAGS="-D_PRINT_WARNINGS"
+AC_ARG_ENABLE([warnings], 
+              [AC_HELP_STRING([--enable-warnings],
+                              [Print warning messages (in debug version)])],
+              [want_warnings=yes],
+              [want_warnings=no]
+             )
+if test "x${want_warnings}" = xyes;
+then
+	DEBUG_CFLAGS="${WARNING_CFLAGS} ${DEBUG_CFLAGS}"
+fi
 
 # provide some extra info to *.in files
 MB_CONFIG_ARGS=$ac_configure_args

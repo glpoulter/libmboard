@@ -38,6 +38,7 @@ int MB_SyncTest(MBt_Board mb, int *flag) {
     /* Check for NULL message board */
     if (mb == MB_NULL_MBOARD) 
     {
+        P_WARNING("Deletion of null board (MB_NULL_MBOARD)");
         *flag = MB_TRUE;
         return MB_SUCCESS;
     }
@@ -49,6 +50,7 @@ int MB_SyncTest(MBt_Board mb, int *flag) {
     /* check if board is locked */
     if (board->locked == MB_FALSE)
     {
+        P_FUNCFAIL("Board (%d) is not locked", (int)mb);
         *flag = MB_FALSE;
         return MB_ERR_INVALID;
     }
@@ -62,7 +64,11 @@ int MB_SyncTest(MBt_Board mb, int *flag) {
     completion_status = (int)board->syncCompleted;
     
     /* if sync completed, unlock board */
-    if (completion_status == MB_TRUE) board->locked = MB_FALSE;
+    if (completion_status == MB_TRUE) 
+    {
+        P_INFO("Board (%d) sync completed. Unlocking board", (int)mb);
+        board->locked = MB_FALSE;
+    }
     
     /* release lock */
     rc = pthread_mutex_unlock(&(board->syncLock));

@@ -50,18 +50,30 @@ int MB_Filter_Create(MBt_Filter *fh_ptr,
     MBIt_filterfunc_wrapper *fwrap;
     
     /* first, some quick checks */
-    if (fh_ptr == NULL) return MB_ERR_INVALID;
+    if (fh_ptr == NULL)
+    {
+    	P_FUNCFAIL("NULL pointer given in first argument");
+    	return MB_ERR_INVALID;
+    }
     
     /* set NULL return value first, in case of error conditions */
     *fh_ptr = MB_NULL_FILTER;
     
     /* sorry sir, me no deal with null function pointers */
-    if (filterFunc == NULL) return MB_ERR_INVALID;
+    if (filterFunc == NULL)
+    {
+    	P_FUNCFAIL("NULL function pointer given in seconds argument");
+    	return MB_ERR_INVALID;
+    }
     
     /* allocate memory for your function ptr wrapper */
     fwrap = (MBIt_filterfunc_wrapper *)malloc(sizeof(MBIt_filterfunc_wrapper));
     assert(fwrap != NULL);
-    if (fwrap == NULL) return MB_ERR_MEMALLOC;
+    if (fwrap == NULL)
+    {
+    	P_FUNCFAIL("Could not allocate required memory");
+    	return MB_ERR_MEMALLOC;
+    }
     
     /* embed func pointer into wrapper */
     fwrap->func = (MBIt_filterfunc)filterFunc;
@@ -74,14 +86,17 @@ int MB_Filter_Create(MBt_Filter *fh_ptr,
     {
         if (rc_fh == OM_ERR_MEMALLOC)
         {
+        	P_FUNCFAIL("Could not allocate required memory");
             return MB_ERR_MEMALLOC;
         }
         else if (rc_fh == OM_ERR_OVERFLOW)
         {
+        	P_FUNCFAIL("Too many filters created. ObjMap keys overflowed");
             return MB_ERR_OVERFLOW;
         }
         else
         {
+        	P_FUNCFAIL("ObjectMap error. MBI_objmap_push() returned %d", (int)rc_fh);
             return MB_ERR_INTERNAL;
         }
     }
@@ -93,6 +108,8 @@ int MB_Filter_Create(MBt_Filter *fh_ptr,
     
     /* assign fh */
     *fh_ptr = (MBt_Function)rc_fh;
+    
+    P_INFO("Filter function registered. Handle = %d", (int)rc_fh);
     
     /* victory is mine! */
     return MB_SUCCESS;

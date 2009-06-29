@@ -11,8 +11,7 @@
  * \brief Functions to print information about this package
  * 
  */
-#include <stdio.h>
-#include "mb_config.h"
+#include "mb_banner.h"
 
 void MBI_print_banner(void) {
     
@@ -24,6 +23,9 @@ void MBI_print_banner(void) {
 #endif
 #ifdef _EXTRA_CHECKS
     printf("            +++++ This is a DEBUG version +++++               \n\n");
+#endif
+#ifdef _EXTRA_INFO
+    printf("            +++++ VERBOSE  output enabled +++++               \n\n");
 #endif
 #ifdef _LOG_MEMORY_USAGE
     printf("     >>>>> Instrumentation of MEMORY USAGE enabled <<<<<      \n");

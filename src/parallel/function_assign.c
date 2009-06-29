@@ -30,7 +30,7 @@
 int MB_Function_Assign(MBt_Board mb, MBt_Function fh, 
         void *params, size_t param_size) {
     
-    printf("[libmboard] MB_Function_Assign() deprecated. Use MB_Filter_Assign() instead\n");
+    fprintf(stderr, "[libmboard] MB_Function_Assign() deprecated. Use MB_Filter_Assign() instead\n");
     return MB_SUCCESS;
 }
 

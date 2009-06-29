@@ -23,6 +23,7 @@ common_sources   = objmap.c pooled_list.c unmap.c tag_table.c \
                     $(INCLUDEDIR)/mb_avltree.h \
                     $(INCLUDEDIR)/mboard.h \
                     $(INCLUDEDIR)/mb_utils.h \
+                    $(INCLUDEDIR)/mb_banner.h \
                     $(INCLUDEDIR)/mb_common.h
 common_cflags    = -I$(INCLUDEDIR)
 common_libadd    = 

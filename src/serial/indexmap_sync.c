@@ -35,13 +35,22 @@ int MB_IndexMap_Sync(MBt_IndexMap im) {
     MBIt_IndexMap *im_obj;
     
     /* check for null boards */
-    if (im == MB_NULL_INDEXMAP) return MB_ERR_INVALID;
+    if (im == MB_NULL_INDEXMAP)
+    {
+        P_FUNCFAIL("Cannot sync null index map (MB_NULL_INDEXMAP)");
+        return MB_ERR_INVALID;
+    }
     
     /* get reference to indexmap object */
     im_obj = (MBIt_IndexMap *)MBI_getIndexMapRef(im);
-    if (im_obj == NULL) return MB_ERR_INVALID;
+    if (im_obj == NULL) 
+    {
+        P_FUNCFAIL("Invalid map handle (%d)", (int)im);
+        return MB_ERR_INVALID;
+    }
     assert(im_obj->tree != NULL);
     
     /* in serial, there is nothing to sync */
+    P_INFO("Serial version of MB_IndexMap_Sync() does nothing interesting");
 	return MB_SUCCESS;
 }

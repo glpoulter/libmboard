@@ -34,22 +34,34 @@ int MB_Filter_Assign(MBt_Board mb, MBt_Filter fh) {
     MBIt_Board  *board;
     MBIt_filterfunc_wrapper *fwrap;
 
-    
-    if (mb == MB_NULL_MBOARD) return MB_ERR_INVALID;
+    if (mb == MB_NULL_MBOARD)
+    {
+    	P_FUNCFAIL("Cannot assign filter to null board");
+    	return MB_ERR_INVALID;
+    }
     
     /* get reference to board object */
     assert(MBI_OM_mboard != NULL);
     assert(MBI_OM_mboard->type == OM_TYPE_MBOARD);
     board = (MBIt_Board *)MBI_getMBoardRef(mb);
-    if (board == NULL) return MB_ERR_INVALID;
-    if (board->locked == MB_TRUE) return MB_ERR_LOCKED;
-    
+    if (board == NULL)
+    {
+    	P_FUNCFAIL("Unknown board handle (%d)", (int)mb);
+    	return MB_ERR_INVALID;
+    }
+    if (board->locked == MB_TRUE)
+    {
+    	P_FUNCFAIL("Board (%d) is locked", (int)mb);
+    	return MB_ERR_LOCKED;
+    }
     if (fh == MB_NULL_FILTER)
     {
+    	P_INFO("Removing filters from board %d", (int)mb);
         board->filter  = (MBIt_filterfunc)NULL;
     }
     else
     {
+    	P_INFO("Filter %d assigned to board %d", (int)fh, (int)mb);
         /* get reference to filter object */
         assert(MBI_OM_filter != NULL);
         assert(MBI_OM_filter->type == OM_TYPE_FILTER);

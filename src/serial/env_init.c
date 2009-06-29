@@ -16,6 +16,7 @@
  */
 
 #include "mb_serial.h"
+#include "mb_banner.h"
 #include <time.h>
 
 /* ---- Initialise global variables (Defined as extern in mb_common.h) ---- */
@@ -59,7 +60,11 @@ MBIt_stringmap *MBI_indexmap_nametable;
 int MB_Env_Init(void) {
     
     /* Check if environment already initialised */
-    if (MBI_STATUS_initialised == MB_TRUE) return MB_ERR_ENV;
+    if (MBI_STATUS_initialised == MB_TRUE) 
+    {
+        P_FUNCFAIL("Message Board environment already intialised");
+        return MB_ERR_ENV;
+    }
     
     /* print banner */
     MBI_print_banner();
@@ -69,7 +74,10 @@ int MB_Env_Init(void) {
     MBI_CommRank = 0;
     
     /* seed rng */
+    #ifndef _EXTRA_CHECKS
+    P_INFO("Seeding RNG");
     srand((unsigned)time(NULL)); 
+    #endif
     
     #ifdef _LOG_MEMORY_USAGE
         memlog_init();
@@ -84,6 +92,7 @@ int MB_Env_Init(void) {
         MBI_objmap_destroy(&MBI_OM_mboard);
         MBI_objmap_destroy(&MBI_OM_iterator);
         MBI_objmap_destroy(&MBI_OM_indexmap);
+        P_FUNCFAIL("Could not allocate required memory");
         return MB_ERR_MEMALLOC;
     }
     else
@@ -96,9 +105,14 @@ int MB_Env_Init(void) {
     /* Allocate string map */
     MBI_indexmap_nametable = MBI_stringmap_Create();
     assert(MBI_indexmap_nametable != NULL);
-    if (MBI_indexmap_nametable == NULL) return MB_ERR_INTERNAL;
+    if (MBI_indexmap_nametable == NULL) 
+    {
+        P_FUNCFAIL("Could not initialise string map. Call to MBI_stringmap_Create() failed");
+        return MB_ERR_INTERNAL;
+    }
     
     /* set initialised status and return */
+    P_INFO("Message Board environment initialised");
     MBI_STATUS_initialised = MB_TRUE;
     return MB_SUCCESS;
 }
