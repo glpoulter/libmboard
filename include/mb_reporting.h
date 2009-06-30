@@ -37,12 +37,6 @@
 #define funcname "(unknown)"
 #endif
 
-/* _EXTRA_INFO implies _PRINT_WARNINGS */
-#ifdef _EXTRA_INFO
-#ifndef _PRINT_WARNINGS
-#define _PRINT_WARNINGS
-#endif
-#endif
 
 /* -------------------------------------------------------------------- */
 /* if possible, use ISO C version of variadic macros */

@@ -145,7 +145,7 @@ AC_ARG_ENABLE([warnings],
               [want_warnings=yes],
               [want_warnings=no]
              )
-if test "x${want_warnings}" = xyes;
+if test "x${want_warnings}" = xyes || test "x${want_verbose}" = xyes;
 then
 	DEBUG_CFLAGS="${WARNING_CFLAGS} ${DEBUG_CFLAGS}"
 fi

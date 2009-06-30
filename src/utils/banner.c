@@ -24,6 +24,9 @@ void MBI_print_banner(void) {
 #ifdef _EXTRA_CHECKS
     printf("            +++++ This is a DEBUG version +++++               \n\n");
 #endif
+#ifdef _PRINT_WARNINGS
+    printf("            +++++ Warning messages enabled +++++               \n\n");
+#endif
 #ifdef _EXTRA_INFO
     printf("            +++++ VERBOSE  output enabled +++++               \n\n");
 #endif
