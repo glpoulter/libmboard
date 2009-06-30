@@ -83,5 +83,8 @@ int MB_Clear(MBt_Board mb) {
     }
 #endif
 
+    /* reset sync cursor */
+    board->synced_cursor = 0;
+    
     return MB_SUCCESS;
 }

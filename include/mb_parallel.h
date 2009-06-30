@@ -40,6 +40,11 @@ typedef struct {
     /*! \brief flag indicating 'locked' status */
     unsigned int locked :1;
     
+    /*! \brief Postion indicator demarking portion of the board that 
+     * has previously been synced
+     */
+    unsigned int synced_cursor;
+    
     /*! \brief filter function used for tagging messages we need from 
      * remote nodes */
     MBIt_filterfunc filter;

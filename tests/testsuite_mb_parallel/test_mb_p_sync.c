@@ -460,6 +460,153 @@ void test_mb_p_sync_indexmap(void) {
     
 }
 
+void test_mb_p_sync_resync(void) {
+    int i, v, rc;
+    MBt_Board mb;
+    MBIt_Board *board;
+    
+    /* --- create board */
+    rc = MB_Create(&mb, sizeof(int));
+    CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+    board = (MBIt_Board *)MBI_getMBoardRef(mb);
+    CU_ASSERT_PTR_NOT_NULL_FATAL(board);
+    
+    /* ---  add some messages */
+    for (i = 0; i < PARALLEL_TEST_MSG_COUNT; i++)
+    {
+        v = (testsuite_mpi_rank * PARALLEL_TEST_MSG_COUNT) + i;
+        rc = MB_AddMessage(mb, &v);
+        if (rc != MB_SUCCESS) CU_FAIL("Failed to add message");
+    }
+    
+    /* sync board */
+    rc = MB_SyncStart(mb);
+    CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+    rc = MB_SyncComplete(mb);
+    CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+    
+    /* check board size */
+    CU_ASSERT_EQUAL((int)board->data->count_current, 
+            PARALLEL_TEST_MSG_COUNT * testsuite_mpi_size);
+    
+    /* ---  add more messages */
+    for (i = 0; i < PARALLEL_TEST_MSG_COUNT; i++)
+    {
+        v = (PARALLEL_TEST_MSG_COUNT * testsuite_mpi_size) +
+            (testsuite_mpi_rank * PARALLEL_TEST_MSG_COUNT) + i;
+        rc = MB_AddMessage(mb, &v);
+        if (rc != MB_SUCCESS) CU_FAIL("Failed to add message");
+    }
+    
+    /* sync board */
+    rc = MB_SyncStart(mb);
+    CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+    rc = MB_SyncComplete(mb);
+    CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+    
+    /* check board size */
+    CU_ASSERT_EQUAL((int)board->data->count_current, 
+            2 * PARALLEL_TEST_MSG_COUNT * testsuite_mpi_size);
+    
+    /* --- clear board */
+    rc = MB_Clear(mb);
+    CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+    CU_ASSERT_EQUAL_FATAL(board->synced_cursor, 0);
+    CU_ASSERT_EQUAL_FATAL(board->data->count_current, 0);
+    
+    /* ---  add some messages */
+    for (i = 0; i < PARALLEL_TEST_MSG_COUNT; i++)
+    {
+        v = (testsuite_mpi_rank * PARALLEL_TEST_MSG_COUNT) + i;
+        rc = MB_AddMessage(mb, &v);
+        if (rc != MB_SUCCESS) CU_FAIL("Failed to add message");
+    }
+    
+    /* sync board */
+    rc = MB_SyncStart(mb);
+    CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+    rc = MB_SyncComplete(mb);
+    CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+    
+    /* check board size */
+    CU_ASSERT_EQUAL((int)board->data->count_current, 
+            PARALLEL_TEST_MSG_COUNT * testsuite_mpi_size);
+    
+    /* --- delete board */
+    rc = MB_Delete(&mb);
+    CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+    CU_ASSERT_EQUAL(mb, MB_NULL_MBOARD);
+}
+
+void test_mb_p_sync_resync_filtered(void) {
+    int i, v, rc;
+    MBt_Board mb;
+    MBIt_Board *board;
+    MBt_Filter filter;
+    
+    /* --- create board */
+    rc = MB_Create(&mb, sizeof(int));
+    CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+    board = (MBIt_Board *)MBI_getMBoardRef(mb);
+    CU_ASSERT_PTR_NOT_NULL_FATAL(board);
+    
+    /* create filter */
+    rc = MB_Filter_Create(&filter, &_filterfunc2);
+    CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+    /* assign filter */
+    rc = MB_Filter_Assign(mb, filter);
+    CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+    
+    /* ---  add some messages */
+    for (i = 0; i < PARALLEL_TEST_MSG_COUNT; i++)
+    {
+        v = (testsuite_mpi_rank * PARALLEL_TEST_MSG_COUNT) + i;
+        rc = MB_AddMessage(mb, &v);
+        if (rc != MB_SUCCESS) CU_FAIL("Failed to add message");
+    }
+    
+    /* sync board */
+    rc = MB_SyncStart(mb);
+    CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+    rc = MB_SyncComplete(mb);
+    CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+    
+    /* check board size */
+    CU_ASSERT_EQUAL((int)board->data->count_current, 
+            PARALLEL_TEST_MSG_COUNT + 
+            ((testsuite_mpi_size-1) * PARALLEL_TEST_MSG_COUNT / 2));
+    
+    /* ---  add more messages */
+    for (i = 0; i < PARALLEL_TEST_MSG_COUNT; i++)
+    {
+        v = (PARALLEL_TEST_MSG_COUNT * testsuite_mpi_size) +
+            (testsuite_mpi_rank * PARALLEL_TEST_MSG_COUNT) + i;
+        rc = MB_AddMessage(mb, &v);
+        if (rc != MB_SUCCESS) CU_FAIL("Failed to add message");
+    }
+    
+    /* sync board */
+    rc = MB_SyncStart(mb);
+    CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+    rc = MB_SyncComplete(mb);
+    CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+    
+    /* check board size */
+    CU_ASSERT_EQUAL((int)board->data->count_current, 
+            (testsuite_mpi_size+1) * PARALLEL_TEST_MSG_COUNT );
+    
+    
+    /* delete filter */
+    rc = MB_Filter_Delete(&filter);
+    CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+    CU_ASSERT_EQUAL(filter, MB_NULL_FILTER);
+    
+    /* --- delete board */
+    rc = MB_Delete(&mb);
+    CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+    CU_ASSERT_EQUAL(mb, MB_NULL_MBOARD);
+}
+
 static int _cmpfunc (const void *m1, const void *m2) {
     
     int one = *((int*)m1);

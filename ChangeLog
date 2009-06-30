@@ -25,6 +25,10 @@
 	  --enable-verbose is used during ./configure. --enable-verbose also
 	  implies --enable-warnings which prints out error and warning messages
 	  
+	* include/mb_parallel.h, src/parallel/comm.c, src/parallel/create.c, 
+	  src/parallel/clear.c: Fixed critical bug where messages were being 
+	  duplicated when board synced multiple times.
+	  
 
 2009-05-08 Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
 

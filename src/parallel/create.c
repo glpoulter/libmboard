@@ -107,6 +107,9 @@ inline static int newBoardObj(MBt_Board *mb_ptr, size_t msgsize) {
     mb_obj->locked        = MB_FALSE; 
     mb_obj->syncCompleted = MB_FALSE; 
     
+    /* set cursor indicating board has not been synced */
+    mb_obj->synced_cursor = 0;
+    
     /* initialise message tagging function data */
     mb_obj->filter = NULL;
     mb_obj->tt = NULL;

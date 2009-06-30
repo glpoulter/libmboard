@@ -78,6 +78,7 @@ void test_mb_p_clear(void) {
     /* board should be empty */
     CU_ASSERT_PTR_NOT_NULL_FATAL(board->data);
     CU_ASSERT_EQUAL(board->data->count_current, 0);
+    CU_ASSERT_EQUAL((int)board->synced_cursor, 0);
     
     /* Clear empty board */
     rc = MB_Clear(mb);
@@ -86,7 +87,7 @@ void test_mb_p_clear(void) {
     /* board should still be empty */
     CU_ASSERT_PTR_NOT_NULL_FATAL(board->data);
     CU_ASSERT_EQUAL(board->data->count_current, 0);
-    
+   
     /* Delete board */
     rc = MB_Delete(&mb);
     CU_ASSERT_EQUAL(rc, MB_SUCCESS);

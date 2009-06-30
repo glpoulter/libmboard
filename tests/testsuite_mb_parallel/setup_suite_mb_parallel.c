@@ -55,8 +55,8 @@ CU_TestInfo mbp_test_array[] = {
     {"Checking board content after sync (filter)    ", test_mb_p_sync_withfilter   },
     {"Checking fallback to full data replication    ", test_mb_p_sync_withfilter_fdr  },
     {"Checking with filters that use Index Map      ", test_mb_p_sync_indexmap  },
-    /* TODO: sync with filters */
-    /* TODO: sync with fallback to data replication */
+    {"Board resyncs                                 ", test_mb_p_sync_resync  },
+    {"Board resyncs (with filters)                  ", test_mb_p_sync_resync_filtered },
     /* finalising MB environment */
     {"MB Environment finalisation                   ", test_mb_p_finalise             },
     

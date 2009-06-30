@@ -84,6 +84,9 @@ static void check_board_initial_values(MBt_Board mb, size_t msgsize) {
     rc = pthread_mutex_unlock(&(board->syncLock));
     CU_ASSERT_EQUAL(rc, 0);
     
+    /* make sure sync cursor is initialised */
+    CU_ASSERT_EQUAL(board->synced_cursor, 0);
+    
     /* make sure cond var initialised */
     rc = pthread_cond_signal(&(board->syncCond));
     CU_ASSERT_EQUAL(rc, 0);

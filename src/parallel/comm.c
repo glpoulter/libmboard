@@ -90,7 +90,7 @@
 int MBI_Comm_TagMessages(struct MBIt_commqueue *node) {
     
     char window;
-    int rc, i, c, w, p;
+    int rc, i, j, c, w, p;
     int total_tagged, mcount;
     void *msg;
     MBIt_TagTable *tt;
@@ -120,8 +120,10 @@ int MBI_Comm_TagMessages(struct MBIt_commqueue *node) {
     assert(node->board->syncCompleted == MB_FALSE);
     
     /* get message count */
-    mcount = (int)node->board->data->count_current;
-    
+    /* ignore messages that have already been synced */
+    mcount = (int)node->board->data->count_current - 
+             (int)node->board->synced_cursor;
+  
     /* allocate memory for outcount */
     node->outcount = (int *)calloc((size_t)MBI_CommSize, sizeof(int)); 
     assert(node->outcount != NULL);
@@ -159,13 +161,20 @@ int MBI_Comm_TagMessages(struct MBIt_commqueue *node) {
         node->board->tt = tt; /* assign to board */
         
         /* initialise counters */
-        i = 0;
+        i = j = 0;
         total_tagged = 0;
         
         /* loop thru messages and fill up tag table */
         for (pl_itr = PL_ITERATOR(node->board->data); pl_itr; pl_itr = pl_itr->next)
         {
-            assert(i < mcount);
+            assert(i < (int)node->board->data->count_current);
+            
+            /* skip messages that have already been synced */
+            if (i < (int)node->board->synced_cursor) 
+            {
+                i++;
+                continue;
+            }
             
             /* get reference to message from iterator */
             msg = PL_NODEDATA(pl_itr);
@@ -204,7 +213,7 @@ int MBI_Comm_TagMessages(struct MBIt_commqueue *node) {
                 if (c == 8)
                 {
                     /* write byte buffer to table */
-                    rc = tt_setbyte(node->board->tt, i, w, window);
+                    rc = tt_setbyte(node->board->tt, j, w, window);
                     assert(rc == TT_SUCCESS);
                     
                     /* move window */
@@ -219,12 +228,13 @@ int MBI_Comm_TagMessages(struct MBIt_commqueue *node) {
             /* write remaining byte buffer */
             if (w < (int)node->board->tt->row_size)
             {
-                rc = tt_setbyte(node->board->tt, i, w, window);
+                rc = tt_setbyte(node->board->tt, j, w, window);
                 assert(rc == TT_SUCCESS);
             }
             
             /* increment counter */
             i++;
+            j++;
         }
         assert(node->outcount[MBI_CommRank] == 0);
         
@@ -471,7 +481,7 @@ int MBI_Comm_InitPropagation(struct MBIt_commqueue *node) {
 
     int mcount;
     int w, b, p;
-    int i, rc, tag, bufloc;
+    int i, j, rc, tag, bufloc;
     void *msg;
     char *outptr, *row;
     char *header_byte;
@@ -503,7 +513,8 @@ int MBI_Comm_InitPropagation(struct MBIt_commqueue *node) {
     
     /* get message size and count */
     msgsize = node->board->data->elem_size;
-    mcount  = (int)node->board->data->count_current;
+    mcount  = (int)node->board->data->count_current - 
+              (int)node->board->synced_cursor;
     
     /* Allocate memory for input buffers */
     node->inbuf = (void **)malloc(sizeof(void*) * MBI_CommSize);
@@ -602,19 +613,30 @@ int MBI_Comm_InitPropagation(struct MBIt_commqueue *node) {
         outptr = (char*)(node->outbuf[0]) + 1;
         
         /* copy messages into output buffer */
-        i = 0;
+        i = j = 0;
         for (pl_itr = PL_ITERATOR(node->board->data); pl_itr; pl_itr = pl_itr->next)
         {
+            
+            /* skip messages that have already been synced */
+            if (i < (int)node->board->synced_cursor)
+            {
+                i++;
+                continue;
+            }
+            
             /* get reference to message object */
             msg = PL_NODEDATA(pl_itr);
             assert(msg != NULL);
             
             /* copy into buffer */
-            memcpy(outptr + (i*msgsize), msg, msgsize);
+            memcpy(outptr + (j*msgsize), msg, msgsize);
+            
+            /* increment counters */
             i++;
+            j++;
         }
-        assert(i == mcount);
-        
+        assert(i == (int)node->board->data->count_current);
+        assert(j == (int)node->board->data->count_current - (int)node->board->synced_cursor);
     }
     else /* messages are tagged */
     {
@@ -649,15 +671,23 @@ int MBI_Comm_InitPropagation(struct MBIt_commqueue *node) {
         }
         
         /* copy in tagged messages */
-        i = 0;
+        i = j = 0;
         for (pl_itr = PL_ITERATOR(node->board->data); pl_itr; pl_itr = pl_itr->next)
         {
+            
+            /* skip messages that have already been synced */
+            if (i < (int)node->board->synced_cursor) 
+            {
+                i++;
+                continue;
+            }
+            
             /* get reference to message object */
             msg = PL_NODEDATA(pl_itr);
             assert(msg != NULL);
             
             /* get ptr to row in tag table */
-            rc = tt_getrow(node->board->tt, i, &row);
+            rc = tt_getrow(node->board->tt, j, &row);
             assert(rc == TT_SUCCESS);
             assert(row != NULL);
             if (rc != TT_SUCCESS || row == NULL) return MB_ERR_INTERNAL;
@@ -704,8 +734,10 @@ int MBI_Comm_InitPropagation(struct MBIt_commqueue *node) {
             
             /* on to next message */
             i++;
+            j++;
         }
         assert(i == (int)node->board->data->count_current);
+        assert(j == (int)node->board->data->count_current - (int)node->board->synced_cursor);
         free(loc);
         
         /* tag table no longer needed */
@@ -980,9 +1012,12 @@ int MBI_Comm_CompletePropagation(struct MBIt_commqueue *node) {
         rc = pthread_mutex_lock(&(node->board->syncLock));
         assert(0 == rc);
         
+        /* move cursor */
+        node->board->synced_cursor = node->board->data->count_current;
+        
         /* mark sync as completed */
         node->board->syncCompleted = MB_TRUE;
-        
+
         /* release lock */
         rc = pthread_mutex_unlock(&(node->board->syncLock));
         assert(0 == rc);
