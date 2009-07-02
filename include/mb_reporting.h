@@ -1,6 +1,6 @@
 /* $Id$ */
 /*!
- * \file mb_common.h
+ * \file mb_reporting.h
  * \code
  *      Author: Lee-Shawn Chin 
  *      Date  : June 2009

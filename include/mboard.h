@@ -839,7 +839,7 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * \param[in,out] mb_ptr Address of Message Board handle
  * 
  * Upon successful deletion, the handle referenced by \c mb_ptr will be set 
- * to ::MB_NULL_MBOARD . This handle can be reused when creating a new board.
+ * to ::MB_NULL_MBOARD.
  * 
  * If an error occurs, this routine will return an error code, and \c mb_ptr 
  * will remain unchanged.
@@ -1052,8 +1052,7 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * \param[in,out] itr_ptr Address of Iterator Handle
  * 
  * Upon successful deletion, the handle referenced by \c itr_ptr will be set 
- * to ::MB_NULL_ITERATOR. This handle can be reused when creating a new 
- * Iterator of any kind.
+ * to ::MB_NULL_ITERATOR.
  * 
  * If an error occurs, \c itr_ptr will remain unchanged.
  * 
@@ -1248,12 +1247,12 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
 /*!\if userdoc
  * \fn MB_Filter_Create(MBt_Filter *fh_ptr, int (*filterFunc)(const void *msg, int pid) );
  * \ingroup FUNC
- * \brief Registers a function
+ * \brief Creates a filter object
  * \param[out] fh_ptr Address to write Filter Handle to
  * \param[in] filterFunc Pointer to user-defined function
  * 
  * Registers a filter function and returns a handle to the filter via
- * \c ft_ptr. The handle is unique to that function, and is recognised across 
+ * \c ft_ptr. The handle is unique to that function and is recognised across 
  * all processing nodes. 
  * 
  * Registered filters can be assigned to message boards
@@ -1277,14 +1276,14 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  *  - ::MB_ERR_INTERNAL (Internal error, possibly a bug)
  * 
  * Usage example:
- * (to be included)
+ * \include ex_mb_filter.c
  * \endif
  */
 
 /*!\if userdoc
  * \fn MB_Filter_Assign(MBt_Board mb, MBt_Filter fh);
  * \ingroup FUNC
- * \brief Assigns filter handle to a message board
+ * \brief Assigns a filter handle to a message board
  * \param[in] mb Message Board Handle
  * \param[in] fh Filter Handle
  * 
@@ -1343,7 +1342,7 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * \param[in] name Unique string identifying the map (max of 127 chars)
  * \param[out] im_ptr Address of Index Map handle
  * 
- * Creates a new Index Map for and returns a handle to the map via \c im_ptr .
+ * Creates a new Index Map and returns a handle to the map via \c im_ptr .
  * 
  * \c name should be a string that uniquely identifies the map and can
  * contain up to 127 characters. If the given string is longer than 127
@@ -1352,8 +1351,8 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * In the parallel debug version, this routine is blocking and will return when 
  * all processes have issued and completed the call. This effectively 
  * synchronises all processes. It is the users' responsibility to ensure 
- * that all processes issue the call (in the same order if multiple maps are to
- * be created).
+ * that all processes issue the call (in the same order if multiple maps are
+ * created).
  * 
  * 
  * If this routine returns with an error, \c im_ptr will be set to ::MB_NULL_INDEXMAP.
@@ -1369,7 +1368,7 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  *  - ::MB_ERR_ENV (Message Board environment not yet initialised)
  * 
  * Usage example:
- * (to be included)
+ * \include ex_mb_indexmap.c
  * \endif
  */
 
@@ -1380,9 +1379,9 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * \param[in,out] im_ptr Address of Index Map handle
  * 
  * Upon successful deletion, the handle referenced by \c im_ptr will be set 
- * to ::MB_NULL_INDEXMAP. This handle can be reused when creating a new map.
+ * to ::MB_NULL_INDEXMAP.
  * 
- * If an error occurs, this routine will return an error code, and \c im_ptr 
+ * If an error occurs, this routine will return an error code and \c im_ptr 
  * will remain unchanged.
  * 
  * If a null board (::MB_NULL_INDEXMAP) is given, the routine will return 
@@ -1394,8 +1393,7 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  *  - ::MB_ERR_INVALID (\c im is invalid)
  *  - ::MB_ERR_INTERNAL (internal error, possibly a bug)
  * 
- * Usage example:
- * (to be included)
+ * Usage example: see MB_IndexMap_Create()
  * \endif
  */
 
@@ -1418,8 +1416,7 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  *  - ::MB_ERR_MEMALLOC (unable to allocate required memory)
  *  - ::MB_ERR_INTERNAL (internal error, possibly a bug)
  * 
- * Usage example:
- * (to be included)
+ * Usage example: see MB_IndexMap_Create()
  * \endif
  */
 
@@ -1452,8 +1449,7 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  *  - ::MB_ERR_INTERNAL (internal error, possibly a bug)
  *  - ::MB_ERR_MPI (Error returned from MPI calls, possibly a bug)
  * 
- * Usage example:
- * (to be included)
+ * Usage example: see MB_IndexMap_Create()
  * \endif
  */
 
@@ -1487,7 +1483,6 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  *  - ::MB_ERR_INVALID (\c pid or \c im is invalid or null)
  *  - ::MB_ERR_INTERNAL (internal error, possibly a bug)
  * 
- * Usage example:
- * (to be included)
+ * Usage example: see MB_IndexMap_Create()
  * \endif
  */
