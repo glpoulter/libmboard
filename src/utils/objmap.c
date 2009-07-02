@@ -365,8 +365,6 @@ void MBI_objmap_destroy(MBIt_objmap **map) {
 #endif /* MB_THREADSAFE */
     
     free(mytmp);
-    
-    
 }
 
 /* --- internal routines --- */

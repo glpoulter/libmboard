@@ -1,7 +1,6 @@
 /* $Id$ */
 /*!
  * \file mb_avltree.h
- * 
  * \code
  *      Author: Lee-Shawn Chin 
  *      Date  : May 2009 

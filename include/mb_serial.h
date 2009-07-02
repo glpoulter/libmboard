@@ -14,7 +14,6 @@
  * with MB_Clear()
  * 
  */
-
 #ifndef MB_SERIAL_H_
 #define MB_SERIAL_H_
 
@@ -43,6 +42,5 @@ typedef struct {
 
 /* Uncomment to use pl_recycle() instead of pl_reset() */
 /* #define MB_CONFIG_RECYCLE_MEMPOOL */
-
 
 #endif /*MB_SERIAL_H_*/

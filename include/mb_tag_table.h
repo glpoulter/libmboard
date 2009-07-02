@@ -10,13 +10,14 @@
  * \brief Header file for Tag Table
  * 
  */
+#ifndef MB_TAG_TABLE_H_
+#define MB_TAG_TABLE_H_
+
 /*! \defgroup TTABLE Utility: Tag Table
  * 
  * 
  * @{
  */ 
-#ifndef MB_TAG_TABLE_H_
-#define MB_TAG_TABLE_H_
 
 #ifdef HAVE_CONFIG_H
 #include "mb_config.h"

@@ -170,7 +170,6 @@ static void check_all_name_equal(OM_key_t key, const char *name) {
     assert(namedata.handle == key);
     rc = strcmp((const char *)namedata.name, name);
     assert(rc == 0);
-
 }
 
 #endif /*_EXTRA_CHECKS*/

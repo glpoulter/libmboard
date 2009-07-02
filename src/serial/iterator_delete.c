@@ -74,5 +74,4 @@ int MB_Iterator_Delete(MBt_Iterator *itr_ptr) {
     *itr_ptr = MB_NULL_ITERATOR;
     
     return MB_SUCCESS;
-    
 }

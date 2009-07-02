@@ -11,12 +11,10 @@
  *        parallel implementations)
  * 
  */
-
 #ifndef MB_UTILS_H_
 #define MB_UTILS_H_
 
 #include "mb_common.h"
-
 
 /* ------ Routines internal to libmboard ----- */
 /* .... see src/utils/unmap.c .... */
@@ -32,7 +30,6 @@ void * MBI_getFilterRef(MBt_Filter fh);
 
 /* Dereference Function Handle */
 void * MBI_getIndexMapRef(MBt_IndexMap ih);
-
 
 
 #endif /*MB_UTILS_H_*/

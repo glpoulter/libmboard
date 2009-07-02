@@ -37,9 +37,7 @@
 int MB_AddMessage(MBt_Board mb, void *msg) {
     
     int rc;
-    
     void *ptr_new;
-    
     pooled_list *pl;
     MBIt_Board  *board;
     
@@ -92,5 +90,4 @@ int MB_AddMessage(MBt_Board mb, void *msg) {
     memcpy(ptr_new, msg, (size_t)pl->elem_size);
     
     return MB_SUCCESS;
-    
 }

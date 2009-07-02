@@ -3,8 +3,8 @@
  * \file mboard.h
  * \code
  *      Author: Lee-Shawn Chin 
- *      Date  : August 2008 
- *      Copyright (c) 2008 STFC Rutherford Appleton Laboratory
+ *      Date  : August 2009 
+ *      Copyright (c) 2009 STFC Rutherford Appleton Laboratory
  * \endcode
  * 
  * \brief This should be the only header file that has to 
@@ -16,6 +16,9 @@
  *       instead of just using \c assert()
  * 
  */
+#ifndef MBOARD_H_
+#define MBOARD_H_
+
 /*!
  * \mainpage libmboard (Message Board Library)
  * 
@@ -169,10 +172,6 @@
  * The following is a list constants defined in libmboard.
  * \endif
  */
-
-
-#ifndef MBOARD_H_
-#define MBOARD_H_
 
 #include <stddef.h>
 #include <limits.h>
@@ -666,8 +665,6 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * The function is deprecated. Please use an alternative function.
  */
 #define MB_ERR_DEPRECATED      123
-
-#endif /*MBOARD_H_*/
 
 
 /* =================== BEGIN USER DOCUMENTATION =========================== */
@@ -1486,3 +1483,5 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * Usage example: see MB_IndexMap_Create()
  * \endif
  */
+
+#endif /*MBOARD_H_*/

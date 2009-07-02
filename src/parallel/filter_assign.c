@@ -72,5 +72,4 @@ int MB_Filter_Assign(MBt_Board mb, MBt_Filter fh) {
     }
 
     return MB_SUCCESS;
-
 }

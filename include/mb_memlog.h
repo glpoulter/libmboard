@@ -1,7 +1,6 @@
 /* $Id$ */
 /*!
  * \file mb_memlog.h
- * 
  * \code
  *      Author: Lee-Shawn Chin 
  *      Date  : Aug 2008 
@@ -11,7 +10,6 @@
  * \brief Header file for src/utils/memlog.c
  * 
  */
-
 #ifndef MB_MEMLOG_H_
 #define MB_MEMLOG_H_
 
@@ -39,4 +37,5 @@ void *memlog_realloc(void *ptr, size_t size);
 #endif /* NO_OVERRIDE_MEM_ROUTINES */
 
 #endif /* _LOG_MEMORY_USAGE */
+
 #endif /* MB_MEMLOG_H_ */

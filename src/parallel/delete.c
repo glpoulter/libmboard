@@ -67,7 +67,6 @@ int MB_Delete(MBt_Board *mb_ptr) {
     obj = MBI_objmap_pop(MBI_OM_mboard, (OM_key_t)*mb_ptr);
     assert(obj == (void*)board);
 
-    
     /* free object memory */
     rc = pl_delete(&(board->data));
     assert(rc == PL_SUCCESS);

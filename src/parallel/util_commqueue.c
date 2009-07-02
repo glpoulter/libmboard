@@ -84,7 +84,6 @@ int MBI_CommQueue_Pop(struct MBIt_commqueue *node) {
     
     free(node);
     return MB_SUCCESS;
-    
 }
 
 /*! 
@@ -160,7 +159,6 @@ int MBI_CommQueue_Push(MBt_Board mb, enum MBIt_CommStage startstage) {
  * \return Pointer to CommQueue node 
  */
 struct MBIt_commqueue* MBI_CommQueue_GetFirstNode(void) {
-    
     return CommQ;
 }
 

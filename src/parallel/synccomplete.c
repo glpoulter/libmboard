@@ -77,5 +77,4 @@ int MB_SyncComplete(MBt_Board mb) {
     
     /* return */
     return MB_SUCCESS;
-    
 }

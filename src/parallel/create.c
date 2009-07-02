@@ -201,10 +201,8 @@ static void check_all_mb_equal(MBt_Board mb, size_t msgsize) {
     
     rc = MPI_Bcast(&bdata, (int)sizeof(struct boardData_t), MPI_BYTE, 0, MBI_CommWorld);
     
-
     assert(rc == MPI_SUCCESS);
     assert(bdata.handle  == mb);
     assert(bdata.msgsize == msgsize);
-
 }
 #endif /*_EXTRA_CHECKS*/

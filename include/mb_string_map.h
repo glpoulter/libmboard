@@ -1,7 +1,6 @@
 /* $Id$ */
 /*!
  * \file mb_string_map.h
- * 
  * \code
  *      Author: Lee-Shawn Chin 
  *      Date  : June 2009 

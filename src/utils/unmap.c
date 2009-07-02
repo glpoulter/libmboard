@@ -33,7 +33,6 @@ void * MBI_getMBoardRef(MBt_Board mb) {
     
     /* return object mapped to mb handle */
     return MBI_objmap_getobj(MBI_OM_mboard, (OM_key_t)mb);
-
 }
 
 
@@ -53,7 +52,6 @@ void * MBI_getIteratorRef(MBt_Iterator iter) {
     
     /* return object mapped to mb handle */
     return MBI_objmap_getobj(MBI_OM_iterator, (OM_key_t)iter);
-
 }
 
 
@@ -73,7 +71,6 @@ void * MBI_getFilterRef(MBt_Filter ft) {
     
     /* return object mapped to handle */
     return MBI_objmap_getobj(MBI_OM_filter, (OM_key_t)ft);
-
 }
 
 /*! 
@@ -92,6 +89,5 @@ void * MBI_getIndexMapRef(MBt_IndexMap ih) {
     
     /* return object mapped to handle */
     return MBI_objmap_getobj(MBI_OM_indexmap, (OM_key_t)ih);
-
 }
 

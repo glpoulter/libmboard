@@ -10,7 +10,6 @@
  * \brief Header file for Communication Queue
  *  
  */
-
 #ifndef MB_COMMQUEUE_H
 #define MB_COMMQUEUE_H
 
@@ -105,4 +104,5 @@ int MBI_Comm_SendBufInfo(struct MBIt_commqueue *node);
 int MBI_Comm_WaitBufInfo(struct MBIt_commqueue *node);
 int MBI_Comm_InitPropagation(struct MBIt_commqueue *node);
 int MBI_Comm_CompletePropagation(struct MBIt_commqueue *node);
+
 #endif /*MB_COMMQUEUE_H*/

@@ -74,7 +74,6 @@ int MBI_SyncQueue_Init(void) {
         P_INFO("SyncQueue initialised");
         return MB_SUCCESS;
     }
-    
 }
 
 /* Delete sync request queue */

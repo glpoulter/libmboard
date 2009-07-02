@@ -91,5 +91,4 @@ int MB_AddMessage(MBt_Board mb, void *msg) {
     memcpy(ptr_new, msg, (size_t)pl->elem_size);
     
     return MB_SUCCESS;
-    
 }

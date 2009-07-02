@@ -1,7 +1,6 @@
 /* $Id$ */
 /*!
  * \file mb_pooled_list.h
- * 
  * \code
  *      Author: Lee-Shawn Chin 
  *      Date  : Feb 2008 
@@ -11,6 +10,9 @@
  * \brief Header file for Pooled List
  * 
  */
+#ifndef MB_POOLED_LIST_H_
+#define MB_POOLED_LIST_H_
+
 /*! \defgroup PLIST Utility: Pooled List 
  * 
  * A linked-list implementation which allocates memory in large chunks. 
@@ -89,9 +91,6 @@
  * @{
  * */
 
-#ifndef MB_POOLED_LIST_H_
-#define MB_POOLED_LIST_H_
-
 #ifdef HAVE_CONFIG_H
 #include "mb_config.h"
 #endif
@@ -109,8 +108,6 @@
 #define PL_ERR_MALLOC  2 
 /*! \brief Return Code: Invalid Input */
 #define PL_ERR_INVALID 3 /* Invalid input */
-
-
 
 /* ----- Data Structures ----- */
 /*! \brief internal list node for storing memory block addresses 

@@ -73,5 +73,4 @@ int MB_SyncStart(MBt_Board mb) {
      
     /* Submit sync request to comm thread */
     return MBI_SyncQueue_Push(mb);
-    
 }

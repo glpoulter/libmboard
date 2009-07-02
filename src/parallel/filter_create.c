@@ -133,7 +133,6 @@ static void check_all_fh_equal(OM_key_t key, MBIt_filterfunc fptr) {
     assert(rc == MPI_SUCCESS);
     assert(fdata.handle == key);
     assert(fdata.fptr   == fptr);
-
 }
 
 #endif /*_EXTRA_CHECKS*/

@@ -10,7 +10,6 @@
  * \brief Header file for Sync Request Queue
  * 
  */
-
 #ifndef MB_SYNCQUEUE_H
 #define MB_SYNCQUEUE_H
 

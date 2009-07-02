@@ -85,7 +85,6 @@ int MB_IndexMap_Sync(MBt_IndexMap im) {
     
     /* -------- Allocate required memory ---------------- */
 
-    
     /* allocate memory for i/o counters */
     outcount = (int *)malloc(sizeof(int) * MBI_CommSize);
     assert(outcount != NULL);
@@ -155,6 +154,7 @@ int MB_IndexMap_Sync(MBt_IndexMap im) {
     free(outcount);
     
     /* -------------- do recv --------------------------------------- */
+    
     pending_in = 0;
     for (i = 0; i < MBI_CommSize; i++)
     {
@@ -244,6 +244,7 @@ int MB_IndexMap_Sync(MBt_IndexMap im) {
     }
     
     /* ------------- wait for recv to complete, then handle data ------ */
+    
     while(pending_in > 0)
     {
         /* wait for any recv to complete */
@@ -289,6 +290,7 @@ int MB_IndexMap_Sync(MBt_IndexMap im) {
 }
 
 static void _update_tree_with_new_data(MBIt_AVLtree *tree, int pid, int *databuf, int count) {
+    
     int i, rc, val;
     tag_table *bitboard;
     int byte_offset;
@@ -393,6 +395,5 @@ static void _check_map_equal(OM_key_t key) {
     
     assert(rc == MPI_SUCCESS);
     assert(key == mkey); /* compare master key with our key */
-    
 }
 #endif

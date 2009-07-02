@@ -16,7 +16,6 @@
  * 
  * These routines are only active when _EXTRA_INFO is defined
  */
-
 #ifndef MB_REPORTING_H_
 #define MB_REPORTING_H_
 
@@ -36,7 +35,6 @@
 /* __func__ identifier not provided by compiler */
 #define funcname "(unknown)"
 #endif
-
 
 /* -------------------------------------------------------------------- */
 /* if possible, use ISO C version of variadic macros */

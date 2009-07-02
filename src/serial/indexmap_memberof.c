@@ -52,5 +52,4 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value) {
     /* query AVL tree */
     if (MBI_AVLtree_memberof(map->tree, value)) return MB_TRUE;
     else return MB_FALSE;
-    
 }

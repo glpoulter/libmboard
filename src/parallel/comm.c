@@ -477,8 +477,7 @@ int MBI_Comm_WaitBufInfo(struct MBIt_commqueue *node) {
  * 
  */ 
 int MBI_Comm_InitPropagation(struct MBIt_commqueue *node) {
-  
-
+    
     int mcount;
     int w, b, p;
     int i, j, rc, tag, bufloc;
@@ -783,7 +782,6 @@ int MBI_Comm_InitPropagation(struct MBIt_commqueue *node) {
 
     }
     
-
     #ifdef _EXTRA_CHECKS
     free(msg_copied);
     #endif
@@ -859,7 +857,6 @@ int MBI_Comm_CompletePropagation(struct MBIt_commqueue *node) {
     void *ptr_new, *msg;
     char *header_byte, *bufptr;
 
-    
     assert(node->stage == PROPAGATION);
     assert(node->outcount == NULL);
     assert(node->incount  != NULL);
@@ -868,7 +865,6 @@ int MBI_Comm_CompletePropagation(struct MBIt_commqueue *node) {
     assert(node->inbuf    !=  NULL);
     assert(node->outbuf   !=  NULL);
     assert(node->board    != NULL);
-    
     
     /* ---------- check for completed sends -------------- */
     if (node->pending_out > 0)
@@ -995,8 +991,6 @@ int MBI_Comm_CompletePropagation(struct MBIt_commqueue *node) {
         #endif
     }
     
-
-    
     /* ------------ if all comms completed, clean up and end ------------ */
     
     if (node->pending_in == 0 && node->pending_out == 0)
@@ -1036,5 +1030,4 @@ int MBI_Comm_CompletePropagation(struct MBIt_commqueue *node) {
         /* there are still pending comms. No state change  */
         return MB_SUCCESS;
     }
-
 }

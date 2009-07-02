@@ -49,5 +49,4 @@ int MB_IndexMap_AddEntry(MBt_IndexMap im, int value) {
     }
     
     return MB_SUCCESS;
-
 }

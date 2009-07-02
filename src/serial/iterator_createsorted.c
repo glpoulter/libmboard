@@ -24,7 +24,6 @@ static int ptrSort(const void *p1, const void *p2);
 static void ** get_sorted_ptr_list(MBt_Board mb, int mcount, \
         int (*cmpFunc)(const void *msg1, const void *msg2) );
 
-
 /*!
  * \brief Creates a sorted Iterator for accessing messages in the MessageBoard
  * \ingroup MB_API

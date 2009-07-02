@@ -402,7 +402,6 @@ int MBI_AVLtree_walk(MBIt_AVLtree *tree, int (*func)(MBIt_AVLnode *node)) {
     if (tree->count == 0) return AVL_SUCCESS;
     
     return _walk_tree(tree->root, func);
-
 }
 
 static int _walk_tree(MBIt_AVLnode *node, int (*func)(MBIt_AVLnode *node)) {
@@ -475,6 +474,7 @@ static void _delete_node_data(MBIt_AVLnode *node) {
 static MBIt_AVLnode* _allocate_node(int key, void *data) {
     
     MBIt_AVLnode* node;
+    
     node = (MBIt_AVLnode*)malloc(sizeof(MBIt_AVLnode));
     assert(node != NULL);
     if (node == NULL) return NULL;
@@ -577,7 +577,6 @@ static int _rebalance_tree(MBIt_AVLtree *tree, MBIt_AVLnode *node, int direction
         /* propagate upwards */
         return _rebalance_tree(tree, node->parent,
                                GET_PARENT_TO_CHILD_DIR(node->parent, node));
-        
     }
     
     /* too imbalanced. Time to rotate */
@@ -633,9 +632,7 @@ static int _rebalance_tree(MBIt_AVLtree *tree, MBIt_AVLnode *node, int direction
             
             /* perform double rotation */
             return _rotate_double(tree, node, direction); /* LR or RL case */
-
         }
-
     }
 }
 

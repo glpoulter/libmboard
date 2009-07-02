@@ -10,7 +10,6 @@
  * \brief Header file for banner routine
  * 
  */
-
 #ifndef MB_BANNER_H_
 #define MB_BANNER_H_
 
@@ -21,4 +20,3 @@
 void MBI_print_banner(void);
 
 #endif /* MB_BANNER_H_ */
-

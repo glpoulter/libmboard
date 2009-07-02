@@ -55,7 +55,6 @@ int MB_Iterator_Create(MBt_Board mb, MBt_Iterator *itr_ptr) {
     MBIt_Iterator *iter;
     pl_address_node *pl_itr;
     
-    
 	/* Check for NULL message board */
     if (mb == MB_NULL_MBOARD) 
     {

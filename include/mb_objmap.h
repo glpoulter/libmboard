@@ -1,7 +1,6 @@
 /* $Id$ */
 /*!
  * \file mb_objmap.h
- * 
  * \code
  *      Author: Lee-Shawn Chin 
  *      Date  : Feb 2008 
@@ -9,9 +8,7 @@
  * \endcode
  * 
  * \brief Header file for Object Mapper
- * 
  */
-
 #ifndef MB_OBJMAP_H_
 #define MB_OBJMAP_H_
 
@@ -30,7 +27,6 @@
 #endif /* _PARALLEL */
 
 #include <limits.h>
-
 
 /*! \defgroup OBJMAP Utility: Object Mapper 
  * 
@@ -144,7 +140,6 @@ typedef struct {
 #endif /* MB_THREADSAFE */
     
 } MBIt_objmap;
-
 
 /* ~~ Implementation and further docs in src/utils/objmap.c ~~ */
 

@@ -26,6 +26,7 @@
  *  - ::MB_ERR_ENV 
  */
 int MB_Env_Initialised(void) {
+    
     if (MBI_STATUS_initialised == MB_TRUE) return MB_SUCCESS;
     else return MB_ERR_ENV;
 }

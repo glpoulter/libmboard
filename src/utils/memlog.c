@@ -154,7 +154,6 @@ static double __get_ts(void) {
         
     /* return time in secs */
     return now.tv_sec + (now.tv_usec * 1.e-6);
-
 }
 
 /*!
@@ -174,7 +173,6 @@ static void __record_memory_usage(void) {
     assert(rc == SQLITE_DONE);
     
     sqlite3_reset(stmt_insert);
-
 }
 
 
@@ -275,6 +273,7 @@ static int __sizemap_del(void *ptr) {
  */
 /* free all internal data and return size of unallocated memory */
 static int __sizemap_flush(void) {
+    
     size_t remainder = 0;
     struct memlog_ptrsizemap_t *node;
     khiter_t k;
@@ -304,6 +303,7 @@ static int __sizemap_flush(void) {
  * 
  */
 void memlog_milestone(const char *label) {
+    
     int rc;
     
     rc = sqlite3_bind_double(stmt_milestone, 1, __get_ts() - init_ts);

@@ -78,5 +78,4 @@ int MB_SyncTest(MBt_Board mb, int *flag) {
     /* return results */
     *flag = completion_status;
     return MB_SUCCESS;
-    
 }

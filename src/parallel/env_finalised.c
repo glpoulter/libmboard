@@ -26,6 +26,7 @@
 #include "mb_parallel.h"
 
 int MB_Env_Finalised(void) {
+    
     if (MBI_STATUS_finalised == MB_TRUE) return MB_SUCCESS;
     else return MB_ERR_ENV;
 }

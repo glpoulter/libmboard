@@ -10,7 +10,6 @@
  * \brief Header file common to both serial and parallel implementation
  * 
  */
-
 #ifndef MB_COMMON_H_
 #define MB_COMMON_H_
 
@@ -31,8 +30,6 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-
-
 
 /* status variables (initialised and documented in env_init.c) */
 extern int MBI_STATUS_initialised;

@@ -129,5 +129,4 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value) {
     /* magic! */
     if (BITBOARD_SET(bitboard, pid)) return MB_TRUE;
     else return MB_FALSE;
-    
 }

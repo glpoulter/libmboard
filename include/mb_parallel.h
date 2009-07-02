@@ -10,7 +10,6 @@
  * \brief Header file used by parallel implementation
  * 
  */
-
 #ifndef MB_PARALLEL_H_
 #define MB_PARALLEL_H_
 

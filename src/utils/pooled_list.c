@@ -83,7 +83,6 @@ int pl_create(pooled_list **pl_ptr_loc, size_t elem_size, int pool_size) {
         return PL_ERR_MALLOC;
     }  
     
-    
     /* assign first memory block to out address list */
     new->addr_list->addr = mem_block;
     new->addr_list->next = NULL;
@@ -297,7 +296,6 @@ int pl_recycle(pooled_list *pl) {
     pl->active_memblock = pl->addr_list;
     
     return PL_SUCCESS;
-    
 }
 
 /*!
@@ -415,7 +413,6 @@ int pl_getnode(pooled_list *pl, int index, void **ptr) {
     *ptr = PL_NODEDATA(node);
     
     return PL_SUCCESS;
-    
 }
 
 /*!
@@ -543,5 +540,4 @@ static void free_pl_object(pooled_list **pl_ptr_loc) {
     
     /* free memory associated with pl object */
     free(obj);
-    
 }

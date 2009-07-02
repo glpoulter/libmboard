@@ -127,6 +127,7 @@ int MBI_CommThread_Finalise(void) {
 static void *commthread_main(void *params) {
     
     int rc;
+    
     /* continue looping until termination flag is read */
     while (1) {
         
@@ -280,7 +281,6 @@ inline static void processPendingComms(void) {
             default: assert("Invalid state found!!" == "");
         }
     }
-
 }
 
 /* 
@@ -308,7 +308,6 @@ inline static void initiate_board_sync(MBt_Board mb) {
     /* push board into communication queue */
     rc = MBI_CommQueue_Push(mb, PRE_TAGGING);
     assert(rc == MB_SUCCESS);
-
 }
 
 /* 
