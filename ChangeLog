@@ -1,4 +1,5 @@
-2009-xx-xx Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
+2009-07-02 Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
+
 	* src/progs/mboard-check-minversion.in: Added script to allow users to 
 	  check if the installed libmboard meets a minimum version requirement
 	  
@@ -18,6 +19,10 @@
 	  than the total board size. Filtering is instead performed by 
 	  the recipient
 	  
+	* include/mb_parallel.h, src/parallel/comm.c, src/parallel/create.c, 
+	  src/parallel/clear.c: Fixed critical bug where messages were being 
+	  duplicated when board synced multiple times.
+	  
 	* configure.ac: Added --enable-warnings and --enable-verbose options
 	* include/mb_reporting.h: Added macros to print error and warning 
 	   messages when --enable-warnings is used during ./configure
@@ -25,11 +30,8 @@
 	  --enable-verbose is used during ./configure. --enable-verbose also
 	  implies --enable-warnings which prints out error and warning messages
 	  
-	* include/mb_parallel.h, src/parallel/comm.c, src/parallel/create.c, 
-	  src/parallel/clear.c: Fixed critical bug where messages were being 
-	  duplicated when board synced multiple times.
-	  
-
+	* : Tagged as 0.2.0
+	
 2009-05-08 Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
 
 	* m4/acx_pthread.m4, m4/check_parallel.m4: Added support pthreads-win32.
