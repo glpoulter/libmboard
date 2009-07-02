@@ -22,7 +22,6 @@
 /*! \brief query if most significant bit is set */
 #define MSB_IS_SET(octet) (((octet) & MSBMASK) == MSBMASK)
 
-
 /*!
  * \brief Creates a new Tag Table object 
  * \ingroup TTABLE
@@ -222,6 +221,11 @@ int tt_getrow(tag_table *tt, int row, char **row_ptr) {
  * 
  * On error, the \c num_ptr will remain unchanged
  * 
+ * To calculate the number of bits set in each byte, we take make a compromise
+ * between looping thru the bits (slow, but no extra mem required) and a full
+ * 256-int lookup table (fast, but needs extra 256 bytes). We use a lookup
+ * table representing 2 bytes and sum the bits of the byte in four chunks.
+ * 
  * Possible return codes:
  *  - ::TT_SUCCESS
  *  - ::TT_ERR_INVALID (input in invalid, or \c tt is \c NULL or corrupted)
@@ -230,7 +234,9 @@ int tt_getcount_row(tag_table *tt, int row, int *num_ptr) {
     
     int i;
     int count;
-    char *row_ptr, *byte_ptr, byte;
+    char *row_ptr;
+    char byte; 
+    const unsigned int blt[] = {0,1,1,2};
     
     if (tt == NULL || tt->table == NULL || row >= tt->rows) {
         return TT_ERR_INVALID;
@@ -241,11 +247,11 @@ int tt_getcount_row(tag_table *tt, int row, int *num_ptr) {
     
     for (i = 0; i < (int)tt->row_size; i++)
     {
-        byte_ptr = row_ptr + i;
-        for (byte = *byte_ptr; byte != 0x00; byte >>= 1)
-        {
-            if (byte & 0x01) count++;
-        }
+        byte = *(row_ptr + i);
+        count += blt[(int)(byte & 0x03)] +
+                 blt[(int)(byte>>2 & 0x03)] +
+                 blt[(int)(byte>>4 & 0x03)] +
+                 blt[(int)(byte>>6 & 0x03)];
     }
     
     *num_ptr = count;
