@@ -6,7 +6,7 @@
 # Process this file with autoconf to produce a configure script.
 
 # Note: first 3 segments of version number must only contain digits!!
-AC_INIT(libmboard, 0.2.0.1-pre, shawn.chin@_NOSPAM_stfc.ac.uk)
+AC_INIT(libmboard, 0.2.0.1, shawn.chin@_NOSPAM_stfc.ac.uk)
 AM_INIT_AUTOMAKE
 
 #AM_MAINTAINER_MODE

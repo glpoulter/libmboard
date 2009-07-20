@@ -1,10 +1,15 @@
 2009-07-XX Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
+
 	* configure.ac, src/parallel/*.c: Added --enable-developer config
 	  option to enable additional debug level to be used by FLAME
 	  developers. This will include additional run-time checks that
 	  uses MPI routines, which is less portable since they may clash
 	  with the communication thread when used with MPI libraries that
 	  do not support full threading levels. 
+	  
+	* src/utis/banner.c: Version banner downsized
+	
+	* : Tagged as 0.2.0.1
 
 2009-07-02 Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
 
