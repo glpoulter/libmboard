@@ -17,12 +17,14 @@ inline static int newBoardObj(MBt_handle *mb, size_t);
 
 /* if Extra Checks are required, we need these datastructures as well */
 #ifdef _EXTRA_CHECKS
+#ifdef _DEVELOPER
     static void check_all_mb_equal(MBt_Board mb, size_t msgsize);
     
     struct boardData_t {
         MBt_Board handle;
         size_t    msgsize;
     };
+#endif /*_DEVELOPER */
 #endif /*_EXTRA_CHECKS*/
 
 /*!
@@ -72,7 +74,9 @@ int MB_Create(MBt_Board *mb_ptr, size_t msgsize) {
     
     /* debug: make sure same mb on all procs */
 #ifdef _EXTRA_CHECKS
+#ifdef _DEVELOPER
     check_all_mb_equal(mb, msgsize);
+#endif /* _DEVELOPER */
 #endif /*_EXTRA_CHECKS*/
     
     P_INFO("Created Board (%d, msgsize: %d)", (int)mb, (int)msgsize);
@@ -180,6 +184,7 @@ inline static int newBoardObj(MBt_Board *mb_ptr, size_t msgsize) {
 
 
 #ifdef _EXTRA_CHECKS
+#ifdef _DEVELOPER
 /*! \brief Checks that board is created with same msgsize across all procs 
  * \param[in] msgsize Message size
  * \param[in] mb Board Handle
@@ -205,4 +210,5 @@ static void check_all_mb_equal(MBt_Board mb, size_t msgsize) {
     assert(bdata.handle  == mb);
     assert(bdata.msgsize == msgsize);
 }
+#endif /* _DEVELOPER */
 #endif /*_EXTRA_CHECKS*/

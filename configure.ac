@@ -6,7 +6,7 @@
 # Process this file with autoconf to produce a configure script.
 
 # Note: first 3 segments of version number must only contain digits!!
-AC_INIT(libmboard, 0.2.0, shawn.chin@_NOSPAM_stfc.ac.uk)
+AC_INIT(libmboard, 0.2.0.1-pre, shawn.chin@_NOSPAM_stfc.ac.uk)
 AM_INIT_AUTOMAKE
 
 #AM_MAINTAINER_MODE
@@ -124,6 +124,19 @@ fi
 AC_SUBST(WANT_MEMLOG)
 AC_SUBST(MEMLOG_CFLAGS)
 
+# Enable developer debug code
+DEVELOPER_CFLAGS="-D_DEVELOPER"
+AC_ARG_ENABLE([developer], 
+              [AC_HELP_STRING([--enable-developer],
+                              [Enable FLAME developer mode (debug lib contains more thorough run-time checks. Less portable)])],
+              [want_developer=yes],
+              [want_developer=no]
+             )
+if test "x${want_developer}" = xyes;
+then
+	DEBUG_CFLAGS="${DEBUG_CFLAGS} ${DEVELOPER_CFLAGS}"
+fi
+
 # Allow users to enable verbose printing of warning/debug messages
 VERBOSE_CFLAGS="-D_EXTRA_INFO"
 AC_ARG_ENABLE([verbose], 
@@ -134,7 +147,7 @@ AC_ARG_ENABLE([verbose],
              )
 if test "x${want_verbose}" = xyes;
 then
-	DEBUG_CFLAGS="${VERBOSE_CFLAGS} ${DEBUG_CFLAGS}"
+	DEBUG_CFLAGS="${DEBUG_CFLAGS} ${VERBOSE_CFLAGS}"
 fi
 
 # Allow users to enable verbose printing of warning/debug messages
@@ -147,7 +160,7 @@ AC_ARG_ENABLE([warnings],
              )
 if test "x${want_warnings}" = xyes || test "x${want_verbose}" = xyes;
 then
-	DEBUG_CFLAGS="${WARNING_CFLAGS} ${DEBUG_CFLAGS}"
+	DEBUG_CFLAGS="${DEBUG_CFLAGS} ${WARNING_CFLAGS}"
 fi
 
 # provide some extra info to *.in files

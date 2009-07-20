@@ -14,13 +14,14 @@
 #include "mb_parallel.h"
 
 #ifdef _EXTRA_CHECKS
+#ifdef _DEVELOPER
     static void check_all_fh_equal(OM_key_t key, MBIt_filterfunc fptr);
     
     struct fdata_t {
-        MBt_Filter handle;
+        OM_key_t handle;
         MBIt_filterfunc fptr;
     };
-    
+#endif /* _DEVELOPER */
 #endif /*_EXTRA_CHECKS*/
     
 /*!
@@ -103,7 +104,9 @@ int MB_Filter_Create(MBt_Filter *fh_ptr,
     
     /* debug: make sure same fh on all procs */
 #ifdef _EXTRA_CHECKS
+#ifdef _DEVELOPER
     check_all_fh_equal((OM_key_t)rc_fh, (MBIt_filterfunc)filterFunc);
+#endif /* _DEVELOPER */
 #endif /*_EXTRA_CHECKS*/
     
     /* assign fh */
@@ -116,8 +119,7 @@ int MB_Filter_Create(MBt_Filter *fh_ptr,
 }
 
 #ifdef _EXTRA_CHECKS
-
-
+#ifdef _DEVELOPER
 static void check_all_fh_equal(OM_key_t key, MBIt_filterfunc fptr) {
     
     int rc;
@@ -134,6 +136,6 @@ static void check_all_fh_equal(OM_key_t key, MBIt_filterfunc fptr) {
     assert(fdata.handle == key);
     assert(fdata.fptr   == fptr);
 }
-
+#endif /* _DEVELOPER */
 #endif /*_EXTRA_CHECKS*/
 

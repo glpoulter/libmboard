@@ -27,6 +27,9 @@ static void _update_tree_with_new_data(MBIt_AVLtree *tree, int pid, int *databuf
  * \ingroup MB_API
  * \param[in] im Index Map handle
  * 
+ * This routine calls MPI Routines, and should therefore never be called
+ * when there are any Message Board syncs in progress as this will cause
+ * problems with MPI Libraries that do not support full threading.
  * 
  * Possible return codes:
  *  - ::MB_SUCCESS
