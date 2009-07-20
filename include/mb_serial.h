@@ -19,6 +19,7 @@
 
 #include "mboard.h"
 #include "mb_common.h"
+#include "mb_utils.h"
 
 /*! \brief Data structure of a MessageBoard instance */
 typedef struct {

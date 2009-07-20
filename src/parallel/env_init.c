@@ -79,9 +79,6 @@ int MB_Env_Init(void) {
     	return MB_ERR_ENV;
     }
     
-    /* print banner */
-    MBI_print_banner();
-    
     /* Check if MPI environment has been initialised */
     MPI_Initialized(&flag);
     if (!flag)
@@ -94,6 +91,9 @@ int MB_Env_Init(void) {
     MPI_Comm_dup(MPI_COMM_WORLD, &MBI_CommWorld);
     MPI_Comm_rank(MBI_CommWorld, &MBI_CommRank);
     MPI_Comm_size(MBI_CommWorld, &MBI_CommSize);
+    
+    /* print banner */
+    MBI_print_banner();
     
     /* seed rng during production runs */
 	#ifdef _EXTRA_CHECKS

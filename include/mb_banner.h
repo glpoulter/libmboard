@@ -15,6 +15,12 @@
 
 #include <stdio.h>
 #include "mb_config.h"
+#ifdef _PARALLEL
+#include "mb_parallel.h"
+#else
+#include "mb_serial.h"
+#endif
+#include "mb_common.h"
 
 /* .... see src/utils/banner.c .... */
 void MBI_print_banner(void);

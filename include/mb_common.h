@@ -26,7 +26,6 @@
 #include "mb_pooled_list.h"
 #include "mb_string_map.h"
 #include "mb_avltree.h"
-#include "mb_utils.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>

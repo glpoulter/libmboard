@@ -66,12 +66,12 @@ int MB_Env_Init(void) {
         return MB_ERR_ENV;
     }
     
-    /* print banner */
-    MBI_print_banner();
-    
     /* set dummy values */
     MBI_CommSize = 1;
     MBI_CommRank = 0;
+    
+    /* print banner */
+    MBI_print_banner();
     
     /* seed rng */
     #ifndef _EXTRA_CHECKS

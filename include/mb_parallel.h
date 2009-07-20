@@ -15,6 +15,7 @@
 
 #include "mboard.h"
 #include "mb_common.h"
+#include "mb_utils.h"
 #include "mb_tag_table.h"
 
 /* we require MPI and pthreads support */

@@ -14,39 +14,38 @@
 #include "mb_banner.h"
 
 void MBI_print_banner(void) {
+
+    /* only master proc should print the banner */
+    if (MBI_CommRank != 0) return;
     
-    printf("==============================================================\n\n");
 #ifdef _PARALLEL
-    printf("             Message Board Library (PARALLEL)                 \n\n");
+    printf("[libmboard] Version        : %s (PARALLEL)\n", PACKAGE_VERSION   );
 #else
-    printf("              Message Board Library (SERIAL)                  \n\n");
+    printf("[libmboard] Version        : %s (SERIAL)\n", PACKAGE_VERSION     );
+#endif
+    printf("[libmboard] Build date     : %s\n", INFO_CONFIG_DATE             );
+    printf("[libmboard] Config options : %s\n", INFO_CONFIG_ARGS             );
+    printf("\n");
+
+#ifdef _DEVELOPER
+    printf("[libmboard] +++ FLAME Developer mode enabled +++\n");
 #endif
 #ifdef _EXTRA_CHECKS
-    printf("            +++++ This is a DEBUG version +++++               \n\n");
+    printf("[libmboard] +++ This is a DEBUG version +++\n");
 #endif
 #ifdef _PRINT_WARNINGS
-    printf("            +++++ Warning messages enabled +++++               \n\n");
+    printf("[libmboard] +++ Warning messages enabled +++\n");
 #endif
 #ifdef _EXTRA_INFO
-    printf("            +++++ VERBOSE  output enabled +++++               \n\n");
+    printf("[libmboard] +++ VERBOSE output enabled +++\n");
 #endif
 #ifdef _LOG_MEMORY_USAGE
-    printf("     >>>>> Instrumentation of MEMORY USAGE enabled <<<<<      \n");
-    printf("       [ DO NOT USE THIS VERSION FOR PRODUCTION RUNS ]        \n\n");
+    printf("[libmboard] +++ Instrumentation of MEMORY USAGE enabled +++\n");
+    printf("[libmboard] !!! DO NOT USE THIS VERSION FOR PRODUCTION RUNS !!!\n");
 #endif
 #ifdef _COVERAGE_ANALYSIS
-    printf("          >>>>> Compiled for COVERAGE ANALYSIS <<<<<          \n");
-    printf("       [ DO NOT USE THIS VERSION FOR PRODUCTION RUNS ]        \n\n");
+    printf("[libmboard] +++ Compiled for COVERAGE ANALYSIS  +++\n");
+    printf("[libmboard] !!! DO NOT USE THIS VERSION FOR PRODUCTION RUNS !!!\n");
 #endif
-
-    printf("--------------------------------------------------------------\n\n");
-    printf(" Version        : %s\n", PACKAGE_VERSION                         );
-    printf(" Build date     : %s\n", INFO_CONFIG_DATE                        );
-    printf(" Config options : %s\n", INFO_CONFIG_ARGS                        );
-    printf("                                                              \n");
-    printf(" Copyright (c) 2007-2009 STFC Rutherford Appleton Laboratory  \n");
-    printf(" If you have any problems or enquiries, you can contact the   \n");
-    printf(" library maintainer at <%s>\n\n", PACKAGE_BUGREPORT                );
-    printf("==============================================================\n");
     
 }
