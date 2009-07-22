@@ -16,6 +16,12 @@
  * 
  * These routines are only active when _EXTRA_INFO is defined
  */
+
+/* splint does not support variadic macros. 
+ * see -- http://www.splint.org/faq.html#quest18b 
+ * We have no choice but to ask splint to ignore this file */
+/*@ignore@*/ 
+
 #ifndef MB_REPORTING_H_
 #define MB_REPORTING_H_
 
@@ -142,3 +148,5 @@ inline static void P_INFO(const char *fmt, ...) {
 #endif /* HAVE_C99_VARIADIC_MACROS || HAVE_GNU_VARIADIC_MACROS || neither */
 
 #endif /*MB_REPORTING_H_*/
+
+/*@end@*/

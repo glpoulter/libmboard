@@ -139,7 +139,7 @@ if COMPILE_PARALLEL
 	iflags=""; \
 	for i in dummy @MB_PARALLEL_CFLAGS@; do f=`echo $${i} | grep '^-I'`; iflags="$${iflags} $${f}"; done; \
 	echo -e "\n----- (Checking src/parallel/*.c)"; \
-	splint $(SPLINT_OPTIONS) $${iflags} -I$(INCLUDEDIR) src/parallel/*.c; \
+	splint $(SPLINT_OPTIONS) -D_PARALLEL $${iflags} -I$(INCLUDEDIR) src/parallel/*.c; \
 	) 
 endif
 if TESTS_CONFIGURED
