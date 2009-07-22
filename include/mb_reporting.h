@@ -74,7 +74,7 @@
     printf(format , ## args); /* space before comma is NECESSARY */            \
     printf("\n");
 #else
-#define P_INFO(...)
+#define P_INFO(format, args...)
 #endif
 
 #ifdef _PRINT_WARNINGS
