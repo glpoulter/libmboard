@@ -486,7 +486,7 @@ void memlog_finalise(void) {
         #endif /* HAVE_PTHREAD */
     #endif /* _PARALLEL */
             
-            
+    printf("\n");
     printf("=============================================================\n");
     printf("                libmboard memory instrumentation             \n");
     printf("-------------------------------------------------------------\n");
@@ -495,12 +495,12 @@ void memlog_finalise(void) {
     /* have there been memory operations outside our view? */
     if (lost != 0 || remainder != 0)
     {
-        printf("\
-!!! [%d] MEMLOG: If your program was not compiled with -D_LOG_MEMORY_USAGE,\n\
-                memory operations performed within your own code would not \n\
-                have been included in the memory usage estimates.\n\
-                Please add -D_LOG_MEMORY_USAGE to your CFLAGS, and include\n\
-                mboard.h in all your source files.\n\n",  
+        printf(""
+"!!! [%d] MEMLOG: If your program was not compiled with -D_LOG_MEMORY_USAGE,\n"
+"                memory operations performed within your own code would not \n"
+"                have been included in the memory usage estimates.\n"
+"                Please add -D_LOG_MEMORY_USAGE to your CFLAGS, and include\n"
+"                mboard.h in all your source files.\n\n",  
                 MBI_CommRank);
     }
     

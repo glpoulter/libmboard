@@ -28,6 +28,17 @@ int main(int argc, char ** argv) {
     
     CU_ErrorCode rc;
     
+#ifdef _LOG_MEMORY_USAGE
+    /* Don't proceed with this test if compiled with --enable-memlog
+     * memlog_init() would not have been called and all alloc/free calls
+     * will fail
+     */
+    fprintf(stderr, "ERROR: This test cannot be run when compiled with --enable-memlog\n");
+    fprintf(stderr, "       However, you should still be able to run 'run_test_serial'\n");
+    fprintf(stderr, "       and 'run_test_parallel'.\n");
+    return 1;
+#endif
+    
     /* initialise MPI environment */
     MPI_Init(&argc, &argv);
     

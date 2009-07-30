@@ -10,6 +10,7 @@
 #define TESTING_H_
 #include "CUnit/CUnit.h"
 #include <time.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 /* Test suite for Pooled List */
