@@ -58,7 +58,7 @@ PRAGMA auto_vacuum = none; \
 PRAGMA synchronous = OFF; \
 PRAGMA temp_store = memory; \
 PRAGMA journal_mode = OFF; \
-PRAGMA locking_mode = EXCLUSIVE; \
+PRAGMA locking_mode = NORMAL; \
 \
 CREATE TABLE 'mem_usage' (\
     ts real primary key, \
@@ -330,6 +330,7 @@ void memlog_init(void) {
     int rc;
     char *err_msg, *sql;
     
+    
     /* print BANNER notifying user of memlog inclusion */
     if (MBI_CommRank == 0)
     {
@@ -365,6 +366,7 @@ void memlog_init(void) {
     
     /* initialise ptr-size hash table */
     sizemap = kh_init(sm);
+    assert(sizemap != NULL);
     
     /* determine output filename */
     snprintf(memlog_filename, MAX_FILENAME_LENGTH, "memlog-%d_of_%d.db", 
