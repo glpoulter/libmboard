@@ -10,12 +10,7 @@
  * \brief wrapper routines for mapping Handles to object pointers
  * 
  */
-
-#include "mboard.h"
 #include "mb_utils.h"
-#include "mb_common.h"
-#include "mb_objmap.h"
-#include <assert.h>
 
 /*! 
  * \brief wrapper routine for mapping MessageBoard handle to object reference 
@@ -25,7 +20,7 @@
  * Performs the necessary assertions (if compiled in debug mode) and obtains
  * the associated board reference from the appropriate ObjectMap.
  */
-void * MBI_getMBoardRef(MBt_Board mb) {
+void * MBI_getMBoardRef_withasserts(MBt_Board mb) {
     
     /* make sure mboard object map valid */
     assert(MBI_OM_mboard != NULL);
@@ -44,7 +39,7 @@ void * MBI_getMBoardRef(MBt_Board mb) {
  * Performs the necessary assertions (if compiled in debug mode) and obtains
  * the associated Iterator reference from the appropriate ObjectMap.
  */
-void * MBI_getIteratorRef(MBt_Iterator iter) {
+void * MBI_getIteratorRef_withasserts(MBt_Iterator iter) {
     
     /* make sure mboard object map valid */
     assert(MBI_OM_iterator != NULL);
@@ -63,7 +58,7 @@ void * MBI_getIteratorRef(MBt_Iterator iter) {
  * Performs the necessary assertions (if compiled in debug mode) and obtains
  * the associated Filter function reference from the appropriate ObjectMap.
  */
-void * MBI_getFilterRef(MBt_Filter ft) {
+void * MBI_getFilterRef_withasserts(MBt_Filter ft) {
     
     /* make sure function object map valid */
     assert(MBI_OM_filter != NULL);
@@ -81,7 +76,7 @@ void * MBI_getFilterRef(MBt_Filter ft) {
  * Performs the necessary assertions (if compiled in debug mode) and obtains
  * the associated Map object reference from the appropriate ObjectMap.
  */
-void * MBI_getIndexMapRef(MBt_IndexMap ih) {
+void * MBI_getIndexMapRef_withasserts(MBt_IndexMap ih) {
     
     /* make sure indexmap object map valid */
     assert(MBI_OM_indexmap != NULL);
