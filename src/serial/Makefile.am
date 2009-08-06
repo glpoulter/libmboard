@@ -45,6 +45,7 @@ common_sources   = 	addmessage.c \
                     $(INCLUDEDIR)/mboard.h \
                     $(INCLUDEDIR)/mb_utils.h \
                     $(INCLUDEDIR)/mb_common.h \
+                    $(INCLUDEDIR)/mb_settings.h \
                     $(INCLUDEDIR)/mb_serial.h
                     
 common_cflags    = -I$(INCLUDEDIR)

@@ -12,7 +12,7 @@
 void test_mb_p_clear(void) {
     
     int i, rc, errfound;
-    int count = (int)(MB_CONFIG_PARALLEL_POOLSIZE * 2.5);
+    int count = (int)(MBI_CONFIG.mempool_blocksize * 2.5);
     MBt_Board mb;
     dummy_msg msg;
     MBIt_Board  *board;

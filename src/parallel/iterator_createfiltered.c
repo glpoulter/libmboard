@@ -104,7 +104,8 @@ int MB_Iterator_CreateFiltered(MBt_Board mb, MBt_Iterator *itr_ptr, \
     
     /* allocate memory for address list */
     /* use pool sizes half of that of MBoards */
-    rc = pl_create(&(iter->data), sizeof(void *), MB_CONFIG_PARALLEL_POOLSIZE / 2);
+    rc = pl_create(&(iter->data), sizeof(void *), 
+                    (int)(MBI_CONFIG.mempool_blocksize / 2));
     if (rc != PL_SUCCESS)
     {
         free(iter);

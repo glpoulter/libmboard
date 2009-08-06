@@ -73,6 +73,9 @@ int MB_Env_Init(void) {
     /* print banner */
     MBI_print_banner();
     
+    /* set and update (from env vars) library-wide settings */ 
+    MBI_update_settings();
+    
     /* seed rng */
     #ifndef _EXTRA_CHECKS
     P_INFO("Seeding RNG");

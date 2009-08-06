@@ -19,8 +19,8 @@
  * \ingroup MB_API
  * \param[in] mb MessageBoard handle
  * 
- * if \c MB_CONFIG_RECYCLE_MEMPOOL is defined during compilation, we
- * use pl_recycle() is used instead of pl_reset() . This essentially 
+ * If \c MBI_CONFIG.recycle_mempool==0, we
+ * use pl_recycle() instead of pl_reset() . This essentially 
  * resets the internal memory pointers without releasing memory. 
  * This can be useful if message board utilisation is consistent, and
  * we want to save the effort of repeatedly deallocating and allocating
@@ -66,22 +66,24 @@ int MB_Clear(MBt_Board mb) {
     P_INFO("Clearing board (%d, count: %d, msgsize: %d)", (int)mb, 
             (int)board->data->count_current, (int)board->data->elem_size);
     
-    /* clear pooled_list */
-#ifdef MB_CONFIG_RECYCLE_MEMPOOL
-    rc = pl_recycle(board->data);
-    if (rc != PL_SUCCESS) 
+    if (MBI_CONFIG.mempool_recycle == 0) /* reset, not recycle */
     {
-        P_FUNCFAIL("pl_recycle(board->data) returned err code %d", rc);
-        return MB_ERR_INTERNAL;
+        rc = pl_reset(board->data);
+        if (rc != PL_SUCCESS) 
+        {
+            P_FUNCFAIL("pl_reset(board->data) returned err code %d", rc);
+            return MB_ERR_INTERNAL;
+        }
     }
-#else
-    rc = pl_reset(board->data);
-    if (rc != PL_SUCCESS) 
+    else
     {
-        P_FUNCFAIL("pl_reset(board->data) returned err code %d", rc);
-        return MB_ERR_INTERNAL;
+        rc = pl_recycle(board->data);
+        if (rc != PL_SUCCESS) 
+        {
+            P_FUNCFAIL("pl_recycle(board->data) returned err code %d", rc);
+            return MB_ERR_INTERNAL;
+        }
     }
-#endif
 
     /* reset sync cursor */
     board->synced_cursor = 0;

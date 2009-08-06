@@ -125,12 +125,15 @@
  * 
  * Run <tt>'<i>/libmboard/install/directory/</i>mboard-config --help'</tt> for more details.
  * 
+ * \section TUNING Tuning
+ * 
+ * To tune the behaviour of libmboard, see \subpage tuning.
+ * 
  * \section EXAMPLE Example
  * 
  * The <tt>./example/circle_mb</tt> directory within the source contains an example 
  * of how libmboard can be used within a project.
  * 
- *  
  * \endif
  */
 
@@ -818,6 +821,13 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * valid and has to be recreated. It is the users' responsibility to ensure 
  * that invalidated Iterators are never used.
  * 
+ * MB_Clear() can be asked not to deallocate memory. The allocated memory 
+ * will then be reuse when the board is later populated. This therefore 
+ * increases the amount of memory used by the simulation in exchange for 
+ * a shorter runtime. This can ge done by setting the following
+ * environment variable: <b><tt>MBOARD_MEMPOOL_RECYCLE=1</tt></b>
+ *  
+ * 
  * Possible return codes:
  *  - ::MB_SUCCESS
  *  - ::MB_ERR_INVALID (\c mb is null or invalid)
@@ -1488,4 +1498,54 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * \endif
  */
 
+/*!\if userdoc
+ * \page tuning Tuning libmboard using environment variables
+ * 
+ * The behaviour and configuration parameters of libmboard can be modified by 
+ * setting the relevant environment variables.
+ * 
+ * \section toc Table of Contents
+ * -# \ref tune_mem
+ *  - \ref mempool_recycle
+ *  - \ref mempool_blocksize
+ *
+ * <hr>
+ * 
+ * \section tune_mem Environment variables to tune memory usage
+ * 
+ * The following environment variables can be used to influence the memory
+ * usage of boards.
+ * 
+ * \subsection mempool_recycle MBOARD_MEMPOOL_RECYCLE (default: OFF)
+ * 
+ * Use this variable to recycle memory used by the message board. When this 
+ * is enabled MB_Clear() will reset the internal cursors but leave the
+ * used memory unallocated. 
+ * 
+ * Enabling this feature will reduce the time taken to deallocate (and 
+ * reallocate) memory used to store messages in boards. It will however lead
+ * to higher memory usage.
+ * 
+ * \c MBOARD_MEMPOOL_RECYCLE can be set to "1", "ON", "YES", or "TRUE" to 
+ * enable this feature.
+ * 
+ * \c MBOARD_MEMPOOL_RECYCLE can be set to "0", "OFF", "NO", or "FALSE" to 
+ * disable this feature.
+ * 
+ * \subsection mempool_blocksize MBOARD_MEMPOOL_BLOCKSIZE (default: 512)
+ * 
+ * Use this variable to specify the size of each memory block allocated.
+ * 
+ * Messages boards allocate memory in large chunks to avoid having to allocate
+ * small fragments of memory for each message. This variable controls the size 
+ * of each allocation. For example, if \c MBOARD_MEMPOOL_BLOCKSIZE=1024 memory 
+ * is allocated such that 1024 messages can be added to the board before more
+ * memory needs to be allocated.
+ * 
+ * The value assigned to \c MBOARD_MEMPOOL_BLOCKSIZE must be between 10 to 
+ * 1,000,000. If an invalid value is set to the environment variable, or if
+ * the variable is not defined, the default value will be used.
+ * 
+ * \endif
+ */
 #endif /*MBOARD_H_*/

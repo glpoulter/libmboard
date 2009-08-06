@@ -14,7 +14,7 @@
 #include "mb_objmap.h"
 #include <stdlib.h>
 
-#define SERIAL_TEST_MSG_COUNT (int)(MB_CONFIG_SERIAL_POOLSIZE * 3.5)
+#define SERIAL_TEST_MSG_COUNT 2048
 
 /* ===== Begin Function prototype for test cases ===== */
 

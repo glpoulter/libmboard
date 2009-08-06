@@ -8,8 +8,6 @@
  * \endcode
  * 
  * \brief Serial implementation of MB_Clear()
- * 
- * \todo Allow MB_CONFIG_RECYCLE_MEMPOOL to be defined as in env variable
  */
 
 #include "mb_serial.h"
@@ -21,8 +19,8 @@
  * \ingroup MB_API
  * \param[in] mb MessageBoard handle
  * 
- * if \c MB_CONFIG_RECYCLE_MEMPOOL is defined during compilation, we
- * use pl_recycle() is used instead of pl_reset() . This essentially 
+ * If \c MBI_CONFIG.recycle_mempool==0, we
+ * use pl_recycle() instead of pl_reset() . This essentially 
  * resets the internal memory pointers without releasing memory. 
  * This can be useful if message board utilisation is consistent, and
  * we want to save the effort of repeatedly deallocating and allocating
@@ -67,24 +65,27 @@ int MB_Clear(MBt_Board mb) {
     }
     
     /* clear pooled_list */
+    P_INFO("Clearing board (%d, count: %d, msgsize: %d)", (int)mb, 
+            (int)board->data->count_current, (int)board->data->elem_size);
     
-#ifdef MB_CONFIG_RECYCLE_MEMPOOL
-    P_INFO("Clearing board (%d) - memory recycled", (int)mb);
-    rc = pl_recycle(board->data);
-    if (rc != PL_SUCCESS) 
+    if (MBI_CONFIG.mempool_recycle == 0) /* reset, not recycle */
     {
-        P_FUNCFAIL("pl_recycle() returned with err code %d", rc);
-        return MB_ERR_INTERNAL;
+        rc = pl_reset(board->data);
+        if (rc != PL_SUCCESS) 
+        {
+            P_FUNCFAIL("pl_reset() returned with err code %d", rc);
+            return MB_ERR_INTERNAL;
+        }
     }
-#else
-    P_INFO("Clearing board (%d)", (int)mb);
-    rc = pl_reset(board->data);
-    if (rc != PL_SUCCESS) 
+    else
     {
-        P_FUNCFAIL("pl_reset() returned with err code %d", rc);
-        return MB_ERR_INTERNAL;
+        rc = pl_recycle(board->data);
+        if (rc != PL_SUCCESS) 
+        {
+            P_FUNCFAIL("pl_recycle() returned with err code %d", rc);
+            return MB_ERR_INTERNAL;
+        }
     }
-#endif
     
     return MB_SUCCESS;
 }

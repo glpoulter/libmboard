@@ -26,6 +26,8 @@
 #include "mb_pooled_list.h"
 #include "mb_string_map.h"
 #include "mb_avltree.h"
+#include "mb_utils.h"
+#include "mb_settings.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -33,26 +35,6 @@
 /* status variables (initialised and documented in env_init.c) */
 extern int MBI_STATUS_initialised;
 extern int MBI_STATUS_finalised;
-
-/*! \brief Number of elements per memory block (for serial lib)
- * 
- * This value is passed as \c pool_size to pl_create() when 
- * MessageBoards are created using MB_Create() .
- * 
- * This value (halved) is also used when creating an Filtered
- * Iterator (MB_Iterator_CreateFiltered()).
- */
-#define MB_CONFIG_SERIAL_POOLSIZE    256
-
-/*! \brief Number of elements per memory block (for parallel lib)
- * 
- * This value is passed as \c pool_size to pl_create() when 
- * MessageBoards are created using MB_Create() .
- * 
- * This value (halved) is also used when creating an Filtered
- * Iterator (MB_Iterator_CreateFiltered()).
- */
-#define MB_CONFIG_PARALLEL_POOLSIZE  512
 
 /*! \brief String lenght of Index Map name */
 /* NOTE: IF YOU UPDATE THIS, PLEASE ALSO UPDATE DOXYGEN COMMENTS
@@ -69,6 +51,14 @@ extern MBIt_stringmap *MBI_indexmap_nametable;
 extern int MBI_CommRank;
 extern int MBI_CommSize;
 
+#ifndef BITFIELD_T_DEFINED
+#define BITFIELD_T_DEFINED
+/*! \brief Dummy type used to indicate that a specific struct member
+ * will be used as a bit field
+ */
+typedef unsigned int bitfield_t;
+#endif
+
 /*! \brief Data structure of an Iterator instance 
  * 
  * This data structure is place in mb_common.h as both the serial and parallel
@@ -77,7 +67,7 @@ extern int MBI_CommSize;
 typedef struct {
 	
     /*! \brief flag to indicate if iteration has started */
-    unsigned int iterating :1; 
+    bitfield_t iterating :1; 
     
     /*! \brief size of message being referenced */
     unsigned int msgsize; 

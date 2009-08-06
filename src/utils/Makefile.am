@@ -12,7 +12,7 @@ noinst_LTLIBRARIES += lib_utils_p.la lib_utils_pd.la
 endif
 
 common_sources   = objmap.c pooled_list.c unmap.c tag_table.c \
-                    avltree.c string_map.c\
+                    avltree.c string_map.c settings.c \
                     banner.c \
                     $(INCLUDEDIR)/khash.h \
                     $(INCLUDEDIR)/mb_config.h \
@@ -24,6 +24,7 @@ common_sources   = objmap.c pooled_list.c unmap.c tag_table.c \
                     $(INCLUDEDIR)/mboard.h \
                     $(INCLUDEDIR)/mb_utils.h \
                     $(INCLUDEDIR)/mb_banner.h \
+                    $(INCLUDEDIR)/mb_settings.h \
                     $(INCLUDEDIR)/mb_common.h
 common_cflags    = -I$(INCLUDEDIR)
 common_libadd    = 

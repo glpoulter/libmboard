@@ -64,7 +64,7 @@ int MB_Create(MBt_Board *mb_ptr, size_t msgsize) {
     mb_obj->locked = MB_FALSE; /* initialise lock */
     
     /* allocate pooled list */
-    rc = pl_create(&(mb_obj->data), msgsize, MB_CONFIG_SERIAL_POOLSIZE);
+    rc = pl_create(&(mb_obj->data), msgsize, (int)MBI_CONFIG.mempool_blocksize);
     if (rc != PL_SUCCESS)
     {
         free(mb_obj);

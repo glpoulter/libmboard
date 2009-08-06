@@ -19,6 +19,7 @@ include_HEADERS = $(INCLUDEDIR)/mboard.h \
 noinst_HEADERS  = $(INCLUDEDIR)/mb_common.h \
 			      $(INCLUDEDIR)/mb_serial.h \
 			      $(INCLUDEDIR)/mb_parallel.h \
+			      $(INCLUDEDIR)/mb_settings.h \
 			      $(INCLUDEDIR)/mb_utils.h \
 			      $(INCLUDEDIR)/mb_banner.h \
 			      $(INCLUDEDIR)/mb_reporting.h \

@@ -141,7 +141,7 @@ inline static int newBoardObj(MBt_Board *mb_ptr, size_t msgsize) {
     }
     
     /* allocate pooled list */
-    rc = pl_create(&(mb_obj->data), msgsize, MB_CONFIG_PARALLEL_POOLSIZE);
+    rc = pl_create(&(mb_obj->data), msgsize, (int)MBI_CONFIG.mempool_blocksize);
     if (rc != PL_SUCCESS)
     {
         free(mb_obj);

@@ -17,8 +17,8 @@
 #include <mpi.h>
 #include <stdlib.h>
 
-/* we want and even number here! */
-#define PARALLEL_TEST_MSG_COUNT (int)(MB_CONFIG_PARALLEL_POOLSIZE * 4)
+/* we want an even number here! */
+#define PARALLEL_TEST_MSG_COUNT 2048
 #define NODE_ZERO (0 == testsuite_mpi_rank)
 
 extern MPI_Comm testsuite_mpi_comm;

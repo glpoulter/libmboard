@@ -16,7 +16,7 @@
 
 #define SMALLNUM 10
 /* must be an even number! */
-#define TEST_MESSAGE_COUNT (int)(MB_CONFIG_PARALLEL_POOLSIZE * 2 + SMALLNUM)
+#define TEST_MESSAGE_COUNT (int)(2048 + SMALLNUM)
 
 /* global vars */
 extern MBt_Board mb_nofilter, mb_filter, mb_filter_fdr;

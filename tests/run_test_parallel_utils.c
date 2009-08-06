@@ -9,6 +9,7 @@
 
 #include "CUnit/Basic.h"
 #include "testing.h"
+#include "mb_settings.h"
 #include <mpi.h>
 
 static int clean_quit(void) {
@@ -44,6 +45,9 @@ int main(int argc, char ** argv) {
     
     /* seed rng */
     srand((unsigned int)time(NULL));
+    
+    /* update libmboard settings */
+    MBI_update_settings();
     
     /* initialize the CUnit test registry */
     if (CUE_SUCCESS != CU_initialize_registry())

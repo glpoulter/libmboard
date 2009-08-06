@@ -15,7 +15,6 @@
 
 #include "mboard.h"
 #include "mb_common.h"
-#include "mb_utils.h"
 #include "mb_tag_table.h"
 
 /* we require MPI and pthreads support */
@@ -36,9 +35,9 @@ typedef struct {
      * 
      * Only used in parallel version, and when \c locked = ::MB_TRUE
      */
-    unsigned int syncCompleted :1;
+    bitfield_t syncCompleted :1;
     /*! \brief flag indicating 'locked' status */
-    unsigned int locked :1;
+    bitfield_t locked :1;
     
     /*! \brief Postion indicator demarking portion of the board that 
      * has previously been synced
@@ -68,7 +67,7 @@ typedef struct {
 typedef struct {
     
     /*! \brief flag indicating that the map has been synchronised */
-    unsigned int synced :1;
+    bitfield_t synced :1;
     
     /*! \brief map name */
     const char *name;
