@@ -18,14 +18,14 @@
 #define __name_add(name)   MBI_stringmap_AddString(MBI_indexmap_nametable,name)
 
 #ifdef _EXTRA_CHECKS
-#ifdef _DEVELOPER
+#ifdef _UNSAFE_CHECKS
     static void check_all_name_equal(OM_key_t key, const char *name);
     
     struct namedata_t {
         OM_key_t handle;
         char name[MB_INDEXMAP_NAMELENGTH];
     };
-#endif /* _DEVELOPER */
+#endif /* _UNSAFE_CHECKS */
 #endif /*_EXTRA_CHECKS*/
     
 /*!
@@ -132,9 +132,9 @@ int MB_IndexMap_Create(MBt_IndexMap *im_ptr, const char *name) {
     
     /* debug: make sure same name on all procs */
 #ifdef _EXTRA_CHECKS
-#ifdef _DEVELOPER
+#ifdef _UNSAFE_CHECKS
     check_all_name_equal(rc_om, name);
-#endif /* _DEVELOPER */
+#endif /* _UNSAFE_CHECKS */
 #endif /*_EXTRA_CHECKS*/
     
     /* add name to indexmap name table */
@@ -152,7 +152,7 @@ int MB_IndexMap_Create(MBt_IndexMap *im_ptr, const char *name) {
 }
 
 #ifdef _EXTRA_CHECKS
-#ifdef _DEVELOPER
+#ifdef _UNSAFE_CHECKS
 /* check that "name" is the same on all processors to ensure that
  * maps are created in the same order and thus have matching 
  * handles 
@@ -174,5 +174,5 @@ static void check_all_name_equal(OM_key_t key, const char *name) {
     rc = strcmp((const char *)namedata.name, name);
     assert(rc == 0);
 }
-#endif /* _DEVELOPER */
+#endif /* _UNSAFE_CHECKS */
 #endif /*_EXTRA_CHECKS*/

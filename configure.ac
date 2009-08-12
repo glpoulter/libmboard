@@ -125,14 +125,14 @@ AC_SUBST(WANT_MEMLOG)
 AC_SUBST(MEMLOG_CFLAGS)
 
 # Enable developer debug code
-DEVELOPER_CFLAGS="-D_DEVELOPER"
-AC_ARG_ENABLE([developer], 
-              [AC_HELP_STRING([--enable-developer],
-                              [Enable FLAME developer mode (debug lib contains more thorough run-time checks. Less portable)])],
-              [want_developer=yes],
-              [want_developer=no]
+DEVELOPER_CFLAGS="-D_UNSAFE_CHECKS"
+AC_ARG_ENABLE([unsafe-checks], 
+              [AC_HELP_STRING([--enable-unsafe-checks],
+                              [Enable run-time checks that are more thorough but may fail if MPI is not thread-compliant])],
+              [want_unsafe_checks=yes],
+              [want_unsafe_checks=no]
              )
-if test "x${want_developer}" = xyes;
+if test "x${want_unsafe_checks}" = xyes;
 then
 	DEBUG_CFLAGS="${DEBUG_CFLAGS} ${DEVELOPER_CFLAGS}"
 fi

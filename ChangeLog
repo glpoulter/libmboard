@@ -4,6 +4,9 @@
 	  read configuration settings from environment variables
 	* :MBOARD_MEMPOOL_RECYCLE env var can be set to allow message 
 	  boards to recycle allocated memory. (default: disabled)
+	  
+	* configure.ac, src/parallel/*.c: renamed --enable-developer config
+	  option to --enable-unsafe-checks. 
 	   
 2009-07-20 Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
 

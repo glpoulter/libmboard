@@ -27,8 +27,8 @@ void MBI_print_banner(void) {
     printf("[libmboard] Config options : %s\n", INFO_CONFIG_ARGS             );
     printf("\n");
 
-#ifdef _DEVELOPER
-    printf("[libmboard] +++ FLAME Developer mode enabled +++\n");
+#ifdef _UNSAFE_CHECKS
+    printf("[libmboard] +++ Unsafe checks enabled +++\n");
 #endif
 #ifdef _EXTRA_CHECKS
     printf("[libmboard] +++ This is a DEBUG version +++\n");
