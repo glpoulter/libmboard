@@ -27,13 +27,13 @@ void test_cq_newnode(void) {
     struct MBIt_commqueue *node;
     
     /* add a node */
-    rc = MBI_CommQueue_Push((MBt_Board)100, PRE_TAGGING);
+    rc = MBI_CommQueue_Push((MBt_Board)100, MB_COMM_OLD_PRE_TAGGING);
     CU_ASSERT_EQUAL(rc, MB_SUCCESS);
     CU_ASSERT(!MBI_CommQueue_isEmpty());
 
     
     /* and another */
-    rc = MBI_CommQueue_Push((MBt_Board)101, PRE_TAGGING);
+    rc = MBI_CommQueue_Push((MBt_Board)101, MB_COMM_OLD_PRE_TAGGING);
     CU_ASSERT_EQUAL(rc, MB_SUCCESS);
     CU_ASSERT(!MBI_CommQueue_isEmpty());
     
@@ -45,10 +45,16 @@ void test_cq_newnode(void) {
     CU_ASSERT_PTR_NULL(node->outbuf);
     CU_ASSERT_PTR_NULL(node->sendreq);
     CU_ASSERT_PTR_NULL(node->recvreq);
+    CU_ASSERT_PTR_NULL(node->sendreq2);
+    CU_ASSERT_PTR_NULL(node->recvreq2);
     CU_ASSERT_PTR_NULL(node->incount);
     CU_ASSERT_PTR_NULL(node->outcount);
     CU_ASSERT_PTR_NULL(node->board);
-    CU_ASSERT_EQUAL(node->stage, PRE_TAGGING)
+    CU_ASSERT_EQUAL(node->pending_in, 0);
+    CU_ASSERT_EQUAL(node->pending_out, 0);
+    CU_ASSERT_EQUAL(node->pending_in2, 0);
+    CU_ASSERT_EQUAL(node->pending_out2, 0);
+    CU_ASSERT_EQUAL(node->stage, MB_COMM_OLD_PRE_TAGGING)
     
     /* get ref to second node */
     node = node->next;
@@ -58,10 +64,16 @@ void test_cq_newnode(void) {
     CU_ASSERT_PTR_NULL(node->outbuf);
     CU_ASSERT_PTR_NULL(node->sendreq);
     CU_ASSERT_PTR_NULL(node->recvreq);
+    CU_ASSERT_PTR_NULL(node->sendreq2);
+    CU_ASSERT_PTR_NULL(node->recvreq2);
     CU_ASSERT_PTR_NULL(node->incount);
     CU_ASSERT_PTR_NULL(node->outcount);
     CU_ASSERT_PTR_NULL(node->board);
-    CU_ASSERT_EQUAL(node->stage, PRE_TAGGING)
+    CU_ASSERT_EQUAL(node->pending_in, 0);
+    CU_ASSERT_EQUAL(node->pending_out, 0);
+    CU_ASSERT_EQUAL(node->pending_in2, 0);
+    CU_ASSERT_EQUAL(node->pending_out2, 0);
+    CU_ASSERT_EQUAL(node->stage, MB_COMM_OLD_PRE_TAGGING)
     
     /* make sure this is last node */
     CU_ASSERT_PTR_NULL(node->next);

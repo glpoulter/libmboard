@@ -5,20 +5,20 @@
  * Date  : June 2009
  * 
  */
-#include "header_commroutines.h"
+#include "header_commroutines_old.h"
 
-void test_cr_sendbufinfo(void) {
+void test_cr_old_sendbufinfo(void) {
     
     int rc, i, top, bottom;
     
     /* -------- check critical prerequisites ------------ */
     
     /* stage */
-    CU_ASSERT_EQUAL_FATAL(node_filter->stage, READY_FOR_PROP);
-    CU_ASSERT_EQUAL_FATAL(node_nofilter->stage, READY_FOR_PROP);
-    CU_ASSERT_EQUAL_FATAL(node_filter_fdr->stage, READY_FOR_PROP);
-    CU_ASSERT_EQUAL_FATAL(node_empty->stage, READY_FOR_PROP);
-    CU_ASSERT_EQUAL_FATAL(node_empty_filter->stage, READY_FOR_PROP);
+    CU_ASSERT_EQUAL_FATAL(node_filter->stage, MB_COMM_OLD_READY_FOR_PROP);
+    CU_ASSERT_EQUAL_FATAL(node_nofilter->stage, MB_COMM_OLD_READY_FOR_PROP);
+    CU_ASSERT_EQUAL_FATAL(node_filter_fdr->stage, MB_COMM_OLD_READY_FOR_PROP);
+    CU_ASSERT_EQUAL_FATAL(node_empty->stage, MB_COMM_OLD_READY_FOR_PROP);
+    CU_ASSERT_EQUAL_FATAL(node_empty_filter->stage, MB_COMM_OLD_READY_FOR_PROP);
     
     /* board ptr cache set */
     CU_ASSERT_PTR_NOT_NULL_FATAL(node_filter->board);
@@ -29,15 +29,15 @@ void test_cr_sendbufinfo(void) {
     
     
     /* ----- run func ----- */
-    rc = MBI_Comm_SendBufInfo(node_filter);
+    rc = MBI_CommRoutine_OLD_SendBufInfo(node_filter);
     CU_ASSERT_EQUAL(rc, MB_SUCCESS);
-    rc = MBI_Comm_SendBufInfo(node_nofilter);
+    rc = MBI_CommRoutine_OLD_SendBufInfo(node_nofilter);
     CU_ASSERT_EQUAL(rc, MB_SUCCESS);
-    rc = MBI_Comm_SendBufInfo(node_filter_fdr);
+    rc = MBI_CommRoutine_OLD_SendBufInfo(node_filter_fdr);
     CU_ASSERT_EQUAL(rc, MB_SUCCESS);
-    rc = MBI_Comm_SendBufInfo(node_empty);
+    rc = MBI_CommRoutine_OLD_SendBufInfo(node_empty);
     CU_ASSERT_EQUAL(rc, MB_SUCCESS);
-    rc = MBI_Comm_SendBufInfo(node_empty_filter);
+    rc = MBI_CommRoutine_OLD_SendBufInfo(node_empty_filter);
     CU_ASSERT_EQUAL(rc, MB_SUCCESS);
     
     
@@ -163,11 +163,11 @@ void test_cr_sendbufinfo(void) {
     /* -------- check post conditions ------------ */
     
     /* ready for next stage */
-    CU_ASSERT_EQUAL(node_filter->stage, BUFINFO_SENT);
-    CU_ASSERT_EQUAL(node_nofilter->stage, BUFINFO_SENT);
-    CU_ASSERT_EQUAL(node_filter_fdr->stage, BUFINFO_SENT);
-    CU_ASSERT_EQUAL(node_empty->stage, BUFINFO_SENT);
-    CU_ASSERT_EQUAL(node_empty_filter->stage, BUFINFO_SENT);
+    CU_ASSERT_EQUAL(node_filter->stage, MB_COMM_OLD_BUFINFO_SENT);
+    CU_ASSERT_EQUAL(node_nofilter->stage, MB_COMM_OLD_BUFINFO_SENT);
+    CU_ASSERT_EQUAL(node_filter_fdr->stage, MB_COMM_OLD_BUFINFO_SENT);
+    CU_ASSERT_EQUAL(node_empty->stage, MB_COMM_OLD_BUFINFO_SENT);
+    CU_ASSERT_EQUAL(node_empty_filter->stage, MB_COMM_OLD_BUFINFO_SENT);
     
     /* incount array allocated */
     CU_ASSERT_PTR_NOT_NULL(node_filter->incount);

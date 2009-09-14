@@ -70,6 +70,13 @@ int MB_AddMessage(MBt_Board mb, void *msg) {
         return MB_ERR_LOCKED;
     }
     
+    /* make sure board is meant to be writeable */
+    if (board->is_writer == MB_FALSE)
+    {
+        P_FUNCFAIL("Board access mode was set to non-writeable");
+        return MB_ERR_DISABLED;
+    }
+    
     /* get access to internal data */
     pl = board->data;
     assert(pl != NULL);

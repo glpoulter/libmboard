@@ -56,6 +56,5 @@ int MB_Filter_Assign(MBt_Board mb, MBt_Filter ft) {
         return MB_ERR_LOCKED;
     }
     
-    P_WARNING("Serial version of MB_Filter_Assign() does nothing interesing");
     return MB_SUCCESS;
 }

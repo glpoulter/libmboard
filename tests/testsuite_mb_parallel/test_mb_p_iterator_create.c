@@ -42,7 +42,16 @@ void test_mb_p_iter_create(void) {
     board->locked = MB_TRUE; /* artificially lock the board */
     rc = MB_Iterator_Create(mb, &itr);
     CU_ASSERT_EQUAL(rc, MB_ERR_LOCKED);
+    CU_ASSERT_EQUAL(itr, MB_NULL_ITERATOR);
     board->locked = MB_FALSE; /* unlock */
+    
+    /* Try on "unreadable" boards */
+    board->is_reader = MB_FALSE;
+    rc = MB_Iterator_Create(mb, &itr);
+    CU_ASSERT_EQUAL(rc, MB_ERR_DISABLED);
+    CU_ASSERT_EQUAL(itr, MB_NULL_ITERATOR);
+    board->is_reader = MB_TRUE;
+    
     
     /* create standard iterator */
     itr = MB_NULL_ITERATOR;

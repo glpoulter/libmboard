@@ -11,6 +11,7 @@
 
 #include "CUnit/CUnit.h"
 #include "mb_commqueue.h"
+#include "mb_commroutines.h"
 
 /* ----- Source file: test_cq1.c ----- */
 

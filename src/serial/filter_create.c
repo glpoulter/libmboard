@@ -31,6 +31,5 @@ int MB_Filter_Create(MBt_Filter *ft_ptr,
     
     *ft_ptr = MB_NULL_FILTER;
     
-    P_WARNING("Serial version of MB_Filter_Create() does nothing interesing");
     return MB_SUCCESS;
 }

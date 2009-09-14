@@ -33,6 +33,7 @@
  *  - ::MB_ERR_MEMALLOC (error allocating memory for expanding memory pool)
  *  - ::MB_ERR_LOCKED (message board is locked for synchronisation)
  *  - ::MB_ERR_INTERNAL (possible bug. Recompile and run in debug mode for hints)
+ *  - ::MB_ERR_DISABLED (access mode of board set to non-writeable)
  */
 int MB_AddMessage(MBt_Board mb, void *msg) {
     
@@ -64,12 +65,21 @@ int MB_AddMessage(MBt_Board mb, void *msg) {
         P_FUNCFAIL("Unknown board handle (%d)", (int)mb);
         return MB_ERR_INVALID;
     }
+    
     /* do not add message if board is locked */
     if (board->locked == MB_TRUE) 
     {
         P_FUNCFAIL("Board is locked");
         return MB_ERR_LOCKED;
     }
+    
+    /* make sure board is meant to be writeable */
+    if (board->is_writer == MB_FALSE)
+    {
+        P_FUNCFAIL("Board access mode was set to non-writeable");
+        return MB_ERR_DISABLED;
+    }
+    
     /* get access to internal data */
     pl = board->data;
     assert(pl != NULL);

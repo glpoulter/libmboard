@@ -103,6 +103,12 @@ void test_mb_s_addmessage(void) {
     /* unlock so it can be deleted */
     board->locked = MB_FALSE; 
     
+    /* try adding to "unwriteable" board */
+    board->is_writer = MB_FALSE;
+    rc = MB_AddMessage(mb2, (void *)&msg2);
+    CU_ASSERT_EQUAL(rc, MB_ERR_DISABLED);
+    board->is_writer = MB_TRUE;
+    
     /* Check that message count is consistent */
     CU_ASSERT_EQUAL(pl->count_current, 2);
     CU_ASSERT_EQUAL(pl2->count_current, 1);

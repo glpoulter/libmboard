@@ -12,7 +12,9 @@ endif
 
 common_sources   = 	addmessage.c \
 				    clear.c \
-				    comm.c \
+				    comm_routines_OLD.c \
+				    comm_routines_HANDSHAKE.c \
+				    comm_utils.c \
 				    commthread.c \
 				    create.c \
 				    delete.c \
@@ -39,6 +41,7 @@ common_sources   = 	addmessage.c \
 				    indexmap_sync.c \
 				    indexmap_memberof.c \
 				    indexmap_addentry.c \
+				    setaccessmode.c \
 				    synccomplete.c \
 				    syncstart.c \
 				    synctest.c \
@@ -46,6 +49,7 @@ common_sources   = 	addmessage.c \
 				    util_syncqueue.c \
                     $(INCLUDEDIR)/mb_objmap.h \
                     $(INCLUDEDIR)/mb_commqueue.h \
+                    $(INCLUDEDIR)/mb_commroutines.h \
                     $(INCLUDEDIR)/mb_syncqueue.h \
                     $(INCLUDEDIR)/mb_tag_table.h \
                     $(INCLUDEDIR)/mb_pooled_list.h \

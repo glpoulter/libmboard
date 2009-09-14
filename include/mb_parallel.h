@@ -38,11 +38,37 @@ typedef struct {
     bitfield_t syncCompleted :1;
     /*! \brief flag indicating 'locked' status */
     bitfield_t locked :1;
+    /*! \brief flag indicating that this board will be read by users */
+    bitfield_t is_reader :1;
+    /*! \brief flag indicating that this board will written to by users */
+    bitfield_t is_writer :1;
     
     /*! \brief Postion indicator demarking portion of the board that 
      * has previously been synced
      */
     unsigned int synced_cursor;
+    
+    /*! \brief List of remote nodes that are readers of this board 
+     * 
+     * This array will be declared as an array of (MBI_CommSize) values
+     * representing remote node ranks (ids). We only need (MBI_CommSize-1)
+     * at most, but with at the cost of an extra int, we make the 
+     * implementation a lot easier!
+     * 
+     */
+    int *reader_list;
+    /*! \brief Number of remote nodes that are readers of this board */
+    int  reader_count;
+    /*! \brief List of remote nodes that are writers of this board */
+    int *writer_list;
+    /*! \brief Number of remote nodes that are writers of this board 
+     *
+     * This array will be declared as an array of (MBI_CommSize) values
+     * representing remote node ranks (ids). We only need (MBI_CommSize-1)
+     * at most, but with at the cost of an extra int, we make the 
+     * implementation a lot easier!
+     */
+    int  writer_count;
     
     /*! \brief filter function used for tagging messages we need from 
      * remote nodes */
@@ -96,6 +122,7 @@ typedef struct {
 #define MBI_TAG_MAX      (0x7fff)
 #define MBI_TAG_BASE     (0x0fff)
 #define MBI_TAG_MSGDATA  (0x1000)
+#define MBI_TAG_PROPDATA  (0x2000)
 /* max MBI_TAG_*DATA = (0x6000) */
 /* (0x7000 - 0x7fff) reserved for individually set tags */
 #define MBI_TAG_INDEXMAX_SYNC   (0x7000)

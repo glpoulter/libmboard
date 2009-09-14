@@ -78,6 +78,13 @@ int MB_Iterator_Create(MBt_Board mb, MBt_Iterator *itr_ptr) {
         return MB_ERR_LOCKED;
     }
     
+    /* check if board is "unreadable" */
+    if (board->is_reader == MB_FALSE)
+    {
+        P_FUNCFAIL("Board access mode was set to non-readable");
+        return MB_ERR_DISABLED;
+    }
+    
     /* Allocate Iterator object */
     iter = (MBIt_Iterator*)malloc(sizeof(MBIt_Iterator));
     assert(iter != NULL);

@@ -70,6 +70,8 @@ int MB_Delete(MBt_Board *mb_ptr) {
     /* free object memory */
     rc = pl_delete(&(board->data));
     assert(rc == PL_SUCCESS);
+    free(board->reader_list);
+    free(board->writer_list);
     
     /* check that tagtable has been deallocated */
     assert(board->tt == NULL);

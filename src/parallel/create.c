@@ -94,7 +94,7 @@ int MB_Create(MBt_Board *mb_ptr, size_t msgsize) {
  */
 inline static int newBoardObj(MBt_Board *mb_ptr, size_t msgsize) {
     
-    int rc;
+    int rc, i, next;
     OM_key_t rc_om;
     MBIt_Board *mb_obj;
     
@@ -118,6 +118,36 @@ inline static int newBoardObj(MBt_Board *mb_ptr, size_t msgsize) {
     mb_obj->filter = NULL;
     mb_obj->tt = NULL;
 
+    /* initialise flags and variables for reader/writer accounting */
+    mb_obj->is_reader = MB_TRUE; 
+    mb_obj->is_writer = MB_TRUE;
+    mb_obj->reader_count = MBI_CommSize - 1; /* All remote nodes are readers */
+    mb_obj->writer_count = MBI_CommSize - 1; /* All remote nodes are writers */
+    
+    mb_obj->reader_list = (int*)malloc(sizeof(int) * MBI_CommSize);
+    assert(mb_obj->reader_list != NULL);
+    if (mb_obj->reader_list == NULL)
+    {
+        P_FUNCFAIL("Could not allocate required memory");
+        free(mb_obj);
+        return MB_ERR_MEMALLOC;
+    }
+    
+    mb_obj->writer_list = (int*)malloc(sizeof(int) * MBI_CommSize);
+    assert(mb_obj->writer_list != NULL);
+    if (mb_obj->writer_list == NULL)
+    {
+        P_FUNCFAIL("Could not allocate required memory");
+        free(mb_obj->reader_list);
+        free(mb_obj);
+        return MB_ERR_MEMALLOC;
+    }
+    
+    for (i = 0, next = 0; i < MBI_CommSize - 1; i++, next++)
+    {
+        if (next == MBI_CommRank) next++;
+        mb_obj->reader_list[i] = mb_obj->writer_list[i] =next;
+    }
     
     /* allocate pthread mutex and conditional var */
     rc = pthread_mutex_init(&(mb_obj->syncLock), NULL);
@@ -126,6 +156,8 @@ inline static int newBoardObj(MBt_Board *mb_ptr, size_t msgsize) {
     {
         P_FUNCFAIL("pthread_mutex_init(board->syncLock) returned "
                    "err code %d", rc);
+        free(mb_obj->reader_list);
+        free(mb_obj->writer_list);
         free(mb_obj);
         return MB_ERR_INTERNAL;
     }
@@ -144,7 +176,12 @@ inline static int newBoardObj(MBt_Board *mb_ptr, size_t msgsize) {
     rc = pl_create(&(mb_obj->data), msgsize, (int)MBI_CONFIG.mempool_blocksize);
     if (rc != PL_SUCCESS)
     {
+        free(mb_obj->reader_list);
+        free(mb_obj->writer_list);
+        pthread_cond_destroy(&(mb_obj->syncCond));
+        pthread_mutex_destroy(&(mb_obj->syncLock));
         free(mb_obj);
+        
         if (rc == PL_ERR_MALLOC) 
         {
             P_FUNCFAIL("Could not allocate required memory");
@@ -166,6 +203,11 @@ inline static int newBoardObj(MBt_Board *mb_ptr, size_t msgsize) {
     {
         if (rc_om == OM_ERR_MEMALLOC)
         {
+            free(mb_obj->reader_list);
+            free(mb_obj->writer_list);
+            pthread_cond_destroy(&(mb_obj->syncCond));
+            pthread_mutex_destroy(&(mb_obj->syncLock));
+            free(mb_obj);
             P_FUNCFAIL("Could not allocate required memory");
             return MB_ERR_MEMALLOC;
         }

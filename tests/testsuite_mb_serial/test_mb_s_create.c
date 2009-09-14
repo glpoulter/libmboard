@@ -39,6 +39,8 @@ void test_mb_s_create_delete(void) {
    {
        board = (MBIt_Board *)obj;
        CU_ASSERT_EQUAL(board->locked, MB_FALSE);
+       CU_ASSERT_EQUAL(board->is_reader, MB_TRUE);
+       CU_ASSERT_EQUAL(board->is_writer, MB_TRUE);
        
        /* make sure pooled list created */
        CU_ASSERT_PTR_NOT_NULL(board->data);

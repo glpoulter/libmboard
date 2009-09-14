@@ -34,11 +34,17 @@ CU_ErrorCode testsuite_mb_serial(void);
 /* Test suite for Communication Queue */
 CU_ErrorCode testsuite_commqueue(void);
 
+/* Test suite for Communication Utilities */
+CU_ErrorCode testsuite_commutils(void);
+
 /* Test suite for Sync Request Queue */
 CU_ErrorCode testsuite_syncqueue(void);
 
-/* Test suite for communication routines */
-CU_ErrorCode testsuite_commroutines(void);
+/* Test suite for communication routines (OLD) */
+CU_ErrorCode testsuite_commroutines_old(void);
+
+/* Test suite for communication routines (HANDSHAKE) */
+CU_ErrorCode testsuite_commroutines_handshake(void);
 
 /* Test suite for Parallel Libmboard */
 CU_ErrorCode testsuite_mb_parallel(void);

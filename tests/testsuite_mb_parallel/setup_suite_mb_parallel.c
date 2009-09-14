@@ -18,6 +18,7 @@ CU_TestInfo mbp_test_array[] = {
     {"MB Environment initialisation                 ", test_mb_p_init                 },
     /* basic board operations */
     {"Creating and deleting message board           ", test_mb_p_create               },
+    {"Setting board access modes                    ", test_mb_p_setaccessmode        },
     {"Adding message                                ", test_mb_p_addmessage           },
     {"Adding messages beyond single block           ", test_mb_p_addmessage_many      },
     {"Clearing message board                        ", test_mb_p_clear                },

@@ -5,7 +5,7 @@
  * Date  : May 2008
  * 
  */
-#include "header_commroutines.h"
+#include "header_commroutines_old.h"
 
 /* instantiate global vars */
 MBt_Board mb_nofilter, mb_filter, mb_filter_fdr;
@@ -21,7 +21,7 @@ struct MBIt_commqueue *node_empty_filter;
 
 
 /* initialise test environment */
-int init_cr(void) {
+int init_cr_old(void) {
     
     int rc, i, v;
     struct MBIt_commqueue *node;
@@ -107,15 +107,15 @@ int init_cr(void) {
     }
     
     /* --- add boards to comm queue */
-    rc = MBI_CommQueue_Push(mb_nofilter, PRE_TAGGING);
+    rc = MBI_CommQueue_Push(mb_nofilter, MB_COMM_OLD_PRE_TAGGING);
     if (rc != MB_SUCCESS) return rc;
-    rc = MBI_CommQueue_Push(mb_filter, PRE_TAGGING);
+    rc = MBI_CommQueue_Push(mb_filter, MB_COMM_OLD_PRE_TAGGING);
     if (rc != MB_SUCCESS) return rc;
-    rc = MBI_CommQueue_Push(mb_filter_fdr, PRE_TAGGING);
+    rc = MBI_CommQueue_Push(mb_filter_fdr, MB_COMM_OLD_PRE_TAGGING);
     if (rc != MB_SUCCESS) return rc;
-    rc = MBI_CommQueue_Push(mb_empty, PRE_TAGGING);
+    rc = MBI_CommQueue_Push(mb_empty, MB_COMM_OLD_PRE_TAGGING);
     if (rc != MB_SUCCESS) return rc;
-    rc = MBI_CommQueue_Push(mb_empty_filter, PRE_TAGGING);
+    rc = MBI_CommQueue_Push(mb_empty_filter, MB_COMM_OLD_PRE_TAGGING);
     if (rc != MB_SUCCESS) return rc;
     
     /* lock boards */
@@ -192,7 +192,7 @@ int init_cr(void) {
 }
 
 /* clean up test environment */
-int clean_cr(void) {
+int clean_cr_old(void) {
 
     int rc;
     MBIt_Board *board;

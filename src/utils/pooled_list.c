@@ -370,11 +370,58 @@ int pl_reset(pooled_list *pl) {
  */
 int pl_getnode(pooled_list *pl, int index, void **ptr) {
     
+    int rc;
+    pl_address_node *node_container;
+    
+    
+    rc = pl_getnode_container(pl, index, &node_container);
+    if (rc != PL_SUCCESS)
+    {
+        *ptr = NULL;
+    }
+    else
+    {
+        *ptr = PL_NODEDATA(node_container);
+    }
+   
+    return rc;
+}
+
+/* get reference to a particular node container by index */
+/* ptr set to NULL for invalid index or pl */
+/*!
+ * \brief Gets reference to node containter by index
+ * \ingroup PLIST
+ * \param[in] pl Reference to pooled list object
+ * \param[in] index node index (starting from 0)
+ * \param[out] ptr Address to write node container reference
+ * 
+ * The associated node container is retrived from the list and
+ * returned to the user. 
+ * 
+ * The user must NOT deallocate memory associated 
+ * with the returned pointer as the same object will still be 
+ * referenced by the list. 
+ * 
+ * If routine is unsuccessful, \c ptr will be assigned \c NULL and an
+ * appropriate error code will be returned.
+ * 
+ * \note Please note that if the list has been randomise using pl_randomise(),
+ * this routine will still return nodes indexed in the order that they were 
+ * added.
+ * 
+ * Possible return codes:
+ *  - ::PL_SUCCESS
+ *  - ::PL_ERR_INVALID (\c pl is \c NULL or \c index is invalid)
+ * 
+ */
+int pl_getnode_container(pooled_list *pl, int index,  pl_address_node **ptr) {
+    
     int i;
     int block_id;
     int block_offset;
     void *data_block;
-    void *node;
+
     pl_address_node *addr_list;
     
     if (pl == NULL || index < 0 || index >= (int)pl->count_current) 
@@ -403,8 +450,9 @@ int pl_getnode(pooled_list *pl, int index, void **ptr) {
     data_block = addr_list->addr;
     
     /* Get reference to actual node */
-    node = (void *)((char *)data_block + ((pl->elem_size + PL_ADDRNODE_SIZE) * block_offset));
-    *ptr = PL_NODEDATA(node);
+    *ptr = (pl_address_node *)((char *)data_block + 
+                               ((pl->elem_size + PL_ADDRNODE_SIZE) * block_offset)
+                              );
     
     return PL_SUCCESS;
 }

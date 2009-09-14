@@ -5,12 +5,12 @@
  * Date  : May 2008
  * 
  */
-#ifndef HEADER_COMMQUEUE_H_
-#define HEADER_COMMQUEUE_H_
+#ifndef HEADER_COMMROUTINE_OLD_H_
+#define HEADER_COMMROUTINE_OLD_H_
 
 #include "CUnit/CUnit.h"
-#include "header_commroutines.h"
 #include "mb_commqueue.h"
+#include "mb_commroutines.h"
 #include "mb_parallel.h"
 #include "mboard.h"
 
@@ -36,14 +36,14 @@ int filter_func_fdr(const void *m, int pid);
 int _initialise_map_values(MBt_IndexMap map);
 
 /* setup and teardown routines */
-int init_cr(void);
-int clean_cr(void);
+int init_cr_old(void);
+int clean_cr_old(void);
 
 /* test routines */
-void test_cr_tagmessages(void);
-void test_cr_sendbufinfo(void);
-void test_cr_waitbufinfo(void);
-void test_cr_initpropagation(void);
-void test_cr_completepropagation(void);
+void test_cr_old_tagmessages(void);
+void test_cr_old_sendbufinfo(void);
+void test_cr_old_waitbufinfo(void);
+void test_cr_old_initpropagation(void);
+void test_cr_old_completepropagation(void);
 
-#endif /*HEADER_COMMQUEUE_H_*/
+#endif /*HEADER_COMMROUTINE_OLD_H_*/

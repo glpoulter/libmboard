@@ -70,8 +70,6 @@ int MB_SyncTest(MBt_Board mb, int *flag) {
     /* unlock board */
     board->locked = MB_FALSE;
     
-    P_INFO("Serial version of MB_SyncTest() does nothing interesting");
-    
     /* return success */
     *flag = MB_TRUE;
     return MB_SUCCESS;

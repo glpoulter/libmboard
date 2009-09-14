@@ -5,11 +5,11 @@
  * Date  : June 2009
  * 
  */
-#include "header_commroutines.h"
+#include "header_commroutines_old.h"
 
 #define BIT_IS_SET(byte, mask) ((byte & mask) == mask)
 
-void test_cr_initpropagation(void) {
+void test_cr_old_initpropagation(void) {
     
     int i, rc, top, bottom;
     int bit_set;
@@ -17,11 +17,11 @@ void test_cr_initpropagation(void) {
     /* -------- check critical prerequisites ------------ */
     
     /* stage */
-    CU_ASSERT_EQUAL_FATAL(node_filter->stage, PRE_PROPAGATION);
-    CU_ASSERT_EQUAL_FATAL(node_nofilter->stage, PRE_PROPAGATION);
-    CU_ASSERT_EQUAL_FATAL(node_filter_fdr->stage, PRE_PROPAGATION);
-    CU_ASSERT_EQUAL_FATAL(node_empty->stage, PRE_PROPAGATION);
-    CU_ASSERT_EQUAL_FATAL(node_empty_filter->stage, PRE_PROPAGATION);
+    CU_ASSERT_EQUAL_FATAL(node_filter->stage, MB_COMM_OLD_PRE_PROPAGATION);
+    CU_ASSERT_EQUAL_FATAL(node_nofilter->stage, MB_COMM_OLD_PRE_PROPAGATION);
+    CU_ASSERT_EQUAL_FATAL(node_filter_fdr->stage, MB_COMM_OLD_PRE_PROPAGATION);
+    CU_ASSERT_EQUAL_FATAL(node_empty->stage, MB_COMM_OLD_PRE_PROPAGATION);
+    CU_ASSERT_EQUAL_FATAL(node_empty_filter->stage, MB_COMM_OLD_PRE_PROPAGATION);
     
     /* board ptr cache set */
     CU_ASSERT_PTR_NOT_NULL_FATAL(node_filter->board);
@@ -31,15 +31,15 @@ void test_cr_initpropagation(void) {
     CU_ASSERT_PTR_NOT_NULL_FATAL(node_empty_filter->board);
     
     /* ----- run func ----- */
-    rc = MBI_Comm_InitPropagation(node_filter);
+    rc = MBI_CommRoutine_OLD_InitPropagation(node_filter);
     CU_ASSERT_EQUAL(rc, MB_SUCCESS);
-    rc = MBI_Comm_InitPropagation(node_nofilter);
+    rc = MBI_CommRoutine_OLD_InitPropagation(node_nofilter);
     CU_ASSERT_EQUAL(rc, MB_SUCCESS);
-    rc = MBI_Comm_InitPropagation(node_filter_fdr);
+    rc = MBI_CommRoutine_OLD_InitPropagation(node_filter_fdr);
     CU_ASSERT_EQUAL(rc, MB_SUCCESS);
-    rc = MBI_Comm_InitPropagation(node_empty);
+    rc = MBI_CommRoutine_OLD_InitPropagation(node_empty);
     CU_ASSERT_EQUAL(rc, MB_SUCCESS);
-    rc = MBI_Comm_InitPropagation(node_empty_filter);
+    rc = MBI_CommRoutine_OLD_InitPropagation(node_empty_filter);
     CU_ASSERT_EQUAL(rc, MB_SUCCESS);
     
     /* ------ check data buffers -------------- */
@@ -261,11 +261,11 @@ void test_cr_initpropagation(void) {
     /* -------- check post conditions ------------ */
     
     /* ready for next stage */
-    CU_ASSERT_EQUAL(node_filter->stage, PROPAGATION);
-    CU_ASSERT_EQUAL(node_nofilter->stage, PROPAGATION);
-    CU_ASSERT_EQUAL(node_filter_fdr->stage, PROPAGATION);
-    CU_ASSERT_EQUAL(node_empty->stage, PROPAGATION);
-    CU_ASSERT_EQUAL(node_empty_filter->stage, PROPAGATION);
+    CU_ASSERT_EQUAL(node_filter->stage, MB_COMM_OLD_PROPAGATION);
+    CU_ASSERT_EQUAL(node_nofilter->stage, MB_COMM_OLD_PROPAGATION);
+    CU_ASSERT_EQUAL(node_filter_fdr->stage, MB_COMM_OLD_PROPAGATION);
+    CU_ASSERT_EQUAL(node_empty->stage, MB_COMM_OLD_PROPAGATION);
+    CU_ASSERT_EQUAL(node_empty_filter->stage, MB_COMM_OLD_PROPAGATION);
     
     /* check that outcount has deallocated */
     CU_ASSERT_PTR_NULL(node_filter->outcount);

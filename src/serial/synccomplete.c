@@ -62,8 +62,7 @@ int MB_SyncComplete(MBt_Board mb) {
     board->locked = MB_FALSE;
     
     /* nothing much to do for serial implementation :) */
-    P_INFO("Serial version of MB_SyncComplete() does nothing interesting");
-    
+
     /* return success */
     return MB_SUCCESS;
 }

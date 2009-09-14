@@ -21,6 +21,11 @@ typedef struct {
     /*! \brief flag indicating 'locked' status */
     bitfield_t locked :1;
     
+    /*! \brief flag indicating that this board will be read by users */
+    bitfield_t is_reader :1;
+    /*! \brief flag indicating that this board will written to by users */
+    bitfield_t is_writer :1;
+    
     /*! \brief pooled-list to hold messages */
     pooled_list *data;
 } MBIt_Board;

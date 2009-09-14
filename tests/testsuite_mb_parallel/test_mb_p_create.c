@@ -57,7 +57,7 @@ void test_mb_p_create(void) {
 
 static void check_board_initial_values(MBt_Board mb, size_t msgsize) {
     
-    int rc;
+    int rc, i, next;
     void *obj;
     MBIt_Board *board;
     
@@ -73,6 +73,29 @@ static void check_board_initial_values(MBt_Board mb, size_t msgsize) {
     /* check internal data structure */
     CU_ASSERT_PTR_NOT_NULL_FATAL(board->data);
     CU_ASSERT_EQUAL(board->data->elem_size, (unsigned int)msgsize);
+    
+    /* check initial values for reader/writer status/list */
+    CU_ASSERT_EQUAL(board->is_reader, MB_TRUE); 
+    CU_ASSERT_EQUAL(board->is_writer, MB_TRUE);
+    CU_ASSERT_EQUAL(board->reader_count, MBI_CommSize - 1);
+    CU_ASSERT_EQUAL(board->writer_count, MBI_CommSize - 1);
+    CU_ASSERT_PTR_NOT_NULL(board->reader_list);
+    if (board->reader_list)
+    {
+        for (i = 0, next = 0; i < (MBI_CommSize - 1); i++, next++)
+        {
+            if (next == MBI_CommRank) next++; /* we don't store own id */
+            CU_ASSERT_EQUAL(board->reader_list[i], next);
+        }
+    }
+    if (board->writer_list)
+    {
+        for (i = 0, next = 0; i < (MBI_CommSize-1); i++, next++)
+        {
+            if (next == MBI_CommRank) next++; /* we don't store own id */
+            CU_ASSERT_EQUAL(board->writer_list[i], next);
+        }
+    }
     
     /* check intial values for message tagging function */
     CU_ASSERT_EQUAL(board->filter, (MBIt_filterfunc)NULL);

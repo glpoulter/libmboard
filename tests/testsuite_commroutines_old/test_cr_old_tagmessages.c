@@ -5,9 +5,9 @@
  * Date  : June 2009
  * 
  */
-#include "header_commroutines.h"
+#include "header_commroutines_old.h"
 
-void test_cr_tagmessages(void) {
+void test_cr_old_tagmessages(void) {
     
     int rc;
     MBIt_Board *board;
@@ -62,11 +62,11 @@ void test_cr_tagmessages(void) {
     }
     
     /* stage set */
-    CU_ASSERT_EQUAL(node_filter->stage, PRE_TAGGING);
-    CU_ASSERT_EQUAL(node_nofilter->stage, PRE_TAGGING);
-    CU_ASSERT_EQUAL(node_filter_fdr->stage, PRE_TAGGING);
-    CU_ASSERT_EQUAL(node_empty->stage, PRE_TAGGING);
-    CU_ASSERT_EQUAL(node_empty_filter->stage, PRE_TAGGING);
+    CU_ASSERT_EQUAL(node_filter->stage, MB_COMM_OLD_PRE_TAGGING);
+    CU_ASSERT_EQUAL(node_nofilter->stage, MB_COMM_OLD_PRE_TAGGING);
+    CU_ASSERT_EQUAL(node_filter_fdr->stage, MB_COMM_OLD_PRE_TAGGING);
+    CU_ASSERT_EQUAL(node_empty->stage, MB_COMM_OLD_PRE_TAGGING);
+    CU_ASSERT_EQUAL(node_empty_filter->stage, MB_COMM_OLD_PRE_TAGGING);
     
     /* fdrFallback flag set */
     CU_ASSERT_EQUAL(node_filter->flag_fdrFallback, MB_FALSE);
@@ -126,26 +126,26 @@ void test_cr_tagmessages(void) {
     
     
     /* ----- run function on nodes ------------- */
-    rc = MBI_Comm_TagMessages(node_filter);
+    rc = MBI_CommRoutine_OLD_TagMessages(node_filter);
     CU_ASSERT_EQUAL(rc, MB_SUCCESS);
-    rc = MBI_Comm_TagMessages(node_nofilter);
+    rc = MBI_CommRoutine_OLD_TagMessages(node_nofilter);
     CU_ASSERT_EQUAL(rc, MB_SUCCESS);
-    rc = MBI_Comm_TagMessages(node_filter_fdr);
+    rc = MBI_CommRoutine_OLD_TagMessages(node_filter_fdr);
     CU_ASSERT_EQUAL(rc, MB_SUCCESS);
-    rc = MBI_Comm_TagMessages(node_empty);
+    rc = MBI_CommRoutine_OLD_TagMessages(node_empty);
     CU_ASSERT_EQUAL(rc, MB_SUCCESS);
-    rc = MBI_Comm_TagMessages(node_empty_filter);
+    rc = MBI_CommRoutine_OLD_TagMessages(node_empty_filter);
     CU_ASSERT_EQUAL(rc, MB_SUCCESS);
     
     
     /* ---------- Check post conditions ------------ */ 
     
     /* ready for next stage */
-    CU_ASSERT_EQUAL(node_filter->stage, READY_FOR_PROP);
-    CU_ASSERT_EQUAL(node_nofilter->stage, READY_FOR_PROP);
-    CU_ASSERT_EQUAL(node_filter_fdr->stage, READY_FOR_PROP);
-    CU_ASSERT_EQUAL(node_empty->stage, READY_FOR_PROP);
-    CU_ASSERT_EQUAL(node_empty_filter->stage, READY_FOR_PROP);
+    CU_ASSERT_EQUAL(node_filter->stage, MB_COMM_OLD_READY_FOR_PROP);
+    CU_ASSERT_EQUAL(node_nofilter->stage, MB_COMM_OLD_READY_FOR_PROP);
+    CU_ASSERT_EQUAL(node_filter_fdr->stage, MB_COMM_OLD_READY_FOR_PROP);
+    CU_ASSERT_EQUAL(node_empty->stage, MB_COMM_OLD_READY_FOR_PROP);
+    CU_ASSERT_EQUAL(node_empty_filter->stage, MB_COMM_OLD_READY_FOR_PROP);
     
     /* cache of board object pointers are now assigned */
     CU_ASSERT_PTR_NOT_NULL(node_filter->board);

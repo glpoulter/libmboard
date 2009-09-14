@@ -61,7 +61,10 @@ int MB_Create(MBt_Board *mb_ptr, size_t msgsize) {
         return MB_ERR_MEMALLOC;
     }
     
-    mb_obj->locked = MB_FALSE; /* initialise lock */
+    /* initialise flags */
+    mb_obj->locked    = MB_FALSE; 
+    mb_obj->is_reader = MB_TRUE; 
+    mb_obj->is_writer = MB_TRUE; 
     
     /* allocate pooled list */
     rc = pl_create(&(mb_obj->data), msgsize, (int)MBI_CONFIG.mempool_blocksize);

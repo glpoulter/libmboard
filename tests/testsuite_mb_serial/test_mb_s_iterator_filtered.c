@@ -69,6 +69,12 @@ void test_mb_s_iter_create_filtered(void) {
     CU_ASSERT_EQUAL(rc, MB_ERR_LOCKED);
     board->locked = MB_FALSE; 
 
+    /* Try on "unreadable" boards */
+    board->is_reader = MB_FALSE;
+    rc = MB_Iterator_Create(mb_f, &itr_f);
+    CU_ASSERT_EQUAL(rc, MB_ERR_DISABLED);
+    CU_ASSERT_EQUAL(itr_f, MB_NULL_ITERATOR);
+    board->is_reader = MB_TRUE;
     
     /* Create sorted Iterator */
     itr_f = MB_NULL_ITERATOR;

@@ -213,7 +213,9 @@ src/progs/mboard-check-minversion
 src/progs/compile_coverage.sh
 tests/Makefile
 tests/testsuite_commqueue/Makefile
-tests/testsuite_commroutines/Makefile
+tests/testsuite_commutils/Makefile
+tests/testsuite_commroutines_old/Makefile
+tests/testsuite_commroutines_handshake/Makefile
 tests/testsuite_mb_parallel/Makefile
 tests/testsuite_mb_serial/Makefile
 tests/testsuite_objmap/Makefile

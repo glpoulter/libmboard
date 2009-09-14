@@ -55,8 +55,15 @@ void test_mb_p_iter_create_sorted(void) {
     board->locked = MB_TRUE;
     rc = MB_Iterator_CreateSorted(mb_s, &itr_s, &my_sort);
     CU_ASSERT_EQUAL(rc, MB_ERR_LOCKED);
+    CU_ASSERT_EQUAL(itr_s, MB_NULL_ITERATOR);
     board->locked = MB_FALSE; 
     
+    /* Try on "unreadable" boards */
+    board->is_reader = MB_FALSE;
+    rc = MB_Iterator_Create(mb_s, &itr_s);
+    CU_ASSERT_EQUAL(rc, MB_ERR_DISABLED);
+    CU_ASSERT_EQUAL(itr_s, MB_NULL_ITERATOR);
+    board->is_reader = MB_TRUE;
     
     /* Create sorted Iterator */
     itr_s = MB_NULL_ITERATOR;

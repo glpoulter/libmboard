@@ -10,6 +10,7 @@
 #include "CUnit/Basic.h"
 #include "testing.h"
 #include "mb_settings.h"
+#include "mb_common.h"
 #include <mpi.h>
 
 static int clean_quit(void) {
@@ -42,6 +43,8 @@ int main(int argc, char ** argv) {
     
     /* initialise MPI environment */
     MPI_Init(&argc, &argv);
+    MPI_Comm_size(MPI_COMM_WORLD, &MBI_CommSize);
+    MPI_Comm_rank(MPI_COMM_WORLD, &MBI_CommRank);
     
     /* seed rng */
     srand((unsigned int)time(NULL));
@@ -64,8 +67,14 @@ int main(int argc, char ** argv) {
     /* Test SyncQueue used in parallel lib */
     if(testsuite_syncqueue() != CUE_SUCCESS) return clean_quit();
     
+    /* Test comm utils used in communication routines */
+    if(testsuite_commutils() != CUE_SUCCESS) return clean_quit();
+    
     /* Test communication routines */
-    if(testsuite_commroutines() != CUE_SUCCESS) return clean_quit();
+    if(testsuite_commroutines_old() != CUE_SUCCESS) return clean_quit();
+    
+    /* Test communication routines */
+    if(testsuite_commroutines_handshake() != CUE_SUCCESS) return clean_quit();
     
     /* -------------------------------------------------------------- */
     

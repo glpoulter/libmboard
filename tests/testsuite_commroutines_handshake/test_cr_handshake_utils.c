@@ -2,25 +2,25 @@
 /* 
  * Copyright (c) 2009 STFC Rutherford Appleton Laboratory 
  * Author: Lee-Shawn Chin 
- * Date  : June 2009
+ * Date  : Sept 2009
  * 
  */
-#include "header_commroutines.h"
+#include "header_commroutines_handshake.h"
 
 #define void2int(m) (*((int*)m))
 
-int filter_func_map(const void *m, int pid) {    
-    if (MB_IndexMap_MemberOf(indexmap, pid, void2int(m))) return 1;
+int fl_func_map_hs(const void *m, int pid) {    
+    if (MB_IndexMap_MemberOf(imap_hs, pid, void2int(m))) return 1;
     else return 0;
 }
 
-int filter_func_fdr(const void *m, int pid) {
+int fl_func_fdr_hs(const void *m, int pid) {
     if (void2int(m) % 2 == 0) return 1; /* return every other message */
     else return 0;
 }
 
 /* add values to map where values = num range +- {0-SMALLNUM} (cyclic) */
-int _initialise_map_values(MBt_IndexMap map) {
+int _initialise_map_values_hs(MBt_IndexMap map) {
     
     int i, rc;
     int lbound, ubound;

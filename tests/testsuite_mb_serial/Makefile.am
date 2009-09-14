@@ -14,6 +14,7 @@ lib_t_mb_serial_la_SOURCES = setup_suite_mb_serial.c \
 							   test_mb_s_init.c \
 							   test_mb_s_create.c \
 							   test_mb_s_addmessage.c \
+							   test_mb_s_setaccessmode.c \
 							   test_mb_s_clear.c \
 							   test_mb_s_sync.c \
 							   test_mb_s_iterator.c \

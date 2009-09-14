@@ -48,7 +48,8 @@
  *  - ::MB_ERR_MEMALLOC (error allocating memory for Iterator object or pooled_list)
  *  - ::MB_ERR_LOCKED (\c mb is locked)
  *  - ::MB_ERR_INTERNAL (possible bug. Recompile and run in debug mode for hints)
- *  - ::MB_ERR_OVERFLOW (MessageBoard overflow. Too many Iterators created.)
+ *  - ::MB_ERR_OVERFLOW (Too many Iterators created.)
+ *  - ::MB_ERR_DISABLED (access mode of board set to non-readable)
  */
 int MB_Iterator_CreateFiltered(MBt_Board mb, MBt_Iterator *itr_ptr, \
         int (*filterFunc)(const void *msg, const void *params), \
@@ -82,6 +83,13 @@ int MB_Iterator_CreateFiltered(MBt_Board mb, MBt_Iterator *itr_ptr, \
     {
         P_FUNCFAIL("Board (%d) is locked", (int)mb);
         return MB_ERR_LOCKED;
+    }
+    
+    /* check if board is "unreadable" */
+    if (board->is_reader == MB_FALSE)
+    {
+        P_FUNCFAIL("Board access mode was set to non-readable");
+        return MB_ERR_DISABLED;
     }
     
     /* get message count */

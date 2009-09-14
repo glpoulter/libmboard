@@ -22,6 +22,7 @@
 #include "mb_parallel.h"
 #include "mb_commqueue.h"
 #include "mb_syncqueue.h"
+#include "mb_commroutines.h"
 
 /* variables global to this file only */
 static pthread_t ct;
@@ -33,7 +34,10 @@ inline static void processSyncRequests(void);
 inline static void processPendingComms(void);
 inline static void initiate_board_sync(MBt_Board mb);
 inline static void commthread_sendTerminationSignal(void);
-inline static void complain_and_terminate(int rc, char* stage);
+inline static void complain_and_terminate(int rc, int stage);
+
+/* array of transition functions */
+MBIt_commroutine MBI_trans_func[MB_COMM_STAGES_TOTAL];
 
 /*! \brief Shortcut to check for termination flag
  * 
@@ -66,6 +70,9 @@ int MBI_CommThread_Init(void) {
     rc = MBI_CommQueue_Init();
     assert(0 == rc);
     if (0 != rc) return rc;
+    
+    /* initialise mapping of state to transition function */
+    MBI_initialise_commroutine_mapping();
     
     /* start communication thread */
     rc = pthread_create(&ct, NULL, &commthread_main, NULL);
@@ -246,39 +253,16 @@ inline static void processPendingComms(void) {
         node = next;
         next = node->next;
         
-        switch(node->stage)
+        assert(node->stage >= 0);
+        assert(node->stage < MB_COMM_STAGES_TOTAL);
+        
+        /* run transtition function of given stage (state) */
+        rc = (MBI_trans_func[node->stage])(node);
+        if (rc != MB_SUCCESS)
         {
-            case PRE_TAGGING:
-                rc = MBI_Comm_TagMessages(node);
-                if (rc != MB_SUCCESS) complain_and_terminate(rc, "PRE_TAGGING");
-                break;
-                
-            case READY_FOR_PROP:
-                rc = MBI_Comm_SendBufInfo(node);
-                if (rc != MB_SUCCESS) complain_and_terminate(rc, "READY_FOR_PROP");
-                break;
-                
-            case BUFINFO_SENT:
-                rc = MBI_Comm_WaitBufInfo(node);
-                if (rc != MB_SUCCESS) complain_and_terminate(rc, "BUFINFO_SENT");
-                break;
-                
-            case PRE_PROPAGATION:
-                rc = MBI_Comm_InitPropagation(node);
-                if (rc != MB_SUCCESS) complain_and_terminate(rc, "PRE_PROPAGATION");
-                break;
-            
-            case PROPAGATION:
-                rc = MBI_Comm_CompletePropagation(node);
-                if (rc != MB_SUCCESS)
-                {
-                    /* Comm for this node has completed. Remove from list */
-                    if (rc == MB_SUCCESS_2) MBI_CommQueue_Pop(node);
-                    else complain_and_terminate(rc, "PROPAGATION");
-                }
-                break; 
-            
-            default: assert("Invalid state found!!" == "");
+            /* Comm for this node has completed. Remove from list */
+            if (rc == MB_SUCCESS_2) MBI_CommQueue_Pop(node);
+            else complain_and_terminate(rc, node->stage);
         }
     }
 }
@@ -286,9 +270,9 @@ inline static void processPendingComms(void) {
 /* 
  * \brief initiate synchronisation of a board 
  * 
- * If the board has a filter function attached, put it in the ::PRE_TAGGING
+ * If the board has a filter function attached, put it in the ::MB_COMM_OLD_PRE_TAGGING
  * state, else, skip the tagging phase and go straight into the 
- * ::PRE_PROPAGATION state.
+ * ::MB_COMM_OLD_PRE_PROPAGATION state.
  * 
  * The board is then added to the Comm Queue for processing by 
  * processPendingComms().
@@ -306,7 +290,8 @@ inline static void initiate_board_sync(MBt_Board mb) {
 #endif
     
     /* push board into communication queue */
-    rc = MBI_CommQueue_Push(mb, PRE_TAGGING);
+    /*rc = MBI_CommQueue_Push(mb, MB_COMM_OLD_PRE_TAGGING);*/
+    rc = MBI_CommQueue_Push(mb, MB_COMM_HANDSHAKE_PRE_PROP);
     assert(rc == MB_SUCCESS);
 }
 
@@ -316,7 +301,7 @@ inline static void initiate_board_sync(MBt_Board mb) {
  * Print out some information to stderr, then abort the whole simulation.
  * 
  */
-inline static void complain_and_terminate(int rc, char* stage) {
+inline static void complain_and_terminate(int rc, int stage) {
     
     char *reason = NULL;
     
@@ -336,7 +321,7 @@ inline static void complain_and_terminate(int rc, char* stage) {
     
     fprintf(stderr, "=== ERROR (libmboard communication thread) ===\n");
     fprintf(stderr, " * Processor %d has terminated this simulation while processing\n", MBI_CommRank);
-    fprintf(stderr, "   sync of boards (stage=%s).\n", stage);
+    fprintf(stderr, "   sync of boards (stage=%d).\n", stage);
     fprintf(stderr, " * Reason: %s\n\n", reason);
 #ifndef _EXTRA_CHECKS
     fprintf(stderr, "For more information on where the error occured, please use the\n");

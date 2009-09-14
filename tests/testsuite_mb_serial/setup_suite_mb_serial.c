@@ -14,6 +14,8 @@ CU_TestInfo mbs_test_array[] = {
     {"MB Environment initialisation                 ", test_mb_s_init            },
     {"Board Creation / Deletion                     ", test_mb_s_create_delete   },
     {"Multiple board creation                       ", test_mb_s_create_multiple },
+    
+    {"Setting board access modes                    ", test_mb_s_setaccessmode   },
 
     {"Message Add                                   ", test_mb_s_addmessage      },
     {"Message Add beyond single block               ", test_mb_s_addmessage_many },

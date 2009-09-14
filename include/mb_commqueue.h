@@ -28,24 +28,6 @@
  * */
 extern int *MBI_comm_indices;
 
-/*! \brief Used to define the different communication stages
- * a board synchronisation process can be in
- */
-enum MBIt_CommStage {
-    /*! \brief Message board requires tagging */
-    PRE_TAGGING,
-    /*! \brief Board is ready to be synchronised */
-    READY_FOR_PROP,
-    /*! \brief Buffer requirements are being transmitted */
-    BUFINFO_SENT,
-    /*! \brief Messages ready for propagation */
-    PRE_PROPAGATION,
-    /*! \brief Messages are being propagated */
-    PROPAGATION,
-    /*! \brief Communication process completed */
-    COMM_END
-};
-
 /*! \brief datatype used as node for CommQueue hashtable */
 struct MBIt_commqueue {
     
@@ -65,6 +47,10 @@ struct MBIt_commqueue {
     unsigned int pending_in;
     /*! \brief Number of pending sends */
     unsigned int pending_out;
+    /*! \brief Number of pending receives (stage 2) */
+    unsigned int pending_in2;
+    /*! \brief Number of pending sends (stage 2) */
+    unsigned int pending_out2;
     
     /*! \brief Array of number of messages to expect from remote boards */
     int *incount;
@@ -79,8 +65,12 @@ struct MBIt_commqueue {
     MPI_Request *sendreq;
     /*! \brief Array of receive requests */
     MPI_Request *recvreq;
+    /*! \brief Array of send requests (stage 2) */
+    MPI_Request *sendreq2;
+    /*! \brief Array of receive requests (stage 2) */
+    MPI_Request *recvreq2;
     /*! \brief Stage in which communication process is in */
-    enum MBIt_CommStage stage;
+    int stage;
     
     /*! \brief Pointer to next node in list */
     struct MBIt_commqueue* next;
@@ -96,13 +86,7 @@ int MBI_CommQueue_Init(void);
 int MBI_CommQueue_Delete(void);
 int MBI_CommQueue_Pop(struct MBIt_commqueue *);
 struct MBIt_commqueue* MBI_CommQueue_GetFirstNode(void);
-int MBI_CommQueue_Push(MBt_Board mb, enum MBIt_CommStage startstage);
+int MBI_CommQueue_Push(MBt_Board mb, int startstage);
 
-/* ... see src/parallel/comm.c ... */
-int MBI_Comm_TagMessages(struct MBIt_commqueue *node);
-int MBI_Comm_SendBufInfo(struct MBIt_commqueue *node);
-int MBI_Comm_WaitBufInfo(struct MBIt_commqueue *node);
-int MBI_Comm_InitPropagation(struct MBIt_commqueue *node);
-int MBI_Comm_CompletePropagation(struct MBIt_commqueue *node);
 
 #endif /*MB_COMMQUEUE_H*/

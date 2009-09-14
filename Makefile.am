@@ -25,6 +25,7 @@ noinst_HEADERS  = $(INCLUDEDIR)/mb_common.h \
 			      $(INCLUDEDIR)/mb_reporting.h \
 			      $(INCLUDEDIR)/mb_syncqueue.h \
 			      $(INCLUDEDIR)/mb_commqueue.h \
+			      $(INCLUDEDIR)/mb_commroutines.h \
 			      $(INCLUDEDIR)/mb_pooled_list.h \
 			      $(INCLUDEDIR)/khash.h
 

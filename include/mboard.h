@@ -333,6 +333,9 @@ int MB_Env_Finalised(void);
 /* Create a new message board */
 int MB_Create(MBt_Board *mb_ptr, size_t msgsize);
 
+/* Set access mode of message board */
+int MB_SetAccessMode(MBt_Board mb, int MODE);
+
 /* Add message to board */
 int MB_AddMessage(MBt_Board mb, void *msg);
 
@@ -423,6 +426,7 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
 /* =========== Constants ================= */
 
 
+/* NULL objects */
 
 /*!
  * \def MB_NULL_MBOARD
@@ -472,8 +476,7 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * is typically returned in place of a Filter that has been 
  * deleted, or after an erroneous registration of a filter function.
  */
-#define MB_NULL_FILTER    (MBt_Filter)OM_NULL_INDEX
-
+#define MB_NULL_FILTER     (MBt_Filter)OM_NULL_INDEX
 
 /*!
  * \def MB_NULL_INDEXMAP
@@ -487,14 +490,77 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  */
 #define MB_NULL_INDEXMAP   (MBt_IndexMap)OM_NULL_INDEX
 
+/* Access Modes */
+
+/*!
+ * \def MB_MODE_READWRITE
+ * \ingroup MB_API
+ * \ingroup CONST
+ * \brief Mode: Read-Write
+ * 
+ * This constant can be used as an input parameter to MB_SetAccessMode().
+ * 
+ * Specifies that the board is to be treated as a read-write board in 
+ * the calling MPI process. Messages can be added to and read from the 
+ * board.
+ * 
+ */
+#define MB_MODE_READWRITE   100
+
+/*!
+ * \def MB_MODE_READONLY
+ * \ingroup MB_API
+ * \ingroup CONST
+ * \brief Mode: Read-only
+ * 
+ * This constant can be used as an input parameter to MB_SetAccessMode().
+ * 
+ * Specifies that the board is to be treated as a read-only board in 
+ * the calling MPI process. Messages can be read from the board but
+ * not added.
+ * 
+ */
+#define MB_MODE_READONLY    200
+
+/*!
+ * \def MB_MODE_WRITEONLY
+ * \ingroup MB_API
+ * \ingroup CONST
+ * \brief Mode: Write-only
+ * 
+ * This constant can be used as an input parameter to MB_SetAccessMode().
+ * 
+ * Specifies that the board is to be treated as a write-only board in 
+ * the calling MPI process. Messages can be added to the 
+ * board but never read locally.
+ * 
+ */
+#define MB_MODE_WRITEONLY   300
+
+/*!
+ * \def MB_MODE_IDLE
+ * \ingroup MB_API
+ * \ingroup CONST
+ * \brief Mode: Idle
+ * 
+ * This constant can be used as an input parameter to MB_SetAccessMode().
+ * 
+ * Specifies that the board is not used on the calling MPI process. 
+ * Messages are never added to or read from the board. 
+ * 
+ */
+#define MB_MODE_IDLE        400
+
+/* boolean */
+
 /*!
  * \def MB_TRUE
  * \ingroup MB_API
  * \ingroup CONST
  * \brief Internal representation of a logical \c TRUE 
  */
-
 #define MB_TRUE 1
+
 /*!
  * \def MB_FALSE
  * \ingroup MB_API
@@ -513,7 +579,7 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * 
  * Specifies a successful execution.
  */
-#define MB_SUCCESS     0
+#define MB_SUCCESS                0
 
 /*!
  * \def MB_ERR_MEMALLOC
@@ -525,7 +591,7 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * available memory on the system. Use the \c DEBUG version of libmboard
  * for more information on where this occured.
  */
-#define MB_ERR_MEMALLOC 1
+#define MB_ERR_MEMALLOC           1
 
 /*!
  * \def MB_ERR_INVALID
@@ -535,7 +601,7 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * 
  * One or more of the given input parameter is invalid. 
  */
-#define MB_ERR_INVALID  2 
+#define MB_ERR_INVALID            2 
 
 /*!
  * \def MB_ERR_LOCKED
@@ -545,7 +611,7 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * 
  * Object has being locked by another process.
  */
-#define MB_ERR_LOCKED   3 
+#define MB_ERR_LOCKED             3 
 
 /*!
  * \def MB_ERR_MPI
@@ -556,7 +622,7 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * An MPI related error has occured. Use the \c DEBUG version of libmboard
  * for more information on where this occured.
  */
-#define MB_ERR_MPI      4
+#define MB_ERR_MPI                4
 
 /*!
  * \def MB_ERR_ENV
@@ -569,7 +635,7 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * environment with ::MB_Env_Init(), or after the environment has been 
  * finalised with ::MB_Env_Finalise().
  */
-#define MB_ERR_ENV      5 
+#define MB_ERR_ENV                5 
 
 /*!
  * \def MB_ERR_OVERFLOW
@@ -581,7 +647,7 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * Use the \c DEBUG version of libmboard
  * for more information on where this occured.
  */
-#define MB_ERR_OVERFLOW     6
+#define MB_ERR_OVERFLOW           6
 
 /*!
  * \def MB_ERR_INTERNAL
@@ -593,7 +659,7 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * Use the \c DEBUG version of libmboard
  * for more information on where this occured.
  */
-#define MB_ERR_INTERNAL     7
+#define MB_ERR_INTERNAL           7
 
 /*!
  * \def MB_ERR_USER
@@ -604,7 +670,7 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * Specifies error due to something the user has done (or not done). See 
  * documentation or any output message for details.
  */
-#define MB_ERR_USER         8
+#define MB_ERR_USER               8
 
 /*!
  * \def MB_ERR_NOTREADY
@@ -615,7 +681,7 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * The requested operation cannot be completed as the target object is not
  * ready. Refer to the function documentation for details.
  */
-#define MB_ERR_NOTREADY     9
+#define MB_ERR_NOTREADY           9
 
 /*!
  * \def MB_ERR_DUPLICATE
@@ -626,7 +692,7 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * Duplicate value was entered or found. Refer to function documentaion
  * for details
  */
-#define MB_ERR_DUPLICATE   10
+#define MB_ERR_DUPLICATE          10
 
 /*!
  * \def MB_ERR_NOT_FOUND
@@ -636,7 +702,19 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * 
  * Refer to function documentaion for details.
  */
-#define MB_ERR_NOT_FOUND   11
+#define MB_ERR_NOT_FOUND          11
+
+/*!
+ * \def MB_ERR_DISABLED
+ * \ingroup MB_API
+ * \ingroup RC
+ * \brief Return Code: Routine disabled
+ * 
+ * The requested functionality has been disabled.
+ * 
+ * Refer to function documentaion for details.
+ */
+#define MB_ERR_DISABLED           12
 
 /*!
  * \def MB_SUCCESS_2
@@ -646,7 +724,7 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * 
  * Specifies a successful execution (but with routine specific connotations).
  */
-#define MB_SUCCESS_2    100
+#define MB_SUCCESS_2              100
 
 /*!
  * \def MB_ERR_NOT_IMPLEMENTED
@@ -657,7 +735,7 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * Requested operation has not been implemented.
  * 
  */
-#define MB_ERR_NOT_IMPLEMENTED      111
+#define MB_ERR_NOT_IMPLEMENTED    111
 
 /*!
  * \def MB_ERR_DEPRECATED
@@ -667,7 +745,7 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * 
  * The function is deprecated. Please use an alternative function.
  */
-#define MB_ERR_DEPRECATED      123
+#define MB_ERR_DEPRECATED         123
 
 
 /* =================== BEGIN USER DOCUMENTATION =========================== */
@@ -781,6 +859,54 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  */
 
 /*!\if userdoc
+ * \fn MB_SetAccessMode(MBt_Board mb, int MODE)
+ * \ingroup FUNC
+ * \brief Sets access mode of the Message Board
+ * \param[in] mb Message Board handle
+ * \param[in] MODE Access mode identifier
+ * 
+ * Sets the access mode of the board to allow the board synchronisation 
+ * process to be optimised.
+ * 
+ * This routine is collective and must be called on all MPI processes.
+ * The mode applies only to the calling MPI process hence can be set
+ * to a different value on different processes.
+ * 
+ * When a non-readable mode is set, all \c MB_Iterator_*() will be disabled.
+ * Similarly, when a non-writeable mode is set, MB_AddMessage() will 
+ * be disabled.
+ * 
+ * ::MB_MODE_READWRITE is the default mode of all newly created boards.
+ * 
+ * The following \c MODE values can be used:
+ *  - ::MB_MODE_READWRITE - messages will be read and added
+ *  - ::MB_MODE_READONLY  - messages will only be read (never added) 
+ *  - ::MB_MODE_WRITEONLY - messages will only be added (never read)
+ *  - ::MB_MODE_IDLE      - messages will neither be read nor added
+ * 
+ * This routine can only be called when the message board is empty and
+ * not locked.
+ * 
+ * \warning It is recommended that you never call this routine when there
+ * any synchronisation in progress. The MB_SetAccessMode() calls MPI routines
+ * which may interfere with the synchronisation process if the underlying
+ * MPI library is not thread compliant.
+ * 
+ * Possible return codes:
+ *  - ::MB_SUCCESS
+ *  - ::MB_ERR_INVALID (\c is null or invalid, or \c MODE is invalid)
+ *  - ::MB_ERR_MEMALLOC (unable to allocate required memory)
+ *  - ::MB_ERR_LOCKED (\c mb is locked by another process)
+ *  - ::MB_ERR_INTERNAL (internal error, possibly a bug)
+ *  - ::MB_ERR_MPI (error when calling MPI routines)
+ *  - ::MB_ERR_NOTREADY (board is not empty)
+ * 
+ * Usage example:
+ * (to be included)
+ * \endif
+ */
+
+/*!\if userdoc
  * \fn MB_AddMessage(MBt_Board mb, void *msg)
  * \ingroup FUNC
  * \brief Adds a message to the Message Board
@@ -795,6 +921,9 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * The message data addressed by \c msg is cloned and stored in the message 
  * board. Users are free to modify, reuse, or deallocate their copy of the 
  * message after this routine has completed.
+ *
+ * It this routine returns with an error, the access mode of \c mb will 
+ * remain unchanged.
  * 
  * Possible return codes:
  *  - ::MB_SUCCESS
@@ -802,6 +931,7 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  *  - ::MB_ERR_MEMALLOC (unable to allocate required memory)
  *  - ::MB_ERR_LOCKED (\c mb is locked by another process)
  *  - ::MB_ERR_INTERNAL (internal error, possibly a bug)
+ *  - ::MB_ERR_DISABLED (access mode of board set to non-writeable)
  * 
  * Usage example:
  * \include ex_mb_addmessage.c
@@ -898,6 +1028,7 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  *  - ::MB_ERR_MEMALLOC (unable to allocate required memory)
  *  - ::MB_ERR_OVERFLOW (too many Iterators created)
  *  - ::MB_ERR_INTERNAL (internal error, possibly a bug)
+ *  - ::MB_ERR_DISABLED (access mode of board set to non-readable)
  * 
  * Usage example:
  * \include ex_mb_it_create.c
@@ -945,6 +1076,7 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  *  - ::MB_ERR_MEMALLOC (unable to allocate required memory)
  *  - ::MB_ERR_OVERFLOW (too many Iterators created)
  *  - ::MB_ERR_INTERNAL (internal error, possibly a bug)
+ *  - ::MB_ERR_DISABLED (access mode of board set to non-readable)
  * 
  * Usage example:
  * \include ex_mb_it_create_s.c
@@ -991,6 +1123,7 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  *  - ::MB_ERR_MEMALLOC (unable to allocate required memory)
  *  - ::MB_ERR_OVERFLOW (too many Iterators created)
  *  - ::MB_ERR_INTERNAL (internal error, possibly a bug)
+ *  - ::MB_ERR_DISABLED (access mode of board set to non-readable)
  * 
  * Usage example:
  * \include ex_mb_it_create_f.c
@@ -1046,6 +1179,7 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  *  - ::MB_ERR_MEMALLOC (unable to allocate required memory)
  *  - ::MB_ERR_OVERFLOW (too many Iterators created)
  *  - ::MB_ERR_INTERNAL (internal error, possibly a bug)
+ *  - ::MB_ERR_DISABLED (access mode of board set to non-readable)
  * 
  * Usage example:
  * \include ex_mb_it_create_fs.c
@@ -1176,6 +1310,12 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * Synchronisation of a null board (::MB_NULL_MBOARD) is valid, and will 
  * return immediately with ::MB_SUCCESS
  * 
+ * \note Multiple synchronisations of a board is <i>supported</i> but perhaps
+ * not in the way that you might expect. Subsequent synchronisations will only 
+ * consider messages that were added after the previous synchronisation, which
+ * means that messages that were excluded (by filters) in previous syncs will
+ * not be considered in following ones. 
+ * 
  * Possible return codes:
  *  - ::MB_SUCCESS
  *  - ::MB_ERR_INVALID (\c mb is invalid)
@@ -1258,6 +1398,8 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * \param[out] fh_ptr Address to write Filter Handle to
  * \param[in] filterFunc Pointer to user-defined function
  * 
+ * <i>Introduced in version 0.2.0.</i>
+ * 
  * Registers a filter function and returns a handle to the filter via
  * \c ft_ptr. The handle is unique to that function and is recognised across 
  * all processing nodes. 
@@ -1294,6 +1436,8 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * \param[in] mb Message Board Handle
  * \param[in] fh Filter Handle
  * 
+ * <i>Introduced in version 0.2.0.</i>
+ * 
  * This routine assigns a registered filter to a Message Board. The associated
  * filter function will act as a filtering mechanism when retrieving
  * messages from remote nodes during a synchronisation. This reduces the number of
@@ -1319,6 +1463,8 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * \ingroup FUNC
  * \brief Deallocates a registered function
  * \param[in,out] fh_ptr Address of Filter Handle
+ * 
+ * <i>Introduced in version 0.2.0.</i>
  * 
  * The filter function associated with \c fh_ptr will be deregistered, 
  * and \c fh_ptr will be set to ::MB_NULL_FILTER.  
@@ -1348,6 +1494,8 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * \brief Instantiates a new Index Map object
  * \param[in] name Unique string identifying the map (max of 127 chars)
  * \param[out] im_ptr Address of Index Map handle
+ * 
+ * <i>Introduced in version 0.2.0.</i>
  * 
  * Creates a new Index Map and returns a handle to the map via \c im_ptr .
  * 
@@ -1385,6 +1533,8 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * \brief Deletes an Index Map
  * \param[in,out] im_ptr Address of Index Map handle
  * 
+ * <i>Introduced in version 0.2.0.</i>
+ * 
  * Upon successful deletion, the handle referenced by \c im_ptr will be set 
  * to ::MB_NULL_INDEXMAP.
  * 
@@ -1411,6 +1561,8 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * \param[in] im Index Map handle
  * \param[in] value Integer value of entry to add into the map
  * 
+ * <i>Introduced in version 0.2.0.</i>
+ * 
  * Entry will be added to the local map. In the parallel version, this entry
  * will be searchable on other processors after MB_IndexMap_Sync() is called.
  * 
@@ -1432,6 +1584,8 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * \ingroup FUNC
  * \brief Distributes/gathers the map content across/from all processors
  * \param[in] im Index Map handle
+ * 
+ * <i>Introduced in version 0.2.0.</i>
  * 
  * In the serial library, this routine does nothing and returns immediately 
  * with ::MB_SUCCESS. It will however return with an appropriate error code
@@ -1471,6 +1625,8 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * \param[in] im Index Map handle
  * \param[in] pid Target processor ID
  * \param[in] value Value of entry to query for
+ * 
+ * <i>Introduced in version 0.2.0.</i>
  * 
  * Returns ::MB_TRUE or ::MB_FALSE depending on whether \c value exists in
  * the map of processor with ID \c pid. 

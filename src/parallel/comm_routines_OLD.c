@@ -1,6 +1,6 @@
 /* $Id$ */
 /*!
- * \file parallel/comm.c
+ * \file parallel/comm_routines_OLD.c
  * \code
  *      Author: Lee-Shawn Chin 
  *      Date  : June 2009 
@@ -15,6 +15,7 @@
  */
 #include "mb_parallel.h"
 #include "mb_commqueue.h"
+#include "mb_commroutines.h"
 #include "mb_pooled_list.h"
 #include "mb_tag_table.h"
 #include <string.h>
@@ -41,14 +42,14 @@
  * \param[in] node address of CommQueue node
  * \return Return Code
  * 
- * This routine is to be executed during the firs commncation stage
- * (::PRE_TAGGING).
+ * This routine is to be executed during the firs communication stage
+ * (::MB_COMM_OLD_PRE_TAGGING).
  * 
  * Pre:
  * - node->mb is valid
  * - board->locked == ::MB_TRUE
  * - board->syncCompleted == ::MB_FALSE
- * - node->stage == ::PRE_TAGGING
+ * - node->stage == ::MB_COMM_OLD_PRE_TAGGING
  * - node->flag_fdrFallback = ::MB_FALSE
  * - node->flag_shareOutbuf = ::MB_FALSE
  * - node->incount == \c NULL
@@ -75,10 +76,10 @@
  *   - set node->outcount[*] = node->board->data->count_current
  *   - set node->flag_fdrFallback = ::MB_TRUE
  *   - set node->flag_shareOutbuf = ::MB_TRUE
- * -# set node->stage to ::READY_FOR_PROP
+ * -# set node->stage to ::MB_COMM_OLD_READY_FOR_PROP
  * 
  * Post:
- * - node->stage == ::READY_FOR_PROP
+ * - node->stage == ::MB_COMM_OLD_READY_FOR_PROP
  * - node->outcount != \c NULL
  * - node->board != \c NULL
  * - if (node->board->filter != NULL)
@@ -87,7 +88,7 @@
  * - if node->board->filter == \c NULL or node->fdr_fallback == \c ::MB_TRUE
  *  - node->flag_shareOutbuf == ::MB_TRUE
  */
-int MBI_Comm_TagMessages(struct MBIt_commqueue *node) {
+int MBI_CommRoutine_OLD_TagMessages(struct MBIt_commqueue *node) {
     
     char window;
     int rc, i, j, c, w, p;
@@ -97,7 +98,7 @@ int MBI_Comm_TagMessages(struct MBIt_commqueue *node) {
     pl_address_node *pl_itr;
     
     /* check that initial values are set properly */
-    assert(node->stage == PRE_TAGGING);
+    assert(node->stage == MB_COMM_OLD_PRE_TAGGING);
     assert(node->flag_fdrFallback == MB_FALSE);
     assert(node->flag_shareOutbuf == MB_FALSE);
     assert(node->incount == NULL);
@@ -260,8 +261,8 @@ int MBI_Comm_TagMessages(struct MBIt_commqueue *node) {
     }
     
     /* move on to next stage */
-    P_INFO("COMM: (Board %d) moving to READY_FOR_PROP stage", node->mb);
-    node->stage = READY_FOR_PROP;
+    P_INFO("COMM: (Board %d) moving to MB_COMM_OLD_READY_FOR_PROP stage", node->mb);
+    node->stage = MB_COMM_OLD_READY_FOR_PROP;
     return MB_SUCCESS;
     
 }
@@ -271,7 +272,7 @@ int MBI_Comm_TagMessages(struct MBIt_commqueue *node) {
  * \param[in] node address of CommQueue node
  * \return Return Code
  * 
- * This routine is to be executed during the ::READY_FOR_PROP stage.
+ * This routine is to be executed during the ::MB_COMM_OLD_READY_FOR_PROP stage.
  * 
  * Steps:
  * -# Allocate memory for node->incount
@@ -281,10 +282,10 @@ int MBI_Comm_TagMessages(struct MBIt_commqueue *node) {
  * -# Allocate memory for node->sendreq
  * -# Issue MPI_Issend to all remote procs
  * -# Set node->pending_out = 1
- * -# Set node->stage == ::BUFINFO_SENT
+ * -# Set node->stage == ::MB_COMM_OLD_BUFINFO_SENT
  * 
  * Post:
- * - node->stage == ::BUFINFO_SENT
+ * - node->stage == ::MB_COMM_OLD_BUFINFO_SENT
  * - node->incount != \c NULL
  * - node->outcount != \c NULL
  * - node->sendreq != \c NULL
@@ -293,11 +294,11 @@ int MBI_Comm_TagMessages(struct MBIt_commqueue *node) {
  * - node->pending_in == 1
  * 
  */ 
-int MBI_Comm_SendBufInfo(struct MBIt_commqueue *node) {
+int MBI_CommRoutine_OLD_SendBufInfo(struct MBIt_commqueue *node) {
     
     int i, rc, tag;
     
-    assert(node->stage == READY_FOR_PROP);
+    assert(node->stage == MB_COMM_OLD_READY_FOR_PROP);
     assert(node->outcount != NULL);
     assert(node->incount  == NULL);
     assert(node->board != NULL);
@@ -363,8 +364,8 @@ int MBI_Comm_SendBufInfo(struct MBIt_commqueue *node) {
     node->pending_out = 1;
     
     /* move on to next stage */
-    P_INFO("COMM: (Board %d) moving to BUFINFO_SENT stage", node->mb);
-    node->stage = BUFINFO_SENT;
+    P_INFO("COMM: (Board %d) moving to MB_COMM_OLD_BUFINFO_SENT stage", node->mb);
+    node->stage = MB_COMM_OLD_BUFINFO_SENT;
     return MB_SUCCESS;
     
 }
@@ -374,7 +375,7 @@ int MBI_Comm_SendBufInfo(struct MBIt_commqueue *node) {
  * \param[in] node address of CommQueue node
  * \return Return Code
  *
- * This routine is to be executed during the ::BUFINFO_SENT stage.
+ * This routine is to be executed during the ::MB_COMM_OLD_BUFINFO_SENT stage.
  * 
  * Steps:
  * -# if node->pending_in != 0, MPI_Testall() receives
@@ -382,19 +383,19 @@ int MBI_Comm_SendBufInfo(struct MBIt_commqueue *node) {
  * -# if node->pending_out != 0, MPI_Testall() sends
  *  - if completed, set node->pending_out = 0
  * -# if node->pending_in == 0 and node->pending_out == 0
- *  - set node->stage = PRE_PROPAGATION
+ *  - set node->stage = MB_COMM_OLD_PRE_PROPAGATION
  * 
  * Post:
  * - if node->pending_in == 0 and node->pending_out == 0
- *  - node->stage == PRE_PROPAGATION
+ *  - node->stage == MB_COMM_OLD_PRE_PROPAGATION
  * - else
- *  - node->stage == BUFINFO_SENT
+ *  - node->stage == MB_COMM_OLD_BUFINFO_SENT
  */ 
-int MBI_Comm_WaitBufInfo(struct MBIt_commqueue *node) {
+int MBI_CommRoutine_OLD_WaitBufInfo(struct MBIt_commqueue *node) {
     
     int rc, flag;
     
-    assert(node->stage == BUFINFO_SENT); 
+    assert(node->stage == MB_COMM_OLD_BUFINFO_SENT); 
     assert(node->outcount != NULL);
     assert(node->incount  != NULL);
     assert(node->sendreq  != NULL);
@@ -432,8 +433,8 @@ int MBI_Comm_WaitBufInfo(struct MBIt_commqueue *node) {
     /* if all done, move on to next stage */
     if (node->pending_in == 0 && node->pending_out == 0)
     {
-        P_INFO("COMM: (Board %d) moving to PRE_PROPAGATION stage", node->mb);
-        node->stage = PRE_PROPAGATION;
+        P_INFO("COMM: (Board %d) moving to MB_COMM_OLD_PRE_PROPAGATION stage", node->mb);
+        node->stage = MB_COMM_OLD_PRE_PROPAGATION;
     }
 
     return MB_SUCCESS;
@@ -444,7 +445,7 @@ int MBI_Comm_WaitBufInfo(struct MBIt_commqueue *node) {
  * \param[in] node address of CommQueue node
  * \return Return Code
  *
- * This routine is to be executed during the ::PRE_PROPAGATION stage.
+ * This routine is to be executed during the ::MB_COMM_OLD_PRE_PROPAGATION stage.
  * 
  * Steps:
  * -# Allocate memory for node->inbuf (based on node->incount)
@@ -466,17 +467,17 @@ int MBI_Comm_WaitBufInfo(struct MBIt_commqueue *node) {
  *    - delete node->board->tt
  *    - Issue MPI_Issend(). node->pending_out++
  * -# free node->outcount
- * -# Set node->stage == ::PROPAGATION
+ * -# Set node->stage == ::MB_COMM_OLD_PROPAGATION
  * 
  * Post:
- * -# node->stage == ::PROPAGATION
+ * -# node->stage == ::MB_COMM_OLD_PROPAGATION
  * -# node->outcount == \c NULL
  * -# node->outbuf != \c NULL
  * -# node->inbuf != \c NULL
  * -# node->board->tt == \c NULL
  * 
  */ 
-int MBI_Comm_InitPropagation(struct MBIt_commqueue *node) {
+int MBI_CommRoutine_OLD_InitPropagation(struct MBIt_commqueue *node) {
     
     int mcount;
     int w, b, p;
@@ -494,7 +495,7 @@ int MBI_Comm_InitPropagation(struct MBIt_commqueue *node) {
     msg_copied = (int*)calloc((size_t)MBI_CommSize, sizeof(int));
 #endif
     
-    assert(node->stage == PRE_PROPAGATION);
+    assert(node->stage == MB_COMM_OLD_PRE_PROPAGATION);
     assert(node->outcount != NULL);
     assert(node->incount  != NULL);
     assert(node->sendreq  != NULL);
@@ -771,7 +772,7 @@ int MBI_Comm_InitPropagation(struct MBIt_commqueue *node) {
                     1 + (int)(node->outcount[i] * msgsize), 
                     MPI_BYTE, i, tag, MBI_CommWorld, &(node->sendreq[i]));
             assert(rc == MPI_SUCCESS);
-            if (rc != MPI_SUCCESS) return MB_ERR_MEMALLOC;
+            if (rc != MPI_SUCCESS) return MB_ERR_MPI;
             
             P_INFO("COMM: (Board %d) sending %d messages to P%d", 
                     (int)node->mb, node->outcount[i], i);
@@ -791,8 +792,8 @@ int MBI_Comm_InitPropagation(struct MBIt_commqueue *node) {
     node->outcount = NULL;
     
     /* move on to next stage */
-    P_INFO("COMM: (Board %d) moving to PROPAGATION stage", node->mb);
-    node->stage = PROPAGATION;
+    P_INFO("COMM: (Board %d) moving to MB_COMM_OLD_PROPAGATION stage", node->mb);
+    node->stage = MB_COMM_OLD_PROPAGATION;
     return MB_SUCCESS;
 }
 
@@ -801,7 +802,7 @@ int MBI_Comm_InitPropagation(struct MBIt_commqueue *node) {
  * \param[in] node address of CommQueue node
  * \return Return Code
  *
- * This routine is to be executed during the ::PROPAGATION stage.
+ * This routine is to be executed during the ::MB_COMM_OLD_PROPAGATION stage.
  * 
  * Steps:
  * -# if node->pending_in != 0, check receives using MPI_Testany().
@@ -831,7 +832,7 @@ int MBI_Comm_InitPropagation(struct MBIt_commqueue *node) {
  *   -# set node->board->syncCompleted = ::MB_TRUE
  *   -# Release node->board->syncLock
  *   -# Signal node->board->syncCond
- *   -# set node->stage = ::COMM_END
+ *   -# set node->stage = ::MB_COMM_END
  *   -# return ::MB_SUCCESS_2
  *  - else
  *   -# return ::MB_SUCCESS
@@ -847,9 +848,9 @@ int MBI_Comm_InitPropagation(struct MBIt_commqueue *node) {
  *  - node->recvreq == \c NULL
  *  - return code == MB_SUCCESS_2
  *  - node->board->syncCompleted == ::MB_TRUE
- *  - node->stage == ::COMM_END
+ *  - node->stage == ::MB_COMM_END
  */ 
-int MBI_Comm_CompletePropagation(struct MBIt_commqueue *node) {
+int MBI_CommRoutine_OLD_CompletePropagation(struct MBIt_commqueue *node) {
     
     int i, m, p, rc;
     int completed;
@@ -857,13 +858,13 @@ int MBI_Comm_CompletePropagation(struct MBIt_commqueue *node) {
     void *ptr_new, *msg;
     char *header_byte, *bufptr;
 
-    assert(node->stage == PROPAGATION);
+    assert(node->stage == MB_COMM_OLD_PROPAGATION);
     assert(node->outcount == NULL);
     assert(node->incount  != NULL);
     assert(node->sendreq  != NULL);
     assert(node->recvreq  != NULL);
-    assert(node->inbuf    !=  NULL);
-    assert(node->outbuf   !=  NULL);
+    assert(node->inbuf    != NULL);
+    assert(node->outbuf   != NULL);
     assert(node->board    != NULL);
     
     /* ---------- check for completed sends -------------- */
@@ -1022,7 +1023,7 @@ int MBI_Comm_CompletePropagation(struct MBIt_commqueue *node) {
         
         /* move to end state and indicate that we're done */
         P_INFO("COMM: (Board %d) sync process completed", node->mb);
-        node->stage = COMM_END;
+        node->stage = MB_COMM_END;
         return MB_SUCCESS_2; /* node can be removed from queue */
     }
     else

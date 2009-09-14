@@ -11,7 +11,9 @@ INCLUDEDIR = $(top_srcdir)/include
 if TESTS_CONFIGURED
 
 SUBDIRS = testsuite_commqueue \
-          testsuite_commroutines \
+          testsuite_commutils \
+          testsuite_commroutines_old \
+          testsuite_commroutines_handshake \
           testsuite_mb_parallel \
           testsuite_mb_serial \
           testsuite_objmap \
@@ -36,7 +38,9 @@ run_test_parallel_utils_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @DEBUG_CFLAGS@ @
 run_test_parallel_utils_LDADD   =  \
 								  $(testcode_dir)/testsuite_commqueue/lib_t_commqueue.la \
                                   $(testcode_dir)/testsuite_syncqueue/lib_t_syncqueue.la \
-                                  $(testcode_dir)/testsuite_commroutines/lib_t_commroutines.la \
+                                  $(testcode_dir)/testsuite_commroutines_old/lib_t_commroutines_old.la \
+                                  $(testcode_dir)/testsuite_commroutines_handshake/lib_t_commroutines_handshake.la \
+                                  $(testcode_dir)/testsuite_commutils/lib_t_commutils.la \
                                   $(top_srcdir)/src/parallel/lib_mb_pd.la \
                                   $(top_srcdir)/src/utils/lib_utils_pd.la \
 						  		  @CUNITLIBS@ @MB_PARALLEL_LIBS@
@@ -94,7 +98,7 @@ endif
 # used by pthread.h
 SPLINT_OPTIONS = -weak -D__sigset_t=int -warnposix
 SERIAL_TESTSUITES = objmap tag_table pooled_list mb_serial avltree string_map
-PARALLEL_TESTSUITES = syncqueue commqueue commroutines mb_parallel 
+PARALLEL_TESTSUITES = syncqueue commqueue commutils commroutines_old commroutines_handshake mb_parallel 
 
 splint:
 	@( \

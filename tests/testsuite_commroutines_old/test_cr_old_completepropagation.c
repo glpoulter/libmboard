@@ -5,20 +5,20 @@
  * Date  : June 2009
  * 
  */
-#include "header_commroutines.h"
+#include "header_commroutines_old.h"
 
-void test_cr_completepropagation(void) {
+void test_cr_old_completepropagation(void) {
     
     int rc = -1;
     
     /* -------- check critical prerequisites ------------ */
     
     /* stage */
-    CU_ASSERT_EQUAL_FATAL(node_filter->stage, PROPAGATION);
-    CU_ASSERT_EQUAL_FATAL(node_nofilter->stage, PROPAGATION);
-    CU_ASSERT_EQUAL_FATAL(node_filter_fdr->stage, PROPAGATION);
-    CU_ASSERT_EQUAL_FATAL(node_empty->stage, PROPAGATION);
-    CU_ASSERT_EQUAL_FATAL(node_empty_filter->stage, PROPAGATION);
+    CU_ASSERT_EQUAL_FATAL(node_filter->stage, MB_COMM_OLD_PROPAGATION);
+    CU_ASSERT_EQUAL_FATAL(node_nofilter->stage, MB_COMM_OLD_PROPAGATION);
+    CU_ASSERT_EQUAL_FATAL(node_filter_fdr->stage, MB_COMM_OLD_PROPAGATION);
+    CU_ASSERT_EQUAL_FATAL(node_empty->stage, MB_COMM_OLD_PROPAGATION);
+    CU_ASSERT_EQUAL_FATAL(node_empty_filter->stage, MB_COMM_OLD_PROPAGATION);
     
     /* board ptr cache set */
     CU_ASSERT_PTR_NOT_NULL_FATAL(node_filter->board);
@@ -30,60 +30,60 @@ void test_cr_completepropagation(void) {
     /* ----- run function till state changes ------ */
     
     /* keep calling until comms have completed */
-    while (node_filter->stage == PROPAGATION)
+    while (node_filter->stage == MB_COMM_OLD_PROPAGATION)
     {
-        rc = MBI_Comm_CompletePropagation(node_filter);
+        rc = MBI_CommRoutine_OLD_CompletePropagation(node_filter);
         if (rc != MB_SUCCESS && rc != MB_SUCCESS_2)
         {
-            CU_FAIL("Call to MBI_Comm_CompletePropagation for node_filter failed");
+            CU_FAIL("Call to MBI_CommRoutine_OLD_CompletePropagation for node_filter failed");
             break;
         }
     }
     CU_ASSERT_EQUAL(rc, MB_SUCCESS_2);
     
     /* keep calling until comms have completed */
-    while (node_nofilter->stage == PROPAGATION)
+    while (node_nofilter->stage == MB_COMM_OLD_PROPAGATION)
     {
-        rc = MBI_Comm_CompletePropagation(node_nofilter);
+        rc = MBI_CommRoutine_OLD_CompletePropagation(node_nofilter);
         if (rc != MB_SUCCESS && rc != MB_SUCCESS_2)
         {
-            CU_FAIL("Call to MBI_Comm_CompletePropagation for node_nofilter failed");
+            CU_FAIL("Call to MBI_CommRoutine_OLD_CompletePropagation for node_nofilter failed");
             break;
         }
     }
     CU_ASSERT_EQUAL(rc, MB_SUCCESS_2);
     
     /* keep calling until comms have completed */
-    while (node_filter_fdr->stage == PROPAGATION)
+    while (node_filter_fdr->stage == MB_COMM_OLD_PROPAGATION)
     {
-        rc = MBI_Comm_CompletePropagation(node_filter_fdr);
+        rc = MBI_CommRoutine_OLD_CompletePropagation(node_filter_fdr);
         if (rc != MB_SUCCESS && rc != MB_SUCCESS_2)
         {
-            CU_FAIL("Call to MBI_Comm_CompletePropagation for node_filter_fdr failed");
+            CU_FAIL("Call to MBI_CommRoutine_OLD_CompletePropagation for node_filter_fdr failed");
             break;
         }
     }
     CU_ASSERT_EQUAL(rc, MB_SUCCESS_2);
     
     /* keep calling until comms have completed */
-    while (node_empty->stage == PROPAGATION)
+    while (node_empty->stage == MB_COMM_OLD_PROPAGATION)
     {
-        rc = MBI_Comm_CompletePropagation(node_empty);
+        rc = MBI_CommRoutine_OLD_CompletePropagation(node_empty);
         if (rc != MB_SUCCESS && rc != MB_SUCCESS_2)
         {
-            CU_FAIL("Call to MBI_Comm_CompletePropagation for node_empty failed");
+            CU_FAIL("Call to MBI_CommRoutine_OLD_CompletePropagation for node_empty failed");
             break;
         }
     }
     CU_ASSERT_EQUAL(rc, MB_SUCCESS_2);
     
     /* keep calling until comms have completed */
-    while (node_empty_filter->stage == PROPAGATION)
+    while (node_empty_filter->stage == MB_COMM_OLD_PROPAGATION)
     {
-        rc = MBI_Comm_CompletePropagation(node_empty_filter);
+        rc = MBI_CommRoutine_OLD_CompletePropagation(node_empty_filter);
         if (rc != MB_SUCCESS && rc != MB_SUCCESS_2)
         {
-            CU_FAIL("Call to MBI_Comm_CompletePropagation for node_empty_filter failed");
+            CU_FAIL("Call to MBI_CommRoutine_OLD_CompletePropagation for node_empty_filter failed");
             break;
         }
     }
@@ -110,11 +110,11 @@ void test_cr_completepropagation(void) {
     /* -------- check post conditions ------------ */
     
     /* ready for next stage */
-    CU_ASSERT_EQUAL(node_filter->stage, COMM_END);
-    CU_ASSERT_EQUAL(node_nofilter->stage, COMM_END);
-    CU_ASSERT_EQUAL(node_filter_fdr->stage, COMM_END);
-    CU_ASSERT_EQUAL(node_empty->stage, COMM_END);
-    CU_ASSERT_EQUAL(node_empty_filter->stage, COMM_END);
+    CU_ASSERT_EQUAL(node_filter->stage, MB_COMM_END);
+    CU_ASSERT_EQUAL(node_nofilter->stage, MB_COMM_END);
+    CU_ASSERT_EQUAL(node_filter_fdr->stage, MB_COMM_END);
+    CU_ASSERT_EQUAL(node_empty->stage, MB_COMM_END);
+    CU_ASSERT_EQUAL(node_empty_filter->stage, MB_COMM_END);
     
     /* pending_in set */
     CU_ASSERT_EQUAL(node_filter->pending_in, 0);

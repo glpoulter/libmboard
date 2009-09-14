@@ -132,6 +132,9 @@ void test_mb_s_filter_assign(void);
 /* testing MB_Function_Free() */
 void test_mb_s_filter_delete(void);
 
+/* testing MB_SetAccessMode() */
+void test_mb_s_setaccessmode(void);
+
 /* testing index map */
 void test_mb_s_indexmap_create(void);
 void test_mb_s_indexmap_delete(void);

@@ -188,6 +188,7 @@ int pl_newnode(pooled_list *pl, void **ptr_new);
 int pl_recycle(pooled_list *pl);
 int pl_reset(pooled_list *pl);
 
+int pl_getnode_container(pooled_list *pl, int index,  pl_address_node **ptr);
 int pl_getnode(pooled_list *pl, int index, void **ptr);
 int pl_randomise(pooled_list *pl);
 

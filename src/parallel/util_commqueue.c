@@ -119,7 +119,7 @@ int MBI_CommQueue_Delete(void) {
  * \param[in] startstage Initial stage to begin communication process
  * \return Pointer to CommQueue node 
  */
-int MBI_CommQueue_Push(MBt_Board mb, enum MBIt_CommStage startstage) {
+int MBI_CommQueue_Push(MBt_Board mb, int startstage) {
     
     struct MBIt_commqueue *node;
     
@@ -137,9 +137,13 @@ int MBI_CommQueue_Push(MBt_Board mb, enum MBIt_CommStage startstage) {
     node->outbuf   = NULL;
     node->sendreq  = NULL;
     node->recvreq  = NULL;
+    node->sendreq2 = NULL;
+    node->recvreq2 = NULL;
     node->stage    = startstage;
-    node->pending_in  = 0;
-    node->pending_out = 0;
+    node->pending_in   = 0;
+    node->pending_out  = 0;
+    node->pending_in2  = 0;
+    node->pending_out2 = 0;
     node->flag_fdrFallback = MB_FALSE;
     node->flag_shareOutbuf = MB_FALSE;
     
