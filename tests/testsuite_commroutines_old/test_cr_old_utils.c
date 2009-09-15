@@ -15,6 +15,10 @@ int filter_func_map(const void *m, int pid) {
 }
 
 int filter_func_fdr(const void *m, int pid) {
+    
+    /* acknowledge+hide "unused parameter" compiler warnings */
+    ACKNOWLEDGED_UNUSED(pid);
+    
     if (void2int(m) % 2 == 0) return 1; /* return every other message */
     else return 0;
 }

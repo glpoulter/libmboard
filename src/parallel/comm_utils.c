@@ -666,8 +666,6 @@ int MBI_CommUtil_UpdateCursor(MBIt_Board *board) {
     
     assert(board != NULL);
     assert(board->data != NULL);
-    assert(board->synced_cursor >= 0);
-    assert(board->data->count_current >= 0);
     assert(board->synced_cursor <= board->data->count_current);
     
     board->synced_cursor = board->data->count_current;

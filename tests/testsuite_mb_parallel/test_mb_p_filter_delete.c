@@ -66,6 +66,9 @@ void test_mb_p_filter_delete(void) {
 static int filter_even(const void *msg, int pid) {
     dummy_msg *m;
     
+    /* acknowledge+hide "unused parameter" compiler warnings */
+    ACKNOWLEDGED_UNUSED(pid);
+    
     assert(msg != NULL);
     
     m = (dummy_msg*)msg;

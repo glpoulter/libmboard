@@ -10,6 +10,10 @@
 #include "CUnit/Basic.h"
 #include "testing.h"
 
+#ifndef ACKNOWLEDGED_UNUSED
+#define ACKNOWLEDGED_UNUSED(expr) do { (void)(expr); } while (0)
+#endif
+
 static int clean_quit(void) {
     
     int failures = (int)CU_get_number_of_tests_failed();
@@ -26,6 +30,10 @@ static int clean_quit(void) {
 int main(int argc, char ** argv) {
     
     CU_ErrorCode rc;
+    
+    /* acknowledge+hide "unused parameter" compiler warnings */
+    ACKNOWLEDGED_UNUSED(argc);
+    ACKNOWLEDGED_UNUSED(argv);
     
     /* seed rng */
     srand((unsigned int)time(NULL));

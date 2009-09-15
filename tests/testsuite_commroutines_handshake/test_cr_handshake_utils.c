@@ -15,6 +15,10 @@ int fl_func_map_hs(const void *m, int pid) {
 }
 
 int fl_func_fdr_hs(const void *m, int pid) {
+    
+    /* acknowledge+hide "unused parameter" compiler warnings */
+    ACKNOWLEDGED_UNUSED(pid);
+    
     if (void2int(m) % 2 == 0) return 1; /* return every other message */
     else return 0;
 }

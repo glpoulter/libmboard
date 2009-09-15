@@ -26,6 +26,9 @@
  */
 int MB_Function_Free(MBt_Function *fh_ptr) {
     
+    /* acknowledge+hide "unused parameter" compiler warnings */
+    ACKNOWLEDGED_UNUSED(fh_ptr);
+    
     fprintf(stderr, "[libmboard] MB_Function_Free() deprecated. Use MB_Filter_Delete() instaed.\n");
     return MB_SUCCESS;
 }

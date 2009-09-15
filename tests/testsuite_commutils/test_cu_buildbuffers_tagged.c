@@ -18,7 +18,7 @@
             buffers[i] = NULL;      \
         }                           \
     }
-#define SWAP_INT(a,b) (((a) == (b)) || (((a) ^= (b)), ((b) ^= (a)), ((a) ^= (b))))
+#define SWAP_INT(a,b,i) (i)=(a);(a)=(b);(b)=(i)
     
 void test_cu_buildbuffers_tagged(void) {
 
@@ -127,7 +127,9 @@ void test_cu_buildbuffers_tagged(void) {
     board->reader_list[0] = (TCU_CommRank + 1) % TCU_CommSize;  
     board->reader_list[1] = (TCU_CommRank + 2) % TCU_CommSize;  
     if (board->reader_list[0] > board->reader_list[1]) 
-        SWAP_INT(board->reader_list[0], board->reader_list[1]);
+    {
+        SWAP_INT(board->reader_list[0], board->reader_list[1], i);
+    }
     board->reader_count = 2;
     
     mock_board_populate(board, MSGCOUNT);

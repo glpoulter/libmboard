@@ -35,6 +35,12 @@ int MB_Function_Assign (
         size_t param_size
         ) {
     
+    /* acknowledge+hide "unused parameter" compiler warnings */
+    ACKNOWLEDGED_UNUSED(mb);
+    ACKNOWLEDGED_UNUSED(fh);
+    ACKNOWLEDGED_UNUSED(params);
+    ACKNOWLEDGED_UNUSED(param_size);
+    
     printf("[libmboard] MB_Function_Assign() deprecated. Use MB_Filter_Assign() instead.\n");
     return MB_SUCCESS;
 }

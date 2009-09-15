@@ -34,6 +34,9 @@ int MB_Filter_Assign(MBt_Board mb, MBt_Filter ft) {
     
     MBIt_Board *board;
     
+    /* acknowledge+hide "unused parameter" compiler warnings */
+    ACKNOWLEDGED_UNUSED(ft);
+    
     /* Check for NULL message board */
     if (mb == MB_NULL_MBOARD) 
     {

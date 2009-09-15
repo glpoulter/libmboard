@@ -135,6 +135,9 @@ static void *commthread_main(void *params) {
     
     int rc;
     
+    /* acknowledge+hide "unused parameter" compiler warnings */
+    ACKNOWLEDGED_UNUSED(params);
+    
     /* continue looping until termination flag is read */
     while (1) {
         

@@ -29,6 +29,9 @@
 int MB_Filter_Create(MBt_Filter *ft_ptr, 
         int (*filterFunc)(const void *msg, int pid) ) {
     
+    /* acknowledge+hide "unused parameter" compiler warnings */
+    ACKNOWLEDGED_UNUSED(filterFunc);
+    
     *ft_ptr = MB_NULL_FILTER;
     
     return MB_SUCCESS;

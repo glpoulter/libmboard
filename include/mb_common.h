@@ -32,6 +32,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+/*! \brief macro to mask "unused parameters" warning for acknowledged cases */
+#define ACKNOWLEDGED_UNUSED(expr) do { (void)(expr); } while (0)
+
 /* status variables (initialised and documented in env_init.c) */
 extern int MBI_STATUS_initialised;
 extern int MBI_STATUS_finalised;

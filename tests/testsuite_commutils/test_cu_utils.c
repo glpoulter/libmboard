@@ -114,6 +114,9 @@ void mock_board_populate(MBIt_Board *board, int count) {
 int mock_filter (const void *msg, int pid) {
     int *val;
     
+    /* acknowledge+hide "unused parameter" compiler warnings */
+    ACKNOWLEDGED_UNUSED(pid);
+    
     val = (int*)msg;
     if (*val % 2 == 0) return 1;
     else return 0;

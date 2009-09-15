@@ -637,6 +637,9 @@ static int _filterfunc2 (const void *m, int pid) {
     
     int v = *((int*)m);
     
+    /* acknowledge+hide "unused parameter" compiler warnings */
+    ACKNOWLEDGED_UNUSED(pid);
+    
     if (v % 2 == 0) return 1;
     else return 0;
 

@@ -35,7 +35,7 @@ AM_PROG_CC_C_O
 # Need extra checks to set this depending on compiler
 case "$CC" in
 	gcc*)
-		CFLAGS="${CFLAGS} -std=c99 -Wall -pedantic -fno-common"
+		CFLAGS="${CFLAGS} -std=c99 -Wall -Wextra -pedantic -fno-common"
 		;;
 	pgcc*)
 		CFLAGS="${CFLAGS} -c9x -Minform=warn"

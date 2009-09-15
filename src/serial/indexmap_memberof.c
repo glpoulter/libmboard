@@ -31,6 +31,9 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value) {
     
     MBIt_IndexMap *map;
     
+    /* acknowledge+hide "unused parameter" compiler warnings */
+    ACKNOWLEDGED_UNUSED(pid);
+    
 #ifdef _EXTRA_CHECKS
     /* check if im is null */
     if (im == MB_NULL_INDEXMAP)

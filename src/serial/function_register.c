@@ -31,6 +31,10 @@ int MB_Function_Register (
         int (*filterFunc)(const void *msg, const void *params) 
         ) {
     
+    /* acknowledge+hide "unused parameter" compiler warnings */
+    ACKNOWLEDGED_UNUSED(fh_ptr);
+    ACKNOWLEDGED_UNUSED(filterFunc);
+    
     printf("[libmboard] MB_Function_Register() deprecated. Use MB_Filter_Create() instead.\n");  
     return MB_SUCCESS;
 }
