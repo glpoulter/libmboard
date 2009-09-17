@@ -116,6 +116,9 @@ void test_mb_p_iter_filteredsorted_getmsg(void);
 /* testing MB_SetAccessMode() */
 void test_mb_p_setaccessmode(void);
 
+/* testing MB_SetSyncPattern() */
+void test_mb_p_setsyncpattern(void);
+
 /* testing filter operations */
 void test_mb_p_filter_create(void);
 void test_mb_p_filter_assign(void);

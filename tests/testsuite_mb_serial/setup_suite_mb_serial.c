@@ -16,6 +16,7 @@ CU_TestInfo mbs_test_array[] = {
     {"Multiple board creation                       ", test_mb_s_create_multiple },
     
     {"Setting board access modes                    ", test_mb_s_setaccessmode   },
+    {"Setting board sync pattern                    ", test_mb_s_setsyncpattern  },
 
     {"Message Add                                   ", test_mb_s_addmessage      },
     {"Message Add beyond single block               ", test_mb_s_addmessage_many },

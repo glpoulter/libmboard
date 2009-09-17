@@ -135,6 +135,9 @@ void test_mb_s_filter_delete(void);
 /* testing MB_SetAccessMode() */
 void test_mb_s_setaccessmode(void);
 
+/* testing MB_SetSyncPattern() */
+void test_mb_s_setsyncpattern(void);
+
 /* testing index map */
 void test_mb_s_indexmap_create(void);
 void test_mb_s_indexmap_delete(void);

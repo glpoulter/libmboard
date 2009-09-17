@@ -36,6 +36,7 @@ common_sources   = 	addmessage.c \
 				    indexmap_memberof.c \
 				    indexmap_addentry.c \
 				    setaccessmode.c \
+				    setsyncpattern.c \
 				    serial_utils.c \
 				    synccomplete.c \
 				    syncstart.c \

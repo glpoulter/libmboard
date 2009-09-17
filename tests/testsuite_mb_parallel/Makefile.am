@@ -18,6 +18,7 @@ lib_t_mb_parallel_la_SOURCES = setup_suite_mb_parallel.c \
 							   test_mb_p_sync.c \
 							   test_mb_p_addmessage.c \
 							   test_mb_p_setaccessmode.c \
+							   test_mb_p_setsyncpattern.c \
 							   test_mb_p_iterator_create.c \
 							   test_mb_p_iterator_createsorted.c \
 							   test_mb_p_iterator_createfiltered.c \

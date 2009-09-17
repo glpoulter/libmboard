@@ -19,6 +19,7 @@ CU_TestInfo mbp_test_array[] = {
     /* basic board operations */
     {"Creating and deleting message board           ", test_mb_p_create               },
     {"Setting board access modes                    ", test_mb_p_setaccessmode        },
+    {"Setting board sync pattern                    ", test_mb_p_setsyncpattern       },
     {"Adding message                                ", test_mb_p_addmessage           },
     {"Adding messages beyond single block           ", test_mb_p_addmessage_many      },
     {"Clearing message board                        ", test_mb_p_clear                },

@@ -19,7 +19,7 @@
  * \param[in] mb Message Board handle
  * \param[in] ft Filter handle
  * 
- * This routine does nothing apart from making sure the input \c mb us valid and not 
+ * This routine does nothing apart from making sure the input \c mb is valid and not 
  * locked (message filtering no needed in serial library).
  * 
  * While a valid board is not needed, checking its validity will help users identify 

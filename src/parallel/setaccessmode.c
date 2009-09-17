@@ -13,6 +13,8 @@
 #include "mb_parallel.h"
 
 #ifdef _EXTRA_CHECKS
+#include "mb_commqueue.h"
+#include "mb_syncqueue.h"
 #define IDENT_CHANGEACCESSMODE 1972356
     static void check_all_mb_equal(OM_key_t key);
     
@@ -35,7 +37,7 @@
  *   
  * Possible return codes:
  *  - ::MB_SUCCESS
- *  - ::MB_ERR_INVALID (\c is null or invalid, or \c MODE is invalid)
+ *  - ::MB_ERR_INVALID (\c mb is null or invalid, or \c MODE is invalid)
  *  - ::MB_ERR_MEMALLOC (unable to allocate required memory)
  *  - ::MB_ERR_LOCKED (\c mb is locked by another process)
  *  - ::MB_ERR_INTERNAL (internal error, possibly a bug)
@@ -47,6 +49,8 @@ int MB_SetAccessMode(MBt_Board mb, int MODE) {
     int i, rc, mode;
     int *mode_array;
     MBIt_Board  *board;
+    
+    assert(MBI_CommQueue_isEmpty() && MBI_SyncQueue_isEmpty());
     
     /* if message board is null */
     if (mb == MB_NULL_MBOARD)

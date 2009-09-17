@@ -336,6 +336,9 @@ int MB_Create(MBt_Board *mb_ptr, size_t msgsize);
 /* Set access mode of message board */
 int MB_SetAccessMode(MBt_Board mb, int MODE);
 
+/* Set read pattern for message board syncs */
+int MB_SetSyncPattern(MBt_Board mb, unsigned int *sync_matrix);
+
 /* Add message to board */
 int MB_AddMessage(MBt_Board mb, void *msg);
 
@@ -888,7 +891,7 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * not locked.
  * 
  * \warning It is recommended that you never call this routine when there
- * any synchronisation in progress. The MB_SetAccessMode() calls MPI routines
+ * any synchronisation in progress. MB_SetAccessMode() calls MPI routines
  * which may interfere with the synchronisation process if the underlying
  * MPI library is not thread compliant.
  * 
@@ -906,6 +909,63 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * \endif
  */
 
+/*!\if userdoc
+ * \fn MB_SetSyncPattern(MBt_Board mb, unsigned int *sync_matrix)
+ * \ingroup FUNC
+ * \brief Sets sync pattern of the Message Board
+ * \param[in] mb Message Board handle
+ * \param[in] sync_matrix Integer array representing board communication matrix
+ * 
+ * Sets the access pattern of the board to allow the board synchronisation 
+ * process to be optimised.
+ * 
+ * This routine is collective and must be called on all MPI processes.
+ * However, only the master node (MPI rank == 0) needs to provide a valid
+ * \c sync_matrix. The \c sync_matrix parameter will be ignored on all
+ * other nodes.
+ * 
+ * The \c sync_matrix array must be an element count equal to the square of
+ * the number of nodes. It is the users responsibility to provide a non-NULL
+ * \c sync_matrix which points to an array of apropriate size. 
+ * 
+ * \warning If an invalid \c sync_matrix is provided by the master node, the 
+ * routine may terminate or return errorneously, leaving the other nodes 
+ * waiting for further instrustions from the master node hence causing a 
+ * deadlock. 
+ * 
+ * The \c sync_matrix will be processed as an NxN matrix (where N is the number
+ * of nodes), whereby the row \c i will represent the amount of communication
+ * from all node to node \c i. A zero value will indicate no communication.
+ * 
+ * When a node does not read from any proc including itself (all zeros in 
+ * row \c i), it will be set to a non-reader and all \c MB_Iterator_*() 
+ * routines will be disabled.
+ * 
+ * Similarly, when a node does not send to any other proc including itself, 
+ * (add zeros in column \c i) it will be set to a non-writer and 
+ * MB_AddMessage() will be disabled.
+ * 
+ * This routine can only be called when the message board is empty and
+ * not locked.
+ * 
+ * \warning It is recommended that you never call this routine when there
+ * any synchronisation in progress. MB_SetSyncPattern() calls MPI routines
+ * which may interfere with the synchronisation process if the underlying
+ * MPI library is not thread compliant.
+ * 
+ * Possible return codes:
+ *  - ::MB_SUCCESS
+ *  - ::MB_ERR_INVALID (\c is null or invalid, or \c sync_matrix is null)
+ *  - ::MB_ERR_MEMALLOC (unable to allocate required memory)
+ *  - ::MB_ERR_LOCKED (\c mb is locked by another process)
+ *  - ::MB_ERR_MPI (error when calling MPI routines)
+ *  - ::MB_ERR_NOTREADY (board is not empty)
+ * 
+ * Usage example:
+ * (to be included)
+ * \endif
+ */
+ 
 /*!\if userdoc
  * \fn MB_AddMessage(MBt_Board mb, void *msg)
  * \ingroup FUNC

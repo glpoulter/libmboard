@@ -13,13 +13,14 @@ Adding a new test
    where TAG is a keyword unique to the suite while FUNC is the function or
    feature you wish to test.
    
-   Do no follow the test_TAG<n>.c naming scheme used in older test suites. 
-   Those are a result of an unfortunate oversight during initial development
-   that makes looking for test functions a nightmare. 
-
-   (Alternatively, if your new test is is related to previous tests, you may 
+   Alternatively, if your new test is is related to previous tests, you may 
    choose to add the test function into an existing .c file. If so, skip to 
-   step 4)
+   step 4.
+   
+   (Do no follow the test_TAG<n>.c naming scheme used in older test suites. 
+   Those are a result of an unfortunate oversight during initial development
+   that makes looking for test functions a nightmare.) 
+
 
 3. Modify Makefile.am by adding the new file to the lib_t_SUITENAME_la_SOURCES
    entry. This will ensure that your new files is included in the compilation

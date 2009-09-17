@@ -21,7 +21,7 @@
  * Sets the \c board->is_reader and \c board->is_writer flags.
  * 
  * While access modes aren't really used in the serial implementation, 
- * we go ahead and set the modes as well disable the relevant routines
+ * we go ahead and set the modes as well as disable the relevant routines
  * when read/write access is disabled. This is to ensure that the
  * serial API has the same behaviour as the parallel to make it easier
  * for users to reuse their serial code when porting to parallel.

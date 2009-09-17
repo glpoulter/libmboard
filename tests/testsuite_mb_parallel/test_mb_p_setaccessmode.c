@@ -8,6 +8,8 @@
 
 #include "header_mb_parallel.h"
 
+#define PSEUDO_BARRIER(mbx) MB_SyncStart(mbx); MB_SyncComplete(mbx)
+
 /* Test MB_SetAccessMode */
 void test_mb_p_setaccessmode(void) {
     
@@ -45,7 +47,7 @@ void test_mb_p_setaccessmode(void) {
     
     /* non-empty board */
     rc = MB_AddMessage(mb, &rc);
-    CU_ASSERT_EQUAL_FATAL(rc, MB_SUCCESS);
+    CU_ASSERT_EQUAL(rc, MB_SUCCESS);
     rc = MB_SetAccessMode(mb, MB_MODE_IDLE);
     CU_ASSERT_EQUAL(rc, MB_ERR_NOTREADY);
     CU_ASSERT_EQUAL(board->is_reader, MB_TRUE); /* default */
@@ -56,14 +58,13 @@ void test_mb_p_setaccessmode(void) {
     
     /* --- cycle through different modes --- */
     /* some tests repeated to make sure both flags are toggled */
-    
     rc = MB_SetAccessMode(mb, MB_MODE_IDLE);
     CU_ASSERT_EQUAL(rc, MB_SUCCESS);
     CU_ASSERT_EQUAL(board->is_reader, MB_FALSE);
     CU_ASSERT_EQUAL(board->is_writer, MB_FALSE);
     CU_ASSERT_EQUAL(board->reader_count, 0);
     CU_ASSERT_EQUAL(board->writer_count, 0);
-    
+
     rc = MB_SetAccessMode(mb, MB_MODE_READWRITE);
     CU_ASSERT_EQUAL(rc, MB_SUCCESS);
     CU_ASSERT_EQUAL(board->is_reader, MB_TRUE);
