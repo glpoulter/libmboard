@@ -293,9 +293,21 @@ inline static void initiate_board_sync(MBt_Board mb) {
 #endif
     
     /* push board into communication queue */
-    /*rc = MBI_CommQueue_Push(mb, MB_COMM_OLD_PRE_TAGGING);*/
-    rc = MBI_CommQueue_Push(mb, MB_COMM_HANDSHAKE_PRE_PROP);
-    assert(rc == MB_SUCCESS);
+    assert(MBI_CONFIG.comm_protocol > MB_CONFIG_PROTO_START);
+    assert(MBI_CONFIG.comm_protocol < MB_CONFIG_PROTO_END);
+    switch (MBI_CONFIG.comm_protocol) 
+    {
+        case MB_CONFIG_PROTO_HANDSHAKE:
+            rc = MBI_CommQueue_Push(mb, MB_COMM_HANDSHAKE_PRE_PROP);
+            assert(rc == MB_SUCCESS);
+            break;
+        case MB_CONFIG_PROTO_OLD:
+            rc = MBI_CommQueue_Push(mb, MB_COMM_OLD_PRE_TAGGING);
+            assert(rc == MB_SUCCESS);
+            break;
+        default:
+            assert(0); /* incomplete config setup ? */
+    }
 }
 
 /* 

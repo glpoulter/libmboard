@@ -1,6 +1,6 @@
 /* $Id$ */
 /*!
- * \file serial/SetSyncPattern.c
+ * \file serial/setsyncpattern.c
  * \code
  *      Author: Lee-Shawn Chin 
  *      Date  : Sept 2009

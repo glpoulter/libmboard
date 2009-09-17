@@ -40,9 +40,10 @@
  * different communication strategies.
  * 
  * The different strategies are:
- *  - Old comm routines (OLD): Comm routine pre 0.2.1. Similar to STAGED
+ *  - Old comm routines (OLD): Comm routine pre 0.2.1. Similar to HANDSHAKE
  *    but does not consider board access modes.
- *  - Staged Issends (STAGED): ... more info ...
+ *  - Staged Issends (HANDSHAKE): similar to OLD, but takes into account
+ *    access modes and sync patterns.
  */
 enum MBIt_CommStage {
     

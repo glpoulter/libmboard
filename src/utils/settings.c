@@ -22,9 +22,11 @@
 #endif
 
 #ifdef PRINT_CONFIG
-#define P_CONFIG(n,v,e) printf("[libmboard] <settings> %s = %d %s\n", n, v, e)
+#define P_CONFIG(n,v,e)   printf("[libmboard] <settings> %s = %d %s\n", n, v, e)
+#define P_CONFIG_S(n,v,e) printf("[libmboard] <settings> %s = %s %s\n", n, v, e)
 #else
 #define P_CONFIG(n,v,e)
+#define P_CONFIG_S(n,v,e)
 #endif
     
 #define DEFAULT_OFF 0
@@ -39,6 +41,9 @@ static unsigned int _read_env_uint(const char *varname,
                                     unsigned int minimum,
                                     unsigned int maximum,
                                     unsigned int default_value);
+#ifdef _PARALLEL
+static unsigned int _read_env_protocol(const char *varname);
+#endif
 
 /*! \brief sets default configuration parameters and reads environment
  * variables to apply necessary changes
@@ -53,6 +58,10 @@ void MBI_update_settings(void) {
                                                     10,     /* minimum */
                                                     1000000,  /* maximum */
                                                     512);   /* default */
+#ifdef _PARALLEL
+    /* communication protocol to use */
+    MBI_CONFIG.comm_protocol = _read_env_protocol("MBOARD_COMM_PROTOCOL");
+#endif
 }
 
 /*! \brief check environment variable for boolean-based settings 
@@ -146,3 +155,41 @@ static unsigned int _read_env_uint(const char *varname,
     P_INFO("Env Var: %s not defined. Setting default value = %d", varname, default_value);
     return default_value; /* default value */
 }
+
+#ifdef _PARALLEL
+/*! \brief check environment variable for which communication protocol to use
+ * \param[in] varname Name of environment variable to check for
+ * \return Value to update settings with
+ * 
+ */
+static enum MBIt_config_protocols _read_env_protocol(const char *varname) {
+
+    char *str;
+    
+    str = getenv(varname);
+    if (str != NULL) /* env var defined */
+    {
+        if (strcmp(str, "HANDSHAKE") == 0)
+        {
+            P_CONFIG_S(varname, str, "");
+            return MB_CONFIG_PROTO_HANDSHAKE;
+        }
+        else if (strcmp(str, "OLD") == 0)
+        {
+
+            P_CONFIG_S(varname, str, "");
+            return MB_CONFIG_PROTO_OLD;
+        }
+        else
+        {
+            P_WARNING("Env Var: %s set to invalid value \"%s\". Ignoring.", 
+                        varname, str);
+        }
+        
+    }
+    
+    /* default value */
+    P_CONFIG_S(varname, "HANDSHAKE", "(default)");
+    return MB_CONFIG_PROTO_HANDSHAKE;
+}
+#endif

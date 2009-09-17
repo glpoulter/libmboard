@@ -1724,6 +1724,8 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * -# \ref tune_mem
  *  - \ref mempool_recycle
  *  - \ref mempool_blocksize
+ * -# \ref tune_comm
+ *  - \ref comm_protocol
  *
  * <hr>
  * 
@@ -1761,6 +1763,21 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * The value assigned to \c MBOARD_MEMPOOL_BLOCKSIZE must be between 10 to 
  * 1,000,000. If an invalid value is set to the environment variable, or if
  * the variable is not defined, the default value will be used.
+ * 
+ * \section tune_comm Environmen variables to tune communication between boards
+ * 
+ * The following environment variables can be used to influence the
+ * communication strategies adopted when synchronising message boards.
+ * 
+ * \subsection comm_protocol MBOARD_COMM_PROTOCOL (default: "HANDSHAKE")
+ * 
+ * Use this variable to switch to a communication protocol that will suit
+ * your hardware setup and underlying MPI implementation.
+ * 
+ * \c MBOARD_COMM_PROTOCOL can be set to one of the following protocols:
+ * 
+ *  - "HANDSHAKE" : ... more info here ... 
+ *  - "OLD" : ... more info here ... 
  * 
  * \endif
  */
