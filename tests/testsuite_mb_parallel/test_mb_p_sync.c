@@ -9,6 +9,7 @@
 #include "header_mb_parallel.h"
 
 #define SMALLNUM 10
+#define SETVAL(matrix, r, c, val) matrix[(r*MBI_CommSize) + c] = val
 static int _cmpfunc (const void *m1, const void *m2);
 static int _filterfunc (const void *m, int pid);
 static int _filterfunc2 (const void *m, int pid);
@@ -372,9 +373,16 @@ void test_mb_p_sync_indexmap(void) {
         CU_ASSERT_EQUAL(rc, MB_SUCCESS);
     }
     
+    /* add a barriers so all procs issue IndexMap_Sync before proceeding
+     * else other procs may start to issue SyncStart() before this one does
+     * an IndexMap_Sync()
+     */
+    MPI_Barrier(MPI_COMM_WORLD);
+    
     /* sync map */
     rc = MB_IndexMap_Sync(map);
     CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+    
     
     /* create board */
     rc = MB_Create(&mb, sizeof(int));
@@ -458,6 +466,171 @@ void test_mb_p_sync_indexmap(void) {
     CU_ASSERT_EQUAL(rc, MB_SUCCESS);
     CU_ASSERT_EQUAL(mb, MB_NULL_MBOARD);
     
+}
+
+void test_mb_p_sync_accessmode(void) {
+    
+    int i, v, half, rc;
+    MBt_Board mb;
+    MBIt_Board *board;
+    
+    if (testsuite_mpi_size < 4) return;
+    
+
+    
+    /* --- create board */
+    rc = MB_Create(&mb, sizeof(int));
+    CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+    board = (MBIt_Board *)MBI_getMBoardRef(mb);
+    CU_ASSERT_PTR_NOT_NULL_FATAL(board);
+    
+    /* first half nodes read, second half write */
+    half = testsuite_mpi_size / 2;
+    MPI_Barrier(MPI_COMM_WORLD);
+    if (testsuite_mpi_rank < half) /* read-only */
+    {
+        rc = MB_SetAccessMode(mb, MB_MODE_READONLY);
+        CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+        
+        rc = MB_SyncStart(mb);
+        CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+        rc = MB_SyncComplete(mb);
+        CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+        
+        /* check board size */
+        CU_ASSERT_EQUAL((int)board->data->count_current, 
+                PARALLEL_TEST_MSG_COUNT * (testsuite_mpi_size - half));
+    }
+    else /* write-only */
+    {
+        rc = MB_SetAccessMode(mb, MB_MODE_WRITEONLY);
+        CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+        
+        for (i = 0; i < PARALLEL_TEST_MSG_COUNT; i++)
+        {
+            v = (testsuite_mpi_rank * PARALLEL_TEST_MSG_COUNT) + i;
+            rc = MB_AddMessage(mb, &v);
+            if (rc != MB_SUCCESS) CU_FAIL("Failed to add message");
+        }
+        
+        rc = MB_SyncStart(mb);
+        CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+        rc = MB_SyncComplete(mb);
+        CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+        
+        /* check board size */
+        CU_ASSERT_EQUAL((int)board->data->count_current, 
+                PARALLEL_TEST_MSG_COUNT);
+    }
+    
+    /* clear messages */
+    rc = MB_Clear(mb);
+    CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+    
+    /* first half nodes read-write, second half idle */
+    MPI_Barrier(MPI_COMM_WORLD);
+    if (testsuite_mpi_rank < half) /* read-only */
+    {
+        rc = MB_SetAccessMode(mb, MB_MODE_READWRITE);
+        CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+        
+        for (i = 0; i < PARALLEL_TEST_MSG_COUNT; i++)
+        {
+            v = (testsuite_mpi_rank * PARALLEL_TEST_MSG_COUNT) + i;
+            rc = MB_AddMessage(mb, &v);
+            if (rc != MB_SUCCESS) CU_FAIL("Failed to add message");
+        }
+        
+        rc = MB_SyncStart(mb);
+        CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+        rc = MB_SyncComplete(mb);
+        CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+        
+        /* check board size */
+        CU_ASSERT_EQUAL((int)board->data->count_current, 
+                PARALLEL_TEST_MSG_COUNT * half);
+    }
+    else /* write-only */
+    {
+        rc = MB_SetAccessMode(mb, MB_MODE_IDLE);
+        CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+        
+        rc = MB_SyncStart(mb);
+        CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+        rc = MB_SyncComplete(mb);
+        CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+        
+        /* check board size */
+        CU_ASSERT_EQUAL((int)board->data->count_current, 0);
+    }
+    
+    /* --- delete board */
+    rc = MB_Delete(&mb);
+    CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+    CU_ASSERT_EQUAL(mb, MB_NULL_MBOARD);
+}
+
+void test_mb_p_sync_pattern(void) {
+    
+    int count, c, c2, i, rc, v;
+    unsigned int *sync_matrix;
+    MBt_Board mb;
+    MBIt_Board *board;
+    
+    if (MBI_CommSize < 4) return;
+    
+    count = testsuite_mpi_size * testsuite_mpi_size;
+    
+    sync_matrix = (unsigned int*)calloc((size_t)count, sizeof(unsigned int));
+    CU_ASSERT_PTR_NOT_NULL_FATAL(sync_matrix);
+    
+    /* populate matrix so board only reads message from self and next 2 
+     * procs in list (cyclic)
+     */
+    for (i = 0; i < testsuite_mpi_size; i++)
+    {
+        c  = (i + 1) % testsuite_mpi_size;
+        c2 = (i + 2) % testsuite_mpi_size;
+        SETVAL(sync_matrix, i, i, 1);
+        SETVAL(sync_matrix, i, c, 1);
+        SETVAL(sync_matrix, i, c2, 1);
+    }
+    
+    /* --- create board */
+    rc = MB_Create(&mb, sizeof(int));
+    CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+    board = (MBIt_Board *)MBI_getMBoardRef(mb);
+    CU_ASSERT_PTR_NOT_NULL_FATAL(board);
+    
+    /* set sync pattern */
+    MPI_Barrier(MPI_COMM_WORLD);
+    rc = MB_SetSyncPattern(mb, sync_matrix);
+    
+    /* add messages to board */
+    for (i = 0; i < PARALLEL_TEST_MSG_COUNT; i++)
+    {
+        v = (testsuite_mpi_rank * PARALLEL_TEST_MSG_COUNT) + i;
+        rc = MB_AddMessage(mb, &v);
+        if (rc != MB_SUCCESS) CU_FAIL("Failed to add message");
+    }
+    CU_ASSERT_EQUAL((int)board->data->count_current, PARALLEL_TEST_MSG_COUNT);
+    
+    /* sync */
+    rc = MB_SyncStart(mb);
+    CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+    rc = MB_SyncComplete(mb);
+    CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+    
+    /* check post-sync msg count */
+    CU_ASSERT_EQUAL((int)board->data->count_current, 3 * PARALLEL_TEST_MSG_COUNT);
+    
+    /* clean up */
+    free(sync_matrix);
+    
+    /* --- delete board */
+    rc = MB_Delete(&mb);
+    CU_ASSERT_EQUAL(rc, MB_SUCCESS);
+    CU_ASSERT_EQUAL(mb, MB_NULL_MBOARD);
 }
 
 void test_mb_p_sync_resync(void) {

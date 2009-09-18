@@ -30,6 +30,15 @@
 #include "mb_pooled_list.h"
 #include "mb_tag_table.h"
 
+/*!
+ * \brief complete the communication process
+ * \param[in] node address of CommQueue node
+ * 
+ * Finalises the relevant values in node and board, and sends a signal
+ * to awake any threads that are idle-waiting on this comm.
+ */
+static void _complete_comm_process(struct MBIt_commqueue *node);
+
 /*! 
  * \brief Tag messages in the board
  * \param[in] node address of CommQueue node
@@ -225,7 +234,7 @@ int MBI_CommRoutine_HANDSHAKE_AgreeBufSizes(struct MBIt_commqueue *node) {
     /* if no readers not writers, sync process is done */
     if (node->board->writer_count == 0 && node->board->reader_count == 0)
     {   
-        node->stage = MB_COMM_END;
+        _complete_comm_process(node);
         return MB_SUCCESS_2; /* signal sync completed */
     }   
     
@@ -839,30 +848,38 @@ int MBI_CommRoutine_HANDSHAKE_LoadAndFreeBuffers(struct MBIt_commqueue *node) {
         free(node->sendreq2); node->sendreq2 = NULL;
         free(node->recvreq2); node->recvreq2 = NULL;
         
-
+        _complete_comm_process(node);
         
-        /* capture lock for board */
-        rc = pthread_mutex_lock(&(node->board->syncLock));
-        assert(0 == rc);
-        
-        /* mark sync as completed */
-        node->board->syncCompleted = MB_TRUE;
-
-        /* update cursor */
-        rc = MBI_CommUtil_UpdateCursor(node->board);
-        assert(rc == MB_SUCCESS);
-        
-        /* release lock */
-        rc = pthread_mutex_unlock(&(node->board->syncLock));
-        assert(0 == rc);
-        
-        /* send signal to wake main thread waiting on this board */
-        rc = pthread_cond_signal(&(node->board->syncCond));
-        assert(0 == rc);
-        
-        node->stage = MB_COMM_END;
         return MB_SUCCESS_2; /* signal end of comm process */
     }
     
     return MB_SUCCESS;
+}
+
+static void _complete_comm_process(struct MBIt_commqueue *node) {
+    
+    int rc;
+    assert(node != NULL);
+    
+    /* capture lock for board */
+    rc = pthread_mutex_lock(&(node->board->syncLock));
+    assert(0 == rc);
+    
+    /* mark sync as completed */
+    node->board->syncCompleted = MB_TRUE;
+
+    /* update cursor */
+    rc = MBI_CommUtil_UpdateCursor(node->board);
+    assert(rc == MB_SUCCESS);
+
+    /* set node to END marker */
+    node->stage = MB_COMM_END;
+    
+    /* release lock */
+    rc = pthread_mutex_unlock(&(node->board->syncLock));
+    assert(0 == rc);
+    
+    /* send signal to wake main thread waiting on this board */
+    rc = pthread_cond_signal(&(node->board->syncCond));
+    assert(0 == rc);
 }

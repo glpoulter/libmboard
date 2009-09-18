@@ -1663,7 +1663,7 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * MB_IndexMap_AddEntry()) and before and queries are made (using 
  * MB_IndexMap_MemberOf()).
  * 
- * \warning This routine calls MPI Routines, and should therefore never be called
+ * \warning This routine calls MPI Routines and should therefore never be called
  * when there are any Message Board syncs in progress as this will cause
  * problems with MPI Libraries that do not support full threading.
  * 

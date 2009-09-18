@@ -130,6 +130,8 @@ void test_mb_p_sync_checkcontent(void);
 void test_mb_p_sync_withfilter(void);
 void test_mb_p_sync_withfilter_fdr(void);
 void test_mb_p_sync_indexmap(void);
+void test_mb_p_sync_accessmode(void);
+void test_mb_p_sync_pattern(void);
 void test_mb_p_sync_resync(void);
 void test_mb_p_sync_resync_filtered(void);
 
