@@ -242,12 +242,14 @@ inline static void processSyncRequests(void) {
  * with an error. 
  * 
  * If transition routine returns ::MB_SUCCESS_2, it means communication has
- * completed for that node and can be removed from the queue.
- * 
+ * completed for that node and can be removed from the queue. Once the node
+ * is dequeued, a signal is sent to wake up any other threads that may be
+ * waiting on the board.
  */
 inline static void processPendingComms(void) {
     int rc;
     struct MBIt_commqueue *node, *next;
+    MBIt_Board *board;
     
     /* loop thru comm queue */
     next = MBI_CommQueue_GetFirstNode();
@@ -264,7 +266,27 @@ inline static void processPendingComms(void) {
         if (rc != MB_SUCCESS)
         {
             /* Comm for this node has completed. Remove from list */
-            if (rc == MB_SUCCESS_2) MBI_CommQueue_Pop(node);
+            if (rc == MB_SUCCESS_2) 
+            {
+                /* get reference to board */
+                board = node->board;
+                assert(board != NULL);
+                assert(board->syncCompleted = MB_TRUE);
+                /* dequeue comm node */
+                MBI_CommQueue_Pop(node);
+                
+                /* capture lock for board */
+                rc = pthread_mutex_lock(&(board->syncLock));
+                assert(0 == rc);
+                
+                /* release lock */
+                rc = pthread_mutex_unlock(&(board->syncLock));
+                assert(0 == rc);
+                
+                /* send signal to wake main thread waiting on this board */
+                rc = pthread_cond_signal(&(board->syncCond));
+                assert(0 == rc);
+            }
             else complain_and_terminate(rc, node->stage);
         }
     }

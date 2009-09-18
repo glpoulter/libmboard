@@ -1003,23 +1003,11 @@ int MBI_CommRoutine_OLD_CompletePropagation(struct MBIt_commqueue *node) {
         free(node->sendreq);  node->sendreq = NULL;
         free(node->recvreq);  node->recvreq = NULL;
         
-        /* capture lock for board */
-        rc = pthread_mutex_lock(&(node->board->syncLock));
-        assert(0 == rc);
-        
         /* move cursor */
         node->board->synced_cursor = node->board->data->count_current;
         
         /* mark sync as completed */
         node->board->syncCompleted = MB_TRUE;
-
-        /* release lock */
-        rc = pthread_mutex_unlock(&(node->board->syncLock));
-        assert(0 == rc);
-        
-        /* send signal to wake main thread waiting on this board */
-        rc = pthread_cond_signal(&(node->board->syncCond));
-        assert(0 == rc);
         
         /* move to end state and indicate that we're done */
         P_INFO("COMM: (Board %d) sync process completed", node->mb);

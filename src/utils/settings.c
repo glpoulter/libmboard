@@ -12,7 +12,6 @@
  * 
  */
 #include "mb_settings.h"
-#include "mb_reporting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -91,7 +90,6 @@ static unsigned int _read_env_bool(const char *varname, unsigned int default_val
                 strcmp(value, "TRUE") == 0 )
         {
             P_CONFIG(varname, 1, "");
-            P_INFO("Env Var: %s set to %s. Feature enabled", varname, value);
             return 1; /* enable */
         }
         else if (
@@ -101,16 +99,11 @@ static unsigned int _read_env_bool(const char *varname, unsigned int default_val
                 strcmp(value, "FALSE") == 0 )
         {
             P_CONFIG(varname, 0, "");
-            P_INFO("Env Var: %s set to %s. Feature disabled", varname, value);
             return 0; /* disable */
         }
-        
-        
-        P_WARNING("Env Var: %s set to invalid value \"%s\". Ignoring.", varname, value);
     }
     
     P_CONFIG(varname, default_value, "(default)");
-    P_INFO("Env Var: %s not defined. Setting default value = %d", varname, default_value);
     return default_value; /* default value */
 }
 
@@ -139,20 +132,13 @@ static unsigned int _read_env_uint(const char *varname,
         value = (unsigned int) atoi(str);
         if (value >= minimum && value <= maximum)
         {
-            
             P_CONFIG(varname, value, "");
-            P_INFO("Env Var: %s set to %d", varname, value);
             return value;
         }
-        else /* invalid value */
-        {
-            P_WARNING("Env Var: %s set to invalid value \"%s\" (must be %d-%d). Ignoring.", 
-                        varname, value, minimum, maximum);
-        }
+
     }
     
     P_CONFIG(varname, default_value, "(default)");
-    P_INFO("Env Var: %s not defined. Setting default value = %d", varname, default_value);
     return default_value; /* default value */
 }
 
@@ -180,12 +166,6 @@ static enum MBIt_config_protocols _read_env_protocol(const char *varname) {
             P_CONFIG_S(varname, str, "");
             return MB_CONFIG_PROTO_OLD;
         }
-        else
-        {
-            P_WARNING("Env Var: %s set to invalid value \"%s\". Ignoring.", 
-                        varname, str);
-        }
-        
     }
     
     /* default value */

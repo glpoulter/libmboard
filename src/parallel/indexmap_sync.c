@@ -50,7 +50,7 @@ int MB_IndexMap_Sync(MBt_IndexMap im) {
     int *outcount, *count;
     MPI_Request *sendreq, *recvreq;
     int *outbuf, **inbuf;
-    
+
     assert(MBI_CommQueue_isEmpty() && MBI_SyncQueue_isEmpty());
     
     /* check for null boards */
