@@ -468,7 +468,7 @@ void test_cr_handshake_agreebufsizes_rw_id(void) {
     {
         CU_ASSERT_PTR_NOT_NULL_FATAL(node->board);
         CU_ASSERT_EQUAL(node->board->locked, MB_TRUE);
-        CU_ASSERT_EQUAL(node->board->syncCompleted, MB_FALSE);
+        CU_ASSERT_EQUAL(node->board->syncCompleted, MB_TRUE);
         CU_ASSERT_EQUAL(node->board->reader_count, 0);
         CU_ASSERT_EQUAL(node->board->writer_count, 0);
         CU_ASSERT_EQUAL(node->flag_fdrFallback, MB_FALSE);

@@ -30,7 +30,7 @@ then
 	TESTS="$TESTS $PARALLEL_TESTS"
 
 	# Opts to run test in parallel
-	PROCS_TO_USE="2"
+	PROCS_TO_USE="4"
 	MPIEXEC_ARGS="-np ${PROCS_TO_USE}"
 	MPIEXEC_CMDS="mpiexec mpirun"
 	# search for suitable MPIEXEC
