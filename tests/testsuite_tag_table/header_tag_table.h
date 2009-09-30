@@ -9,17 +9,12 @@
 #ifndef HEADER_TAG_TABLE_H_
 #define HEADER_TAG_TABLE_H_
 
-#include "CUnit/CUnit.h"
+#include "../testing.h"
 #include "mb_tag_table.h"
-#include <stdlib.h>
 #include <math.h>
 
-
-/* ==== Internal routines ===== */
-/* create and text OM object */
-/* MBIt_objmap* create_om_obj(); */
-
-
+int init_tt(void);
+int clean_tt(void);
 
 /* ===== Begin Function prototype for test cases ===== */
 

@@ -9,7 +9,7 @@
 #include "header_objmap.h"
 
 /* create and text OM object */
-MBIt_objmap* create_om_obj() {
+MBIt_objmap* create_om_obj(void) {
     MBIt_objmap *mymap = NULL;
     
     mymap = MBI_objmap_new();

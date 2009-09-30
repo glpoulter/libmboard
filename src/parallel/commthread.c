@@ -271,7 +271,7 @@ inline static void processPendingComms(void) {
                 /* get reference to board */
                 board = node->board;
                 assert(board != NULL);
-                assert(board->syncCompleted = MB_TRUE);
+                assert(board->syncCompleted == MB_TRUE);
                 /* dequeue comm node */
                 MBI_CommQueue_Pop(node);
                 

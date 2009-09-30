@@ -41,7 +41,7 @@ static unsigned int _read_env_uint(const char *varname,
                                     unsigned int maximum,
                                     unsigned int default_value);
 #ifdef _PARALLEL
-static unsigned int _read_env_protocol(const char *varname);
+static enum MBIt_config_protocols _read_env_protocol(const char *varname);
 #endif
 
 /*! \brief sets default configuration parameters and reads environment

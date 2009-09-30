@@ -230,6 +230,8 @@ int MBI_CommRoutine_HANDSHAKE_AgreeBufSizes(struct MBIt_commqueue *node) {
         
         /* set node to END marker */
         node->stage = MB_COMM_END;
+        
+        P_INFO("COMM: Sync not required for board %d. MB_COMM_END.", (int)node->mb);
         return MB_SUCCESS_2; /* signal sync completed */
     }   
     
@@ -270,6 +272,9 @@ int MBI_CommRoutine_HANDSHAKE_AgreeBufSizes(struct MBIt_commqueue *node) {
         assert(rc == MPI_SUCCESS);
         if (rc != MPI_SUCCESS) return MB_ERR_MPI;
         
+        P_INFO("MPI: (Board %d) Irecv(src=%d)",
+                (int)node->mb, p);
+        
         node->pending_in++;
     }
     
@@ -282,6 +287,8 @@ int MBI_CommRoutine_HANDSHAKE_AgreeBufSizes(struct MBIt_commqueue *node) {
         rc = MBI_CommUtil_TagMessages(node->board, node->outcount);
         if (rc == MB_SUCCESS_2) /* fallback to full data replication */
         {
+            P_INFO("COMM: (Board %d) Tagged messages exceeds message count."
+                    "Delegating filtering to recipient", (int)node->mb);
             node->flag_fdrFallback = MB_TRUE;
         }
         else if (rc == MB_SUCCESS)
@@ -289,6 +296,8 @@ int MBI_CommRoutine_HANDSHAKE_AgreeBufSizes(struct MBIt_commqueue *node) {
             node->flag_fdrFallback = MB_FALSE;
             if (node->board->filter != NULL)
             {
+                P_INFO("COMM: (Board %d) is filtered. Messages tagged", 
+                        (int)node->mb);
                 assert(node->board->tt != NULL);
                 node->flag_shareOutbuf = MB_FALSE;
             }
@@ -305,12 +314,17 @@ int MBI_CommRoutine_HANDSHAKE_AgreeBufSizes(struct MBIt_commqueue *node) {
                 assert(rc == MPI_SUCCESS);
                 if (rc != MPI_SUCCESS) return MB_ERR_MPI;
                 
+                P_INFO("MPI: (Board %d) Issend(rcpt=%d, data=%d)",
+                        (int)node->mb, i, node->outcount[i]);
+                
                 node->pending_out++;
             }
         }
     }
     
     node->stage = MB_COMM_HANDSHAKE_START_PROP;
+    P_INFO("COMM: (Board %d) moving to MB_COMM_HANDSHAKE_START_PROP stage",
+            (int)node->mb);
     return MB_SUCCESS;
 }
 
@@ -578,18 +592,28 @@ int MBI_CommRoutine_HANDSHAKE_PropagateMessages(struct MBIt_commqueue *node) {
         {
             node->pending_out--;
             p = MBI_comm_indices[i];
+            P_INFO("MPI: (Board %d) Completed Issend(rcpt=%d)",
+                    (int)node->mb, p);
             if (node->outcount[p] < 1) continue; /* nothing to send */
             
             if (node->flag_shareOutbuf == MB_TRUE) buf = node->outbuf[0];
             else buf = node->outbuf[p];
             assert(buf != NULL);
-           
+            
+            P_INFO("COMM: (Board %d) Sending %d of %d new messages to %d",
+                    (int)node->mb, node->outcount[p],
+                    (int)(node->board->data->count_current - 
+                            node->board->synced_cursor));
+            
             size = 1 + (node->outcount[p] * node->board->data->elem_size);
             
             rc = MPI_Issend(buf, size, MPI_BYTE, p, 
                             tag, MBI_CommWorld, &(node->sendreq2[p]));
             assert(rc == MPI_SUCCESS);
             if (rc != MPI_SUCCESS) return MB_ERR_MPI;
+            
+            P_INFO("MPI: (Board %d) Issend(rcpt=%d, bytes=%d)",
+                    (int)node->mb, p, size);
             
             node->pending_out2 ++;
         }
@@ -607,8 +631,13 @@ int MBI_CommRoutine_HANDSHAKE_PropagateMessages(struct MBIt_commqueue *node) {
         {
             node->pending_in--;
             p = MBI_comm_indices[i];
+            P_INFO("MPI: (Board %d) Completed Irecv(src=%d)",
+                    (int)node->mb, p);
             if (node->incount[p] < 1) continue; /* nothing to receive */
             
+            P_INFO("COMM: (Board %d) Expecting %d messages from %d",
+                    (int)node->mb, node->incount[p], p);
+                    
             size = 1 + (node->incount[p] * node->board->data->elem_size);
             node->inbuf[p] = malloc((size_t)size);
             assert(node->inbuf[p] != NULL);
@@ -618,6 +647,9 @@ int MBI_CommRoutine_HANDSHAKE_PropagateMessages(struct MBIt_commqueue *node) {
                             tag, MBI_CommWorld, &(node->recvreq2[p]));
             assert(rc == MPI_SUCCESS);
             if (rc != MPI_SUCCESS) return MB_ERR_MPI;
+            
+            P_INFO("MPI: (Board %d) Irecv(src=%d, bytes=%d)",
+                    (int)node->mb, p, size);
             
             node->pending_in2 ++;
         }
@@ -632,6 +664,8 @@ int MBI_CommRoutine_HANDSHAKE_PropagateMessages(struct MBIt_commqueue *node) {
         free(node->recvreq);  node->recvreq = NULL;
         free(node->outcount); node->outcount = NULL;
         node->stage = MB_COMM_HANDSHAKE_COMPLETE_PROP;
+        P_INFO("COMM: (Board %d) moving to MB_COMM_HANDSHAKE_COMPLETE_PROP stage",
+                (int)node->mb);
     }
     
     return MB_SUCCESS;
@@ -798,6 +832,8 @@ int MBI_CommRoutine_HANDSHAKE_LoadAndFreeBuffers(struct MBIt_commqueue *node) {
         {
             node->pending_out2 --;
             p = MBI_comm_indices[i];
+            P_INFO("MPI: (Board %d) Completed Issend(rcpt=%d)",
+                    (int)node->mb, p);
             if (node->flag_shareOutbuf == MB_FALSE)
             {
                 assert(node->outbuf[p] != NULL);
@@ -820,7 +856,8 @@ int MBI_CommRoutine_HANDSHAKE_LoadAndFreeBuffers(struct MBIt_commqueue *node) {
         {
             node->pending_in2 --;
             p = MBI_comm_indices[i];
-            
+            P_INFO("MPI: (Board %d) Completed Irecv(src=%d)",
+                    (int)node->mb, p);
             size = 1 + (node->incount[p] * node->board->data->elem_size);
             rc = MBI_CommUtil_LoadBuffer(node->board, node->inbuf[p], 
                                          (size_t)size);
@@ -852,7 +889,8 @@ int MBI_CommRoutine_HANDSHAKE_LoadAndFreeBuffers(struct MBIt_commqueue *node) {
         
         /* set node to END marker */
         node->stage = MB_COMM_END;
-        
+        P_INFO("COMM: (Board %d) sync process completed. MB_COMM_END.",
+                (int)node->mb);
         return MB_SUCCESS_2; /* signal end of comm process */
     }
     

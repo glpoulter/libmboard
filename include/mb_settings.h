@@ -56,10 +56,7 @@ struct MBIt_config_data {
      */
     unsigned int mempool_blocksize;
     
-    /*! \brief ID of communication protocol to use 
-
-     * 
-     */
+    /*! \brief ID of communication protocol to use */
     enum MBIt_config_protocols comm_protocol;
 };
 

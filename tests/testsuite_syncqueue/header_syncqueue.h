@@ -9,8 +9,11 @@
 #ifndef HEADER_SYNCQUEUE_H_
 #define HEADER_SYNCQUEUE_H_
 
-#include "CUnit/CUnit.h"
+#include "../testing.h"
 #include "mb_syncqueue.h"
+
+int init_sq(void);
+int clean_sq(void);
 
 /* ----- Source file: test_sq1.c ----- */
 

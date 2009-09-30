@@ -9,12 +9,14 @@
 #ifndef HEADER_MB_SERIAL_H_
 #define HEADER_MB_SERIAL_H_
 
-#include "CUnit/CUnit.h"
+#include "../testing.h"
 #include "mb_serial.h"
 #include "mb_objmap.h"
-#include <stdlib.h>
 
 #define SERIAL_TEST_MSG_COUNT 2048
+
+int init_mb_serial(void);
+int clean_mb_serial(void);
 
 /* ===== Begin Function prototype for test cases ===== */
 

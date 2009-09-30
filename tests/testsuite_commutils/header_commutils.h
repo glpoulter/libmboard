@@ -8,7 +8,7 @@
 #ifndef HEADER_COMMUTILS_H_
 #define HEADER_COMMUTILS_H_
 
-#include "CUnit/CUnit.h"
+#include "../testing.h"
 #include "mb_commqueue.h"
 #include "mb_commroutines.h"
 #include "mb_parallel.h"

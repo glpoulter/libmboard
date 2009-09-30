@@ -87,7 +87,7 @@ fi
 ver=`libtoolize --version 2>/dev/null | sed -e '1s/[^0-9]*//' -e q`
 if test "x$ver" == "x"; then 
     echo "ERROR: libtoolize is required." >&2
-    echo "       Plese install libtool and try again." >&2
+    echo "       Plese install libtoolize and try again." >&2
     exit 1
 fi
 

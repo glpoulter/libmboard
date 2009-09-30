@@ -24,18 +24,31 @@ AC_PROG_CC
 AC_PROG_MAKE_SET
 AC_DISABLE_SHARED
 
-# temporarily set CFLAGS first so AC_PROG_LIBTOOL does not add -g -O2
+# initialise CFLAGS so AC_PROG_LIBTOOL does not add -g -O2
 CFLAGS="" 
 AC_PROG_LIBTOOL
 
 # Checks for $CC -c -o. Needed to allow pre-target flags
 AM_PROG_CC_C_O
 
+# GCC CFLAGS for different warning levels.
+GCC_CFLAGS_LVL1="-Wall -pedantic"
+GCC_CFLAGS_LVL2="-Wextra -Wstrict-prototypes -Wmissing-prototypes -Wpointer-arith"
+GCC_CFLAGS_LVL3="-Wreturn-type -Wswitch -Wshadow -Wcast-align"
+GCC_CFLAGS_LVL4="-Wwrite-strings -Wcast-qual "
+GCC_CFLAGS_SHOWSTOPPER="-Werror" # OTT
+# removed: -Wunreachable-code (too many false positives)
+
 # Default CFLAGS
 # Need extra checks to set this depending on compiler
 case "$CC" in
 	gcc*)
-		CFLAGS="${CFLAGS} -std=c99 -Wall -Wextra -pedantic -fno-common"
+		CFLAGS="${CFLAGS} -fno-common -std=c99"
+		CFLAGS="${CFLAGS} ${GCC_CFLAGS_LVL1}"
+		CFLAGS="${CFLAGS} ${GCC_CFLAGS_LVL2}"
+		CFLAGS="${CFLAGS} ${GCC_CFLAGS_LVL3}"
+		#CFLAGS="${CFLAGS} ${GCC_CFLAGS_LVL4}"
+		#CFLAGS="${CFLAGS} ${GCC_CFLAGS_SHOWSTOPPER}"
 		;;
 	pgcc*)
 		CFLAGS="${CFLAGS} -c9x -Minform=warn"

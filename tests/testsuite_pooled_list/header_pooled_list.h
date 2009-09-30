@@ -9,7 +9,7 @@
 #ifndef HEADER_POOLED_LIST_H_
 #define HEADER_POOLED_LIST_H_
 
-#include "CUnit/CUnit.h"
+#include "../testing.h"
 #include "mb_pooled_list.h"
 #include <math.h>
 
@@ -36,6 +36,9 @@ struct bigger_message_t {
     struct bigger_message_t *next;
 };
 typedef struct bigger_message_t bigger_message_t;
+
+int init_pl(void);
+int clean_pl(void);
 
 /* ----- Utilities in testsuite_pl_utils.c ----- */
 pooled_list* create_and_populate_pl(int memblock_size, int node_count);

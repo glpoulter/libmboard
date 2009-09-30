@@ -9,13 +9,12 @@
 #ifndef HEADER_MB_PARALLEL_H_
 #define HEADER_MB_PARALLEL_H_
 
-#include "CUnit/CUnit.h"
+#include "../testing.h"
 #include "mb_parallel.h"
 #include "mb_syncqueue.h"
 #include "mboard.h"
 #include "mb_objmap.h"
 #include <mpi.h>
-#include <stdlib.h>
 
 /* we want an even number here! */
 #define PARALLEL_TEST_MSG_COUNT 2048
@@ -23,6 +22,9 @@
 
 extern MPI_Comm testsuite_mpi_comm;
 extern int testsuite_mpi_rank, testsuite_mpi_size;
+
+int init_mb_parallel(void);
+int clean_mb_parallel(void);
 
 /* ===== Begin Function prototype for test cases ===== */
 

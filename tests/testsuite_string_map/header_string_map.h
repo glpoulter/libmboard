@@ -9,10 +9,12 @@
 #ifndef HEADER_STRING_MAP_H_
 #define HEADER_STRING_MAP_H_
 
-#include "CUnit/CUnit.h"
+#include "../testing.h"
 #include "mb_string_map.h"
 #include "mboard.h"
-#include <stdlib.h>
+
+int init_sm(void);
+int clean_sm(void);
 
 void test_sm_create(void);
 void test_sm_delete(void);

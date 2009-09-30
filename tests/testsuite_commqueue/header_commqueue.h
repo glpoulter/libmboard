@@ -9,9 +9,12 @@
 #ifndef HEADER_COMMQUEUE_H_
 #define HEADER_COMMQUEUE_H_
 
-#include "CUnit/CUnit.h"
+#include "../testing.h"
 #include "mb_commqueue.h"
 #include "mb_commroutines.h"
+
+int init_cq(void);
+int clean_cq(void);
 
 /* ----- Source file: test_cq1.c ----- */
 

@@ -42,7 +42,7 @@ static int _locate_node(int key, MBIt_AVLnode* root, MBIt_AVLnode** nodeaddr);
 static int _rebalance_tree(MBIt_AVLtree *tree, MBIt_AVLnode *node, int direction);
 static int _rotate_single(MBIt_AVLtree *tree, MBIt_AVLnode *node, int direction);
 static int _rotate_double(MBIt_AVLtree *tree, MBIt_AVLnode *node, int direction);
-static struct _fifo_t* _fifo_new();
+static struct _fifo_t* _fifo_new(void);
 static int _fifo_push(struct _fifo_t *queue, void *ptr);
 static void* _fifo_pop(struct _fifo_t *queue);
 static void _fifo_delete(struct _fifo_t **queue_ptr);
@@ -729,7 +729,7 @@ static int _rotate_double(MBIt_AVLtree *tree, MBIt_AVLnode *node, int direction)
  * 
  * \c NULL is returned if memory cannot be allocated.
  */
-static struct _fifo_t* _fifo_new() {
+static struct _fifo_t* _fifo_new(void) {
     
     struct _fifo_t* queue;
     

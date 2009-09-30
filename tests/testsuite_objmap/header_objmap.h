@@ -9,9 +9,8 @@
 #ifndef HEADER_OBJMAP_H_
 #define HEADER_OBJMAP_H_
 
-#include "CUnit/CUnit.h"
+#include "../testing.h"
 #include "mb_objmap.h"
-#include <stdlib.h>
 
 /* test message */
 typedef struct {
@@ -22,9 +21,13 @@ typedef struct {
     
 } dummy_obj;
 
+
+int init_om(void);
+int clean_om(void);
+
 /* ==== Internal routines ===== */
 /* create and text OM object */
-MBIt_objmap* create_om_obj();
+MBIt_objmap* create_om_obj(void);
 
 /* delete OM object */
 void delete_om_obj(MBIt_objmap **mymap);

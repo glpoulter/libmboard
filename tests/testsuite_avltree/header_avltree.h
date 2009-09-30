@@ -9,11 +9,9 @@
 #ifndef HEADER_AVLTREE_H_
 #define HEADER_AVLTREE_H_
 
-#include "CUnit/CUnit.h"
+#include "../testing.h"
 #include "mb_avltree.h"
 #include <limits.h> /* for INT_MAX and INT_MIN */
-#include <time.h>   /* for time() to seed RNG */
-#include <stdlib.h> /* for rand() and srand() */
 #include <math.h>   /* for log2() */
 
 
@@ -23,6 +21,9 @@
 
 #define TEST_AVL_TRUE  (1 == 1)
 #define TEST_AVL_FALSE (0 == 1)
+
+int init_avl(void);
+int clean_avl(void);
 
 /* --- testsuite_avl_utils.c --- */
 void generate_random_unique_ints(int *array, int size);
