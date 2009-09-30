@@ -275,14 +275,6 @@ inline static void processPendingComms(void) {
                 /* dequeue comm node */
                 MBI_CommQueue_Pop(node);
                 
-                /* capture lock for board */
-                rc = pthread_mutex_lock(&(board->syncLock));
-                assert(0 == rc);
-                
-                /* release lock */
-                rc = pthread_mutex_unlock(&(board->syncLock));
-                assert(0 == rc);
-                
                 /* send signal to wake main thread waiting on this board */
                 rc = pthread_cond_signal(&(board->syncCond));
                 assert(0 == rc);
