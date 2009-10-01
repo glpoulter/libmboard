@@ -702,7 +702,11 @@ static int _rotate_single(MBIt_AVLtree *tree, MBIt_AVLnode *node, int direction)
 static int _rotate_double(MBIt_AVLtree *tree, MBIt_AVLnode *node, int direction) {
     
     int rc;
-    MBIt_AVLnode *child, *ori_grandchild;
+    MBIt_AVLnode *child;
+    
+#ifndef NDEBUG /* only used in assert */
+    MBIt_AVLnode *ori_grandchild;
+#endif
     
     /* get ref to child and grandchild 
      * They should be in a LR or RL structure
@@ -710,7 +714,9 @@ static int _rotate_double(MBIt_AVLtree *tree, MBIt_AVLnode *node, int direction)
     child = node->child[direction];
     assert(child != NULL);
     assert(child->child[!direction] != NULL);
+#ifndef NDEBUG
     ori_grandchild = child->child[!direction];
+#endif
     
     /* perform first rotation */
     rc = _rotate_single(NULL, child, !direction);

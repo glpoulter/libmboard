@@ -523,7 +523,7 @@ int pl_randomise(pooled_list *pl) {
     for (i = count - 1; i > 0; i--)
     {
         /* get a random number from 0 to i */
-        rnd = (int)(rnd_ratio * (i) * rand());
+        rnd = (int)(rnd_ratio * (i * rand()));
         
         if (rnd == i) continue; /* this value stays in place */
         

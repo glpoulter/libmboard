@@ -54,7 +54,7 @@ int MB_Iterator_CreateFiltered(MBt_Board mb, MBt_Iterator *itr_ptr, \
         int (*filterFunc)(const void *msg, const void *params), \
         void *filterFuncParams ) {
     
-    int rc, mcount;
+    int rc;
     OM_key_t rc_om;
     void *obj;
     void *new;
@@ -76,7 +76,6 @@ int MB_Iterator_CreateFiltered(MBt_Board mb, MBt_Iterator *itr_ptr, \
         P_FUNCFAIL("Invalid board handle (%d)", (int)mb);
         return MB_ERR_INVALID;
     }
-    mcount = (int)board->data->count_current;
     
     /* check if board is locked */
     if (board->locked == MB_TRUE) 

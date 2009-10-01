@@ -55,7 +55,7 @@ int MB_Iterator_CreateFiltered(MBt_Board mb, MBt_Iterator *itr_ptr, \
         int (*filterFunc)(const void *msg, const void *params), \
         void *filterFuncParams ) {
     
-    int rc, mcount;
+    int rc;
     OM_key_t rc_om;
     void *obj;
     void *new;
@@ -91,9 +91,6 @@ int MB_Iterator_CreateFiltered(MBt_Board mb, MBt_Iterator *itr_ptr, \
         P_FUNCFAIL("Board access mode was set to non-readable");
         return MB_ERR_DISABLED;
     }
-    
-    /* get message count */
-    mcount = (int)board->data->count_current;
     
     /* Allocate Iterator object */
     iter = (MBIt_Iterator*)malloc(sizeof(MBIt_Iterator));
@@ -175,6 +172,6 @@ int MB_Iterator_CreateFiltered(MBt_Board mb, MBt_Iterator *itr_ptr, \
     
     P_INFO("Iterator created (iter:%d, board:%d, mcount:%d) - FILTERED", 
             (int)rc_om, (int)mb, (int)iter->data->count_current);
-    
+
     return MB_SUCCESS;
 }

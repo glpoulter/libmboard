@@ -34,7 +34,7 @@ AM_PROG_CC_C_O
 # GCC CFLAGS for different warning levels.
 GCC_CFLAGS_LVL1="-Wall -pedantic"
 GCC_CFLAGS_LVL2="-Wextra -Wstrict-prototypes -Wmissing-prototypes -Wpointer-arith"
-GCC_CFLAGS_LVL3="-Wreturn-type -Wswitch -Wshadow -Wcast-align"
+GCC_CFLAGS_LVL3="-Wreturn-type -Wswitch -Wshadow -Wcast-align -Wunused"
 GCC_CFLAGS_LVL4="-Wwrite-strings -Wcast-qual "
 GCC_CFLAGS_SHOWSTOPPER="-Werror" # OTT
 # removed: -Wunreachable-code (too many false positives)

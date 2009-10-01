@@ -21,7 +21,7 @@
 #endif
 
 #ifdef PRINT_CONFIG
-#define P_CONFIG(n,v,e)   printf("[libmboard] <settings> %s = %d %s\n", n, v, e)
+#define P_CONFIG(n,v,e)   printf("[libmboard] <settings> %s = %u %s\n", n, v, e)
 #define P_CONFIG_S(n,v,e) printf("[libmboard] <settings> %s = %s %s\n", n, v, e)
 #else
 #define P_CONFIG(n,v,e)
@@ -89,7 +89,7 @@ static unsigned int _read_env_bool(const char *varname, unsigned int default_val
                 strcmp(value, "YES")  == 0   ||
                 strcmp(value, "TRUE") == 0 )
         {
-            P_CONFIG(varname, 1, "");
+            P_CONFIG(varname, (unsigned int)1, "");
             return 1; /* enable */
         }
         else if (
@@ -98,7 +98,7 @@ static unsigned int _read_env_bool(const char *varname, unsigned int default_val
                 strcmp(value, "NO")    == 0  ||
                 strcmp(value, "FALSE") == 0 )
         {
-            P_CONFIG(varname, 0, "");
+            P_CONFIG(varname, (unsigned int)0, "");
             return 0; /* disable */
         }
     }
