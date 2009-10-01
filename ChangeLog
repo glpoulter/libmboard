@@ -1,4 +1,4 @@
-2009-08-XX Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
+2009-10-01 Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
 
 	* include/mb_settings.h, src/utils/settings.c: libmboard can now 
 	  read configuration settings from environment variables
@@ -22,7 +22,8 @@
 	  overlap and reduce lock-stepping of processors.
 	  
 	* src/utils/sqlite3.c, include/sqlite3.h: Upgraded sqlite3 to v3.6.18
-	  
+	
+	* : Tagged as 0.2.1
 	   
 2009-07-20 Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
 

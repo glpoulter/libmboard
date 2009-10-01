@@ -12,9 +12,6 @@
  * \warning This library is designed to work only on homogenous systems
  * 
  * 
- * \todo When in debug mode, print useful messages if we know what is wrong
- *       instead of just using \c assert()
- * 
  */
 #ifndef MBOARD_H_
 #define MBOARD_H_
