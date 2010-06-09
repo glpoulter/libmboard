@@ -1,5 +1,5 @@
         MESSAGE BOARD LIBRARY (@PACKAGE_NAME@ Release @PACKAGE_VERSION@)
-         
+        
         
 The Message Board Library (@PACKAGE_NAME@) is a data management and communication
 library  developed  for  multi-agent  simulations  generated using the FLAME 
