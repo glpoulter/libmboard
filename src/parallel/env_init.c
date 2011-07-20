@@ -99,7 +99,7 @@ int MB_Env_Init(void) {
     MBI_update_settings();
     
     /* seed rng during production runs */
-	#ifdef _EXTRA_CHECKS
+	#ifndef _EXTRA_CHECKS
     srand((unsigned int)time(NULL)); 
 	#endif
     
