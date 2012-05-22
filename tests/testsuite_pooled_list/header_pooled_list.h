@@ -79,5 +79,7 @@ void test_pl_recycle(void);
 /* test pl_reset() */
 void test_pl_reset(void);
 
+/* test entry randomisation */
+void test_pl_randomise(void);
 
 #endif /*HEADER_POOLED_LIST_H_*/

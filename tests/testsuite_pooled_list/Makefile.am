@@ -15,8 +15,9 @@ lib_t_pooled_list_la_SOURCES = setup_suite_pl.c \
 						 	   test_pl_addnode.c \
 						 	   test_pl_traversal.c \
 						 	   test_pl_reset_recycle.c \
+						 	   test_pl_randomise.c \
 						 	   testsuite_pl_utils.c \
-					           header_pooled_list.h
+					       header_pooled_list.h
 
 lib_t_pooled_list_la_LIBS    = @CUNITLIBS@							 
 lib_t_pooled_list_la_LDFLAGS = @CUNITLDFLAGS@

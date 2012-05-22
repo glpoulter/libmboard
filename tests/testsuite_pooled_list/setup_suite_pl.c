@@ -21,6 +21,7 @@ CU_TestInfo pl_test_array[] = {
     {"Single-block list traversal                 ", test_pl_traverse        },
     {"Multi-block list traversal                  ", test_pl_traverse2       },
     {"Getting node by index                       ", test_pl_getnode         },
+    {"Randomising entries                         ", test_pl_randomise       },
     
     {"Recycling memory blocks                     ", test_pl_recycle         },
     {"Resetting memory blocks                     ", test_pl_reset           },

@@ -526,7 +526,8 @@ int pl_randomise(pooled_list *pl) {
         rnd = (int)(rnd_ratio * (i * rand()));
         
         if (rnd == i) continue; /* this value stays in place */
-        
+        assert(rnd >= 0);
+        assert(rnd < count);
         /* perform swap */
         temp = index_array[i];
         index_array[i] = index_array[rnd];

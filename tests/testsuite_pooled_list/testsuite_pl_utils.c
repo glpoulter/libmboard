@@ -28,8 +28,8 @@ pooled_list* create_and_populate_pl(int memblock_size, int node_count) {
         rc = pl_newnode(pl, &ptr);
         new = (my_message_t *)ptr;
         
-        CU_ASSERT_FATAL(rc == PL_SUCCESS); /* quit if addnode failed */
-        CU_ASSERT_PTR_NOT_NULL(new);
+        assert(rc == PL_SUCCESS); /* quit if addnode failed */
+        assert(new != NULL);
         
         /* add some value to nodes */
         new->ernet = i;
