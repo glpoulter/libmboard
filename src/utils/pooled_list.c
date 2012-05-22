@@ -480,15 +480,15 @@ int pl_randomise(pooled_list *pl) {
     
     pl_address_node **node_headers;
     pl_address_node *node;
-    int *index_array;
-    int i, count, temp;
+    size_t *index_array;
+    size_t temp, count, i;
     double rnd_ratio;
-    int rnd;
+    size_t rnd;
     
     if (pl == NULL) return PL_ERR_INVALID;
-    if ((int)pl->count_current < 2) return PL_SUCCESS;
+    if ((size_t)pl->count_current < 2) return PL_SUCCESS;
     
-    count = (int)pl->count_current; /* number of nodes */
+    count = (size_t)pl->count_current; /* number of nodes */
     
     /* allocate node header array (plus one space for NULL pointer) */
     node_headers = (pl_address_node **)malloc(sizeof(pl_address_node*)*count);
@@ -496,7 +496,7 @@ int pl_randomise(pooled_list *pl) {
     if (node_headers == NULL) return PL_ERR_MALLOC;
     
     /* allocate index array */
-    index_array = (int *)malloc(sizeof(int) * count);
+    index_array = (size_t *)malloc(sizeof(size_t) * count);
     assert(index_array != NULL);
     if (index_array == NULL)
     {
@@ -523,11 +523,11 @@ int pl_randomise(pooled_list *pl) {
     for (i = count - 1; i > 0; i--)
     {
         /* get a random number from 0 to i */
-        rnd = (int)(rnd_ratio * (i * rand()));
+        rnd = (size_t)(i * (rnd_ratio * rand()));
+        assert(rnd < count);
         
         if (rnd == i) continue; /* this value stays in place */
-        assert(rnd >= 0);
-        assert(rnd < count);
+        
         /* perform swap */
         temp = index_array[i];
         index_array[i] = index_array[rnd];

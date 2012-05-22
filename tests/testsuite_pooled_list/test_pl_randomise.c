@@ -8,7 +8,7 @@
  
 #include "header_pooled_list.h"
 #define MEMBLOCK_SIZE 1000
-#define NUM_ENTRIES 1000000
+#define NUM_ENTRIES 10000
 
 void test_pl_randomise(void) {
   
