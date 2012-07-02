@@ -71,8 +71,10 @@ int MB_Env_Init(void) {
     MBI_CommRank = 0;
     
     /* print banner */
+    #ifdef _EXTRA_CHECKS
     MBI_print_banner();
-    
+    #endif
+
     /* set and update (from env vars) library-wide settings */ 
     MBI_update_settings();
     

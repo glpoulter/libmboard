@@ -93,15 +93,17 @@ int MB_Env_Init(void) {
     MPI_Comm_size(MBI_CommWorld, &MBI_CommSize);
     
     /* print banner */
+    #ifdef _EXTRA_CHECKS
     MBI_print_banner();
-    
+    #endif
+
     /* set and update (from env vars) library-wide settings */ 
     MBI_update_settings();
     
     /* seed rng during production runs */
-	#ifndef _EXTRA_CHECKS
+    #ifndef _EXTRA_CHECKS
     srand((unsigned int)time(NULL)); 
-	#endif
+    #endif
     
     #ifdef _LOG_MEMORY_USAGE
         memlog_init();
