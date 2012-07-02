@@ -1,6 +1,6 @@
 # $Id$
 # 
-# Copyright (c) 2008 STFC Rutherford Appleton Laboratory 
+# Copyright (c) 2012 STFC Rutherford Appleton Laboratory 
 # Author: Lee-Shawn Chin 
 # Date  : June 2008
 

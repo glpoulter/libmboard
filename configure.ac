@@ -1,19 +1,19 @@
 # ===========================================================================
-# Copyright (c) 2009 STFC Rutherford Appleton Laboratory 
+# Copyright (c) 2012 STFC Rutherford Appleton Laboratory 
 # Author: Lee-Shawn Chin 
 # ===========================================================================
 # 
 # Process this file with autoconf to produce a configure script.
 
 # Note: first 3 segments of version number must only contain digits!!
-AC_INIT(libmboard, 0.2.2-rc1, shawn.chin@_NOSPAM_stfc.ac.uk)
+AC_INIT(libmboard, 0.2.2, shawn.chin@_NOSPAM_stfc.ac.uk)
 AM_INIT_AUTOMAKE
 
 #AM_MAINTAINER_MODE
 
 AC_PREREQ(2.59)
 AC_REVISION($Revision$)
-AC_COPYRIGHT([Copyright (c) 2007-2009 STFC Rutherford Appleton Laboratory])
+AC_COPYRIGHT([Copyright (c) 2007-2012 STFC Rutherford Appleton Laboratory])
 
 AC_CONFIG_SRCDIR([src/serial/env_init.c])
 AC_CONFIG_HEADER([include/mb_config.h])

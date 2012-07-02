@@ -1,3 +1,17 @@
+2012-07-02 Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
+
+	* src/parallel/env_init.c: srand() now only called in production
+	  mode and not in debug (which is what was meant to happen).
+
+	* src/utils/pooled_list.c: Fixed bug in iterator randomisation. There were
+	  cases where the index used to calculate offsets could overflow which 
+	  would lead to out-of-bounds memory access.
+
+	* src/serial/env_init.c, src/parallel/env_init.c: Output banner now
+	  suppressed in production runs.
+
+	* : Tagged as 0.2.2
+
 2009-10-01 Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
 
 	* include/mb_settings.h, src/utils/settings.c: libmboard can now 
