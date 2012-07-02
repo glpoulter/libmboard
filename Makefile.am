@@ -118,7 +118,11 @@ endif
 # Options for splint
 # -D__sigset_t=int hides problems with splint trying to parse headers
 # used by pthread.h
-SPLINT_OPTIONS = -weak -D__sigset_t=int
+SPLINT_OPTIONS = -weak -D__sigset_t=int 
+# Dummy implementation of macros used in ctype.h
+SPLINT_OPTIONS += -D__BEGIN_DECLS= -D__END_DECLS= -D__THROW= \
+                  -D__BEGIN_NAMESPACE_STD= -D__END_NAMESPACE_STD= \
+                  -D__BEGIN_NAMESPACE_C99= -D__END_NAMESPACE_C99=
 
 splint:
 	@( \
