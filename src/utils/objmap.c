@@ -219,23 +219,23 @@ void* MBI_objmap_pop(MBIt_objmap *map, OM_key_t handle) {
 
 /*!
  * \brief Deletes an ObjectMap
- * \param[in] map Reference to ObjectMap
+ * \param[in] map_ptr Address of variable storing pointer to ObjectMap
  * 
  * Deallocates all memory, including those of objects referenced by the map.
  * 
  * \warning Deleting an ObjectMap will invalidate all pointers to objects
  *    returned by MBI_objmap_getobj() and MBI_objmap_pop().
  */
-void MBI_objmap_destroy(MBIt_objmap **map) {
-    MBIt_objmap *mytmp;
+void MBI_objmap_destroy(MBIt_objmap **map_ptr) {
+    MBIt_objmap *map;
     khash_t(objmap)* m;
     khiter_t k;
     
-    if (*map == NULL) return;
+    if (*map_ptr == NULL) return;
     
-    mytmp = *map;
-    *map  = NULL;
-    m = MAP(mytmp);
+    map = *map_ptr;
+    *map_ptr  = NULL;
+    m = MAP(map);
     
     /* detroy objects stored in hash */
     for (k = kh_begin(m); k != kh_end(m); ++k) {
@@ -247,8 +247,8 @@ void MBI_objmap_destroy(MBIt_objmap **map) {
 
 #ifdef MB_THREADSAFE
     /* destroy mutex obj */
-    pthread_mutex_destroy(&(mytmp->lock));
+    pthread_mutex_destroy(&(map->lock));
 #endif /* MB_THREADSAFE */
     
-    free(mytmp);
+    free(map);
 }

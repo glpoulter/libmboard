@@ -120,7 +120,7 @@ void* MBI_objmap_getobj(MBIt_objmap *map, OM_key_t handle);
 void* MBI_objmap_pop(MBIt_objmap *map, OM_key_t handle);
 
 /* delete object map */
-void MBI_objmap_destroy(MBIt_objmap **map);
+void MBI_objmap_destroy(MBIt_objmap **map_ptr);
 
 /*! @} */
 #endif /*MB_OBJMAP_H_*/
