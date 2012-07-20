@@ -13,21 +13,22 @@ DIST_SUBDIRS = $(SUBDIRS) tests
 INCLUDEDIR = $(top_srcdir)/include
 
 include_HEADERS = $(INCLUDEDIR)/mboard.h \
-			      $(INCLUDEDIR)/mb_memlog.h \
+                  $(INCLUDEDIR)/mb_memlog.h \
                   $(INCLUDEDIR)/mb_config.h \
-			      $(INCLUDEDIR)/mb_objmap.h
+                  $(INCLUDEDIR)/mb_objmap.h
+
 noinst_HEADERS  = $(INCLUDEDIR)/mb_common.h \
-			      $(INCLUDEDIR)/mb_serial.h \
-			      $(INCLUDEDIR)/mb_parallel.h \
-			      $(INCLUDEDIR)/mb_settings.h \
-			      $(INCLUDEDIR)/mb_utils.h \
-			      $(INCLUDEDIR)/mb_banner.h \
-			      $(INCLUDEDIR)/mb_reporting.h \
-			      $(INCLUDEDIR)/mb_syncqueue.h \
-			      $(INCLUDEDIR)/mb_commqueue.h \
-			      $(INCLUDEDIR)/mb_commroutines.h \
-			      $(INCLUDEDIR)/mb_pooled_list.h \
-			      $(INCLUDEDIR)/khash.h
+                  $(INCLUDEDIR)/mb_serial.h \
+                  $(INCLUDEDIR)/mb_parallel.h \
+                  $(INCLUDEDIR)/mb_settings.h \
+                  $(INCLUDEDIR)/mb_utils.h \
+                  $(INCLUDEDIR)/mb_banner.h \
+                  $(INCLUDEDIR)/mb_reporting.h \
+                  $(INCLUDEDIR)/mb_syncqueue.h \
+                  $(INCLUDEDIR)/mb_commqueue.h \
+                  $(INCLUDEDIR)/mb_commroutines.h \
+                  $(INCLUDEDIR)/mb_pooled_list.h \
+                  $(INCLUDEDIR)/khash.h
 
 if COMPILE_SQLITE
 noinst_HEADERS += $(INCLUDEDIR)/sqlite3.h

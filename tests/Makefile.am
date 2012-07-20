@@ -27,36 +27,34 @@ SUBDIRS = testsuite_commqueue \
 DIST_SUBDIRS = $(SUBDIRS)
 
 noinst_PROGRAMS  = run_test_utils \
-				   run_test_serial
+                   run_test_serial
 
 if COMPILE_PARALLEL
 noinst_PROGRAMS += run_test_parallel_utils \
-				   run_test_parallel
+                   run_test_parallel
 
 run_test_parallel_utils_SOURCES = run_test_parallel_utils.c testing.h
 run_test_parallel_utils_LDFLAGS = @CUNITLDFLAGS@ @MB_PARALLEL_LDFLAGS@
 run_test_parallel_utils_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @DEBUG_CFLAGS@ @MB_PARALLEL_CFLAGS@
 run_test_parallel_utils_LDADD   =  \
-								  $(testcode_dir)/testsuite_commqueue/lib_t_commqueue.la \
+                                  $(testcode_dir)/testsuite_commqueue/lib_t_commqueue.la \
                                   $(testcode_dir)/testsuite_syncqueue/lib_t_syncqueue.la \
                                   $(testcode_dir)/testsuite_commroutines_old/lib_t_commroutines_old.la \
                                   $(testcode_dir)/testsuite_commroutines_handshake/lib_t_commroutines_handshake.la \
                                   $(testcode_dir)/testsuite_commutils/lib_t_commutils.la \
                                   $(top_srcdir)/src/parallel/lib_mb_pd.la \
                                   $(top_srcdir)/src/utils/lib_utils_pd.la \
-						  		  @CUNITLIBS@ @MB_PARALLEL_LIBS@
-						    	  
-						    	  
+                                  @CUNITLIBS@ @MB_PARALLEL_LIBS@
+
                
 run_test_parallel_SOURCES = run_test_parallel.c testing.h
 run_test_parallel_LDFLAGS = @CUNITLDFLAGS@ @MB_PARALLEL_LDFLAGS@
 run_test_parallel_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @DEBUG_CFLAGS@ @MB_PARALLEL_CFLAGS@
 run_test_parallel_LDADD   = \
-							$(testcode_dir)/testsuite_mb_parallel/lib_t_mb_parallel.la \
-						    $(top_srcdir)/src/parallel/lib_mb_pd.la \
-						    $(top_srcdir)/src/utils/lib_utils_pd.la \
-						    @CUNITLIBS@ @MB_PARALLEL_LIBS@ 
-						    
+                             $(testcode_dir)/testsuite_mb_parallel/lib_t_mb_parallel.la \
+                             $(top_srcdir)/src/parallel/lib_mb_pd.la \
+                             $(top_srcdir)/src/utils/lib_utils_pd.la \
+                             @CUNITLIBS@ @MB_PARALLEL_LIBS@ 
 
 endif
 
@@ -69,18 +67,17 @@ run_test_utils_LDADD    = $(testcode_dir)/testsuite_objmap/lib_t_objmap.la \
                           $(testcode_dir)/testsuite_avltree/lib_t_avltree.la \
                           $(testcode_dir)/testsuite_kdtree/lib_t_kdtree.la \
                           $(testcode_dir)/testsuite_string_map/lib_t_string_map.la \
-						  $(top_srcdir)/src/utils/lib_utils_d.la \
-						  @CUNITLIBS@
+                          $(top_srcdir)/src/utils/lib_utils_d.la \
+                          @CUNITLIBS@
 
                
 run_test_serial_SOURCES = run_test_serial.c testing.h
 run_test_serial_LDFLAGS = @CUNITLDFLAGS@
 run_test_serial_CFLAGS  = -I$(INCLUDEDIR) @CUNITCFLAGS@ @DEBUG_CFLAGS@
 run_test_serial_LDADD   = $(testcode_dir)/testsuite_mb_serial/lib_t_mb_serial.la \
-						  $(top_srcdir)/src/serial/lib_mb_sd.la \
-						  $(top_srcdir)/src/utils/lib_utils_d.la \
-						  @CUNITLIBS@
-						  
+                          $(top_srcdir)/src/serial/lib_mb_sd.la \
+                          $(top_srcdir)/src/utils/lib_utils_d.la \
+                          @CUNITLIBS@
 
 
 
