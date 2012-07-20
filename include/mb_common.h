@@ -26,6 +26,7 @@
 #include "mb_pooled_list.h"
 #include "mb_string_map.h"
 #include "mb_avltree.h"
+#include "mb_kdtree.h"
 #include "mb_utils.h"
 #include "mb_settings.h"
 #include <assert.h>
@@ -86,6 +87,18 @@ typedef struct {
 
 } MBIt_Iterator;
 
+typedef struct {
+    /*! \brief handle to corresponding MessageBoard */
+    MBt_Board mb;
+
+    /*! \brief number of dimensions the tree was partitioned on */
+    size_t ndims;
+
+    /*! \brief reference to k-d tree object */
+    MBIt_KDtree *tree;
+
+} MBIt_SearchTree;
+
 /*! \brief Function pointer to user-defined filter function 
  * 
  * Used as a shortcut for passing function references as arguments to other 
@@ -119,11 +132,14 @@ typedef struct {
 #define OM_TYPE_FILTER    (0x0a03)
 /*! \brief Constant representing Object Type: IndexMap */
 #define OM_TYPE_INDEXMAP  (0x0a04)
+/*! \brief Constant representing Object Type: SearchTree */
+#define OM_TYPE_SEARCHTREE  (0x0a05)
 
 /* (initialised and documented in env_init.c) */
 extern MBIt_objmap *MBI_OM_mboard;
 extern MBIt_objmap *MBI_OM_iterator;
 extern MBIt_objmap *MBI_OM_filter;
 extern MBIt_objmap *MBI_OM_indexmap;
+extern MBIt_objmap *MBI_OM_searchtree;
 
 #endif /*MB_COMMON_H_*/

@@ -142,7 +142,7 @@ typedef struct {
     
     /*! \brief free nodes within allocated memory */
     unsigned int count_free;
-    /*! \brief total nodes allocated memory can accomodate */
+    /*! \brief total nodes allocated memory can accommodate */
     unsigned int count_total; 
     /*! \brief used nodes within allocated memory */
     unsigned int count_current;

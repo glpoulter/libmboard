@@ -30,6 +30,7 @@ lib_t_mb_parallel_la_SOURCES = setup_suite_mb_parallel.c \
 							   test_mb_p_indexmap_sync.c \
 							   test_mb_p_indexmap_addentry.c \
 							   test_mb_p_indexmap_memberof.c \
+							   test_mb_p_searchtree.c \
 							   test_mb_p_filter_create.c \
 							   test_mb_p_filter_assign.c \
 							   test_mb_p_filter_delete.c \

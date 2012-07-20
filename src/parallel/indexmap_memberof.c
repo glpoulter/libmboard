@@ -51,6 +51,7 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value) {
     MBIt_IndexMap *map;
     tag_table *tt;
     char *bitboard;
+    ACKNOWLEDGED_UNUSED(rc); /* only for checks in debug mode */
 
 #ifdef _EXTRA_CHECKS
     /* check if im is null */

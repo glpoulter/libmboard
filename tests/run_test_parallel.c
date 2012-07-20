@@ -29,7 +29,7 @@ static int clean_quit(void) {
 
 int main(int argc, char ** argv) {
     
-    CU_ErrorCode rc;
+    /* CU_ErrorCode rc; */
     
     /* acknowledge+hide "unused parameter" compiler warnings */
     ACKNOWLEDGED_UNUSED(argc);
@@ -56,7 +56,7 @@ int main(int argc, char ** argv) {
     
     /* Run all tests using the CUnit Basic interface */
     CU_basic_set_mode(CU_BRM_VERBOSE);
-    rc = CU_basic_run_tests();
+    CU_basic_run_tests();
     
     /* clean up registry and quit */
     return clean_quit();

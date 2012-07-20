@@ -137,6 +137,7 @@ static void *commthread_main(void *params) {
     
     /* acknowledge+hide "unused parameter" compiler warnings */
     ACKNOWLEDGED_UNUSED(params);
+    ACKNOWLEDGED_UNUSED(rc); /* used only for assertions */
     
     /* continue looping until termination flag is read */
     while (1) {
@@ -197,6 +198,7 @@ static void *commthread_main(void *params) {
 inline static void commthread_sendTerminationSignal(void) {
     
     int rc;
+    ACKNOWLEDGED_UNUSED(rc); /* used only for assertions */
     
     P_INFO("Sending TERM signal to Communication Thread");
     /* set termination flag */
@@ -218,12 +220,13 @@ inline static void processSyncRequests(void) {
     
     int rc;
     MBt_Board mb = MB_NULL_MBOARD;
+    ACKNOWLEDGED_UNUSED(rc); /* used only for assertions */
     
     /* get first request */
     rc = MBI_SyncQueue_Pop(&mb);
     assert(rc == MB_SUCCESS);
     
-    while(mb != MB_NULL_MBOARD) /* loop till queue empty */
+    while (mb != MB_NULL_MBOARD) /* loop till queue empty */
     {
         initiate_board_sync(mb);
         
@@ -306,6 +309,8 @@ inline static void initiate_board_sync(MBt_Board mb) {
     assert(board != NULL);
 #endif
     
+    ACKNOWLEDGED_UNUSED(rc); /* used only for assertions */
+
     /* push board into communication queue */
     assert(MBI_CONFIG.comm_protocol > MB_CONFIG_PROTO_START);
     assert(MBI_CONFIG.comm_protocol < MB_CONFIG_PROTO_END);

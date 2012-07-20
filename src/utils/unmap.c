@@ -86,3 +86,21 @@ void * MBI_getIndexMapRef_withasserts(MBt_IndexMap ih) {
     return MBI_objmap_getobj(MBI_OM_indexmap, (OM_key_t)ih);
 }
 
+/*!
+ * \brief wrapper routine for mapping SearchTree handle to object reference
+ * \param[in] sh SearchTree handle
+ * \return pointer to SearchTree object (\c NULL if handle invalid)
+ *
+ * Performs the necessary assertions (if compiled in debug mode) and obtains
+ * the associated Map object reference from the appropriate ObjectMap.
+ */
+void * MBI_getSearchTreeRef_withasserts(MBt_SearchTree sh) {
+
+    /* make sure searchtree object map valid */
+    assert(MBI_OM_searchtree != NULL);
+    assert((int)MBI_OM_searchtree->type == OM_TYPE_SEARCHTREE);
+
+    /* return object mapped to handle */
+    return MBI_objmap_getobj(MBI_OM_searchtree, (OM_key_t)sh);
+}
+

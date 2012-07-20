@@ -68,8 +68,6 @@ int MB_Iterator_Delete(MBt_Iterator *itr_ptr) {
         return MB_ERR_INTERNAL;
     }
     
-    *itr_ptr = MB_NULL_ITERATOR;
-    
     P_INFO("Deleted iterator (%d)", (int)*itr_ptr);
     *itr_ptr = MB_NULL_ITERATOR;
     

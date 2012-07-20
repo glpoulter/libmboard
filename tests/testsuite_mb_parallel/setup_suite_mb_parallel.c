@@ -61,6 +61,14 @@ CU_TestInfo mbp_test_array[] = {
     {"Checking syncs of board with sync patterns    ", test_mb_p_sync_pattern },
     {"Board resyncs                                 ", test_mb_p_sync_resync  },
     {"Board resyncs (with filters)                  ", test_mb_p_sync_resync_filtered },
+
+    /* testing search tree */
+    {"Testing error conditions in SearchTree APIs   ", test_mb_p_searchtree_null },
+    {"Searching empty message board (1D, 2D, 3D)    ", test_mb_p_searchtree_empty },
+    {"Searching using a SearchTree (1D)             ", test_mb_p_searchtree_1D },
+    {"Searching using a SearchTree (2D)             ", test_mb_p_searchtree_2D },
+    {"Searching using a SearchTree (3D)             ", test_mb_p_searchtree_3D },
+
     /* finalising MB environment */
     {"MB Environment finalisation                   ", test_mb_p_finalise             },
     

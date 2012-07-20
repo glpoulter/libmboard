@@ -304,6 +304,7 @@ static void _update_tree_with_new_data(MBIt_AVLtree *tree, int pid, int *databuf
     int byte_offset;
     char mask;
     
+    ACKNOWLEDGED_UNUSED(rc);
     assert(databuf != NULL);
     assert(tree != NULL);
     

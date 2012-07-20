@@ -84,7 +84,7 @@ void test_mb_p_iter_create_sorted(void) {
 
 /* Test MB_Iterator_GetMessage on Sorted Iterator */
 void test_mb_p_iter_sorted_getmsg(void) {
-    int rc, errfound, i, prev;
+    int rc, errfound, i;
     dummy_msg *msg_ptr;
     void *obj;
     
@@ -96,7 +96,6 @@ void test_mb_p_iter_sorted_getmsg(void) {
     
     /* try getting message from  sorted iterator */
     errfound = 0;
-    prev = -1;
     for (i = 0; i < PARALLEL_TEST_MSG_COUNT; i++)
     {
         rc = MB_Iterator_GetMessage(itr_s, &obj);

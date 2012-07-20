@@ -32,6 +32,7 @@ int MB_IndexMap_Delete(MBt_IndexMap *im_ptr) {
     int rc;
     void *obj;
     MBIt_IndexMap *im_obj;
+    ACKNOWLEDGED_UNUSED(obj); /* only used for assertions */
     
     /* check for null boards */
     if (*im_ptr == MB_NULL_INDEXMAP)

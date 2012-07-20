@@ -21,6 +21,7 @@ SUBDIRS = testsuite_commqueue \
           testsuite_pooled_list \
           testsuite_string_map \
           testsuite_avltree \
+          testsuite_kdtree \
           testsuite_syncqueue
           
 DIST_SUBDIRS = $(SUBDIRS)
@@ -66,6 +67,7 @@ run_test_utils_LDADD    = $(testcode_dir)/testsuite_objmap/lib_t_objmap.la \
                           $(testcode_dir)/testsuite_pooled_list/lib_t_pooled_list.la \
                           $(testcode_dir)/testsuite_tag_table/lib_t_tag_table.la \
                           $(testcode_dir)/testsuite_avltree/lib_t_avltree.la \
+                          $(testcode_dir)/testsuite_kdtree/lib_t_kdtree.la \
                           $(testcode_dir)/testsuite_string_map/lib_t_string_map.la \
 						  $(top_srcdir)/src/utils/lib_utils_d.la \
 						  @CUNITLIBS@
@@ -97,7 +99,7 @@ endif
 # -D__sigset_t=int hides problems with splint trying to parse headers
 # used by pthread.h
 SPLINT_OPTIONS = -weak -D__sigset_t=int -warnposix
-SERIAL_TESTSUITES = objmap tag_table pooled_list mb_serial avltree string_map
+SERIAL_TESTSUITES = objmap tag_table pooled_list mb_serial avltree kdtree string_map
 PARALLEL_TESTSUITES = syncqueue commqueue commutils commroutines_old commroutines_handshake mb_parallel 
 
 splint:

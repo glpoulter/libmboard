@@ -32,6 +32,8 @@ MBIt_objmap *MBI_OM_iterator = NULL;
 MBIt_objmap *MBI_OM_filter = NULL;   
 /*! \brief reference to IndexMap ObjectMap */
 MBIt_objmap *MBI_OM_indexmap = NULL;   
+/*! \brief reference to IndexMap SearchTree */
+MBIt_objmap *MBI_OM_searchtree = NULL;
 
 /*! \brief Dummy MPI Task ID */
 int MBI_CommRank;
@@ -92,11 +94,14 @@ int MB_Env_Init(void) {
     MBI_OM_mboard   = (MBIt_objmap*)MBI_objmap_new();
     MBI_OM_iterator = (MBIt_objmap*)MBI_objmap_new();
     MBI_OM_indexmap = (MBIt_objmap*)MBI_objmap_new();
-    if (!MBI_OM_mboard || !MBI_OM_iterator || !MBI_OM_indexmap) 
+    MBI_OM_searchtree = (MBIt_objmap*)MBI_objmap_new();
+    if (!MBI_OM_mboard || !MBI_OM_iterator ||
+        !MBI_OM_indexmap || !MBI_OM_searchtree)
     {   /* if allocation failed, release mem and return with error */
         MBI_objmap_destroy(&MBI_OM_mboard);
         MBI_objmap_destroy(&MBI_OM_iterator);
         MBI_objmap_destroy(&MBI_OM_indexmap);
+        MBI_objmap_destroy(&MBI_OM_searchtree);
         P_FUNCFAIL("Could not allocate required memory");
         return MB_ERR_MEMALLOC;
     }
@@ -105,6 +110,7 @@ int MB_Env_Init(void) {
         MBI_OM_mboard   ->type = OM_TYPE_MBOARD;
         MBI_OM_iterator ->type = OM_TYPE_ITERATOR;
         MBI_OM_indexmap ->type = OM_TYPE_INDEXMAP;
+        MBI_OM_searchtree->type = OM_TYPE_SEARCHTREE;
     }
     
     /* Allocate string map */

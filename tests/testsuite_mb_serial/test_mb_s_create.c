@@ -8,7 +8,6 @@
 
 #include "header_mb_serial.h"
 
-
 /* test message board creation and deletion */
 void test_mb_s_create_delete(void) {
     

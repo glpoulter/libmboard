@@ -25,6 +25,9 @@ CU_ErrorCode testsuite_tt(void);
 /* Test suite for AVL Binary search tree */
 CU_ErrorCode testsuite_avl(void);
 
+/* Test suite for k-d tree */
+CU_ErrorCode testsuite_kd(void);
+
 /* Test suite for String Map */
 CU_ErrorCode testsuite_sm(void);
 

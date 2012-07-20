@@ -43,6 +43,7 @@ int MB_Env_Finalise(void) {
     MBI_objmap_destroy(&MBI_OM_iterator);
     MBI_objmap_destroy(&MBI_OM_filter);
     MBI_objmap_destroy(&MBI_OM_indexmap);
+    MBI_objmap_destroy(&MBI_OM_searchtree);
     
     /* deallocate string map */
     rc = MBI_stringmap_Delete(&MBI_indexmap_nametable);

@@ -41,7 +41,7 @@ then
 	
 	### gcc must be used
 	# for simplicity, limit --enable-coverage to only GCC 
-	${CC} --version 2> /dev/null | head -n 1 | grep "(GCC)" -q
+	${CC} --version 2> /dev/null | head -n 1 | grep "GCC" -q -i
 	if test ! $? = 0
 	then
 		AC_MSG_RESULT(no)

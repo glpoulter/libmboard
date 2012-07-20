@@ -30,6 +30,7 @@ lib_t_mb_serial_la_SOURCES = setup_suite_mb_serial.c \
 							   test_mb_s_indexmap_sync.c \
 							   test_mb_s_indexmap_addentry.c \
 							   test_mb_s_indexmap_memberof.c \
+							   test_mb_s_searchtree.c \
 							   testsuite_mb_serial_utils.c \
 							   header_mb_serial.h
 							 

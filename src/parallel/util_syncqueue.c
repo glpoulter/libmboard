@@ -142,8 +142,8 @@ int MBI_SyncQueue_isEmpty(void) {
 int MBI_SyncQueue_Push(MBt_Board mb) {
     
     int rc;
-    
     struct MBIt_SyncRequest_queuenode *node;
+    ACKNOWLEDGED_UNUSED(rc); /* only for assertions */
     
     P_INFO("Adding board (%d) to SyncQueue", (int)mb);
     
@@ -191,6 +191,7 @@ int MBI_SyncQueue_Pop(MBt_Board *mb) {
     
     int rc;
     struct MBIt_SyncRequest_queuenode *node;
+    ACKNOWLEDGED_UNUSED(rc); /* only for assertions */
     
     rc = pthread_mutex_lock(&MBI_SRQLock); /* capture lock */
     assert(0 == rc);

@@ -28,7 +28,7 @@
 int MB_Env_Finalise(void) {
     
     int rc;
-    
+
     /* Check if environment not initialised */
     if (MBI_STATUS_initialised != MB_TRUE) 
     {
@@ -45,10 +45,12 @@ int MB_Env_Finalise(void) {
     MBI_objmap_destroy(&MBI_OM_mboard);
     MBI_objmap_destroy(&MBI_OM_iterator);
     MBI_objmap_destroy(&MBI_OM_indexmap);
+    MBI_objmap_destroy(&MBI_OM_searchtree);
     
     /* deallocate string map */
     rc = MBI_stringmap_Delete(&MBI_indexmap_nametable);
     assert(rc == MB_SUCCESS);
+    ACKNOWLEDGED_UNUSED(rc);
     
     #ifdef _LOG_MEMORY_USAGE
         memlog_milestone("F");

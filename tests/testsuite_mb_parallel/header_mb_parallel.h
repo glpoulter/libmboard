@@ -150,5 +150,12 @@ void test_mb_p_indexmap_addentry(void);
 void test_mb_p_indexmap_addentry_withdups(void);
 void test_mb_p_indexmap_addentry_randomvals(void);
 
+/* testing search tree */
+void test_mb_p_searchtree_null(void);
+void test_mb_p_searchtree_empty(void);
+void test_mb_p_searchtree_1D(void);
+void test_mb_p_searchtree_2D(void);
+void test_mb_p_searchtree_3D(void);
+
 
 #endif /*HEADER_MB_PARALLEL_H_*/

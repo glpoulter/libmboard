@@ -58,9 +58,16 @@ CU_TestInfo mbs_test_array[] = {
     {"Querying an Index Map with duplicates         ", test_mb_s_indexmap_memberof_withdups },
     {"Querying an Index Map with large spread + dups", test_mb_s_indexmap_memberof_randomvals },
     {"Synchronising Index Maps                      ", test_mb_s_indexmap_sync     },
+
+    /* testing search tree */
+    {"Testing error conditions in SearchTree APIs   ", test_mb_s_searchtree_null },
+    {"Searching empty message board (1D, 2D, 3D)    ", test_mb_s_searchtree_empty },
+    {"Searching using a SearchTree (1D)             ", test_mb_s_searchtree_1D },
+    {"Searching using a SearchTree (2D)             ", test_mb_s_searchtree_2D },
+    {"Searching using a SearchTree (3D)             ", test_mb_s_searchtree_3D },
     CU_TEST_INFO_NULL,
 };
-    
+
 int init_mb_serial(void) {
     int rc;
     

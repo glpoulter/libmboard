@@ -327,6 +327,7 @@ int MBI_CommUtil_BuildBuffer_All(MBIt_Board *board, void **bufptr,
     char *current;
     pl_address_node *pl_itr;
     
+    ACKNOWLEDGED_UNUSED(rc); /* used only for assertions */
     assert(board != NULL);
     assert(board->data != NULL);
     assert(board->data->count_current != 0);
@@ -427,6 +428,8 @@ int MBI_CommUtil_BuildBuffers_Tagged(MBIt_Board *board, void **bufarray,
     char window;
     pl_address_node *pl_itr;
     
+    ACKNOWLEDGED_UNUSED(rc); /* used only for assertions */
+
 #ifdef _EXTRA_CHECKS
     int n_tt, n_outcount;
     int *copied;
@@ -595,6 +598,7 @@ int MBI_CommUtil_LoadBuffer(MBIt_Board *board, void *buf, size_t size) {
     char *ptr;
     void *msg, *ptr_new;
     
+    ACKNOWLEDGED_UNUSED(rc); /* used only for assertions */
     assert(board != NULL);
     assert(buf != NULL);
     assert(size > 1);

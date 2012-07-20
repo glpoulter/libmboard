@@ -41,6 +41,9 @@ common_sources   = 	addmessage.c \
 				    indexmap_sync.c \
 				    indexmap_memberof.c \
 				    indexmap_addentry.c \
+				    searchtree_create.c \
+				    searchtree_search.c \
+				    searchtree_delete.c \
 				    setaccessmode.c \
 				    setsyncpattern.c \
 				    synccomplete.c \

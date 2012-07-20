@@ -20,6 +20,11 @@
 #include <stdlib.h>
 #include <limits.h>
 
+#ifndef ACKNOWLEDGED_UNUSED
+/*! \brief macro to mask "unused parameters" warning for acknowledged cases */
+#define ACKNOWLEDGED_UNUSED(expr) do { (void)(expr); } while (0)
+#endif
+
 /*! \brief Khash initialisation */
 KHASH_MAP_INIT_INT(objmap, void*)
 
@@ -230,6 +235,7 @@ void* MBI_objmap_getobj(MBIt_objmap *map, OM_key_t handle) {
     /* capture mutex lock before proceeding */
     rc = pthread_mutex_lock(&(map->lock));
     assert(0 == rc);
+    ACKNOWLEDGED_UNUSED(rc);
 #endif /* MB_THREADSAFE */
 
     index = (int)handle;
@@ -286,6 +292,7 @@ void* MBI_objmap_pop(MBIt_objmap *map, OM_key_t handle) {
     
 #ifdef MB_THREADSAFE 
     int rc;
+    ACKNOWLEDGED_UNUSED(rc); /* only for assertions */
 #endif
     
     if (!map) return NULL;

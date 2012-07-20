@@ -3,8 +3,8 @@
  * \file mboard.h
  * \code
  *      Author: Lee-Shawn Chin 
- *      Date  : August 2009 
- *      Copyright (c) 2009 STFC Rutherford Appleton Laboratory
+ *      Date  : July 2012
+ *      Copyright (c) 2012 STFC Rutherford Appleton Laboratory
  * \endcode
  * 
  * \brief This should be the only header file that has to 
@@ -313,6 +313,8 @@ typedef MBt_handle MBt_Filter;
  */
 typedef MBt_handle MBt_IndexMap;
 
+typedef MBt_handle MBt_SearchTree;
+
 /* ========== User Routines ========== */
 
 /* Initialise libmboard environment */
@@ -423,6 +425,39 @@ int MB_IndexMap_Sync(MBt_IndexMap im);
 /* Determine if a value exists within the map of a specific processor */
 int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
 
+/* Create a 1D Search Tree */
+int MB_SearchTree_Create1D(MBt_Board mb, MBt_SearchTree *tree_ptr,
+						   double (*extract_dim1)(void*));
+
+/* Create a 2D Search Tree */
+int MB_SearchTree_Create2D(MBt_Board mb, MBt_SearchTree *tree_ptr,
+						   double (*extract_dim1)(void*),
+						   double (*extract_dim2)(void*));
+
+/* Create a 3D Search Tree */
+int MB_SearchTree_Create3D(MBt_Board mb, MBt_SearchTree *tree_ptr,
+						   double (*extract_dim1)(void*),
+						   double (*extract_dim2)(void*),
+						   double (*extract_dim3)(void*));
+
+/* Search a 1D Search Tree */
+int MB_SearchTree_Search1D(MBt_SearchTree tree, MBt_Iterator *itr_ptr,
+					       double dim1_min, double dim1_max);
+
+/* Search a 2D Search Tree */
+int MB_SearchTree_Search2D(MBt_SearchTree tree, MBt_Iterator *itr_ptr,
+					       double dim1_min, double dim1_max,
+					       double dim2_min, double dim2_max);
+
+/* Search a 3D Search Tree */
+int MB_SearchTree_Search3D(MBt_SearchTree tree, MBt_Iterator *itr_ptr,
+					       double dim1_min, double dim1_max,
+					       double dim2_min, double dim2_max,
+					       double dim3_min, double dim3_max);
+
+/* Delete a search tree */
+int MB_SearchTree_Delete(MBt_SearchTree *tree_ptr);
+
 /* =========== Constants ================= */
 
 
@@ -489,6 +524,8 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
  * deleted, or after an erroneous creation of a map.
  */
 #define MB_NULL_INDEXMAP   (MBt_IndexMap)OM_NULL_INDEX
+
+#define MB_NULL_SEARCHTREE (MBt_SearchTree)OM_NULL_INDEX
 
 /* Access Modes */
 

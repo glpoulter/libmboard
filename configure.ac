@@ -6,7 +6,7 @@
 # Process this file with autoconf to produce a configure script.
 
 # Note: first 3 segments of version number must only contain digits!!
-AC_INIT(libmboard, 0.2.2, shawn.chin@_NOSPAM_stfc.ac.uk)
+AC_INIT(libmboard, 0.3.0-pre-release, shawn.chin@_NOSPAM_stfc.ac.uk)
 AM_INIT_AUTOMAKE
 
 #AM_MAINTAINER_MODE
@@ -75,7 +75,7 @@ AC_CHECK_LIB([m], [sqrt])
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([limits.h stddef.h unistd.h],[],
+AC_CHECK_HEADERS([limits.h stddef.h unistd.h float.h],[],
 				 [AC_MSG_ERROR(That header file is required)])
 
 # Check requirements for parallel implementation
@@ -236,6 +236,7 @@ tests/testsuite_tag_table/Makefile
 tests/testsuite_pooled_list/Makefile
 tests/testsuite_syncqueue/Makefile
 tests/testsuite_avltree/Makefile
+tests/testsuite_kdtree/Makefile
 tests/testsuite_string_map/Makefile
 ])dnl
 

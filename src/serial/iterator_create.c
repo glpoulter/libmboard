@@ -43,7 +43,7 @@
  *  - ::MB_ERR_MEMALLOC (error allocating memory for Iterator object or pooled_list)
  *  - ::MB_ERR_LOCKED (\c mb is locked)
  *  - ::MB_ERR_INTERNAL (possible bug. Recompile and run in debug mode for hints)
- *  - ::MB_ERR_OVERFLOW (MessageBoard overflow. Too many Iterators created.)
+ *  - ::MB_ERR_OVERFLOW (Object map overflow. Too many Iterators created.)
  */
 int MB_Iterator_Create(MBt_Board mb, MBt_Iterator *itr_ptr) {
     

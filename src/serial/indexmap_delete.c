@@ -59,6 +59,7 @@ int MB_IndexMap_Delete(MBt_IndexMap *im_ptr) {
     /* Delete object from map*/
     obj = MBI_objmap_pop(MBI_OM_indexmap, (OM_key_t)*im_ptr);
     assert(obj == (void*)im_obj);
+    ACKNOWLEDGED_UNUSED(obj);
     
     /* free avl tree index map object */
     MBI_AVLtree_destroy(&(im_obj->tree));

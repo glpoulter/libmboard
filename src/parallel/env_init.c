@@ -38,6 +38,8 @@ MBIt_objmap *MBI_OM_iterator = NULL;
 MBIt_objmap *MBI_OM_filter   = NULL;   
 /*! \brief reference to IndexMap ObjectMap */
 MBIt_objmap *MBI_OM_indexmap = NULL;   
+/*! \brief reference to IndexMap ObjectMap */
+MBIt_objmap *MBI_OM_searchtree = NULL;
 
 /*! \brief Our world communicator for MPI Communication */
 MPI_Comm MBI_CommWorld;
@@ -114,12 +116,15 @@ int MB_Env_Init(void) {
     MBI_OM_iterator = (MBIt_objmap*)MBI_objmap_new();
     MBI_OM_filter   = (MBIt_objmap*)MBI_objmap_new();
     MBI_OM_indexmap = (MBIt_objmap*)MBI_objmap_new();
-    if (!MBI_OM_mboard || !MBI_OM_iterator || !MBI_OM_filter || !MBI_OM_indexmap) 
+    MBI_OM_searchtree = (MBIt_objmap*)MBI_objmap_new();
+    if (!MBI_OM_mboard || !MBI_OM_iterator ||
+    	!MBI_OM_filter || !MBI_OM_indexmap || !MBI_OM_searchtree)
     {   /* if allocation failed, release mem and return with error */
         MBI_objmap_destroy(&MBI_OM_mboard);
         MBI_objmap_destroy(&MBI_OM_iterator);
         MBI_objmap_destroy(&MBI_OM_filter);
         MBI_objmap_destroy(&MBI_OM_indexmap);
+        MBI_objmap_destroy(&MBI_OM_searchtree);
         P_FUNCFAIL("Could not allocate required memory for Object Maps");
         return MB_ERR_MEMALLOC;
     }
@@ -129,6 +134,7 @@ int MB_Env_Init(void) {
         MBI_OM_iterator ->type = OM_TYPE_ITERATOR;
         MBI_OM_filter   ->type = OM_TYPE_FILTER;
         MBI_OM_indexmap ->type = OM_TYPE_INDEXMAP;
+        MBI_OM_searchtree->type = OM_TYPE_SEARCHTREE;
     }
     
     /* initialise Communication Thread */

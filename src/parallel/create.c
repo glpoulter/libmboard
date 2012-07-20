@@ -48,6 +48,7 @@ int MB_Create(MBt_Board *mb_ptr, size_t msgsize) {
     
     int rc;
     MBt_Board mb = MB_NULL_MBOARD;
+    ACKNOWLEDGED_UNUSED(rc); /* used only for assertions */
     
     /* first, set board to NULL in case we quit on error */
     *mb_ptr = MB_NULL_MBOARD;
