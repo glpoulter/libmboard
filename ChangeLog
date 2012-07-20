@@ -1,3 +1,11 @@
+2012-07-20 Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
+	* src/*: Added MB_SearchTree_*() routines to store contents of a board
+	  which a k-d tree. This allows fast filtering by parameter ranges.
+	  The implementation allows k-d trees of arbitrary dimensions, but
+	  for now we only expose 2D and 3D variants in the public API.
+
+	* include/khash.h: Upgraded khash.h to version 0.2.6
+
 2012-07-02 Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
 
 	* src/parallel/env_init.c: srand() now only called in production
