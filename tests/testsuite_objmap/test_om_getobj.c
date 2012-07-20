@@ -20,7 +20,7 @@ void test_om_getobj(void) {
     
     /* create and add objects */
     errcount = errcount2 = 0;
-    for (i = 0; i < count; i++)
+    for (i = 1; i <= count; i++)
     {
         obj = (dummy_obj*)malloc(sizeof(dummy_obj));
         if (obj == NULL) errcount++;
@@ -36,11 +36,11 @@ void test_om_getobj(void) {
     
     /* pick off some objects for testings */
     errcount = errcount2 = errcount3 = 0;
-    for (i = 0; i < count; i += 3)
+    for (i = 1; i <= count; i += 3)
     {
         obj = NULL;
         obj = MBI_objmap_getobj(mymap, (OM_key_t)i);
-        if (obj == NULL) errcount++;
+        if (obj == NULL) { errcount++; continue; }
         if (obj->ernet != i) errcount2++;
         if (obj->jeopardy != (double)i) errcount3++;
     }
@@ -50,11 +50,11 @@ void test_om_getobj(void) {
     
     /* try again to make sure objects still there */
     errcount = errcount2 = errcount3 = 0;
-    for (i = 0; i < count; i += 3)
+    for (i = 1; i <= count; i += 3)
     {
         obj = NULL;
         obj = MBI_objmap_getobj(mymap, (OM_key_t)i);
-        if (obj == NULL) errcount++;
+        if (obj == NULL) { errcount++; continue; }
         if (obj->ernet != i) errcount2++;
         if (obj->jeopardy != (double)i) errcount3++;
     }

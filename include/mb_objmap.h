@@ -9,6 +9,7 @@
  * 
  * \brief Header file for Object Mapper
  */
+#include <stdint.h>
 #ifndef MB_OBJMAP_H_
 #define MB_OBJMAP_H_
 
@@ -23,7 +24,7 @@
 #include <pthread.h>
 #define MB_THREADSAFE
 
-#endif /* MB_THREADSAFE */
+#endif /* HAVE_PTHREAD */
 #endif /* _PARALLEL */
 
 #include <limits.h>
@@ -45,69 +46,39 @@
  * 
  * @{*/
 
-/* Uncomment to allow MBI_objmap_push to recycle used keys 
- * - This is EXPERIMENTAL and not fully tested. Make sure you validate your
- * results before making production runs.
- * - This will be a compromise between performance and scalability
- * You might need this if MBI_objmap_push return with OM_ERR_OVERFLOW
- * - If this is enabled, and you still get OM_ERR_OVERFLOW, it means
- * something is wrong and we've run out of keys. Are you not freeing
- * objects you no longer need? Is the key type too small for the 
- * number of objects you want to store?
- */
-/* #define OBJMAP_CYCLE_KEY */
+/*! brief Variable type used as hashtable key */
+typedef uint32_t OM_key_t;
+/* If you change this, don't forget to change KHASH initialisation (in objmap.c)
+ * to match or we may end up using the wrong hashing function for keys */
 
-/*! \brief Size of direct map 
- * 
- * Object handles exceeding this size will be store in a hashmap
- * instead of the pointer array (directmap)
- * 
- */
-#define OBJMAP_DMAP_SIZE 4096
-
-/* var type used as hashtable key */
-/*! 
- * \brief Variable type used as hashtable key
- * 
- * Change this value to use a different variable type for storing keys. Do not
- * forget to update ::OM_KEY_MAX. Example:
- * \code
- *     // using Unsigned Integers as key 
- *     typedef unsigned long OM_key_t;
- *     #define OM_KEY_MAX ULONG_MAX
- * \endcode
- */
-typedef unsigned int OM_key_t;
-
-/*! \brief maximum possible value for key type 
- * 
- * Definition of \c UINT_MAX taken from \c limits.h
- * */
-#define OM_KEY_MAX UINT_MAX
+/*! \brief maximum possible value for key type */
+/* make sure OM_key_t is unsigned or this trick won't work */
+#define OM_KEY_MAX ((OM_key_t)-1)
+/* #define OM_KEY_MAX UINT_MAX */
 
 /* return values */
 /*! \brief Null handle */
-#define OM_NULL_INDEX     (OM_KEY_MAX)
+#define OM_NULL_INDEX     (0)
 /*! \brief Dummy handle signifying an Internal Error */
-#define OM_ERR_INTERNAL   (OM_KEY_MAX - 1)
+#define OM_ERR_INTERNAL   (OM_KEY_MAX)
 /*! \brief Dummy handle signifying a memory allocation Error */
-#define OM_ERR_MEMALLOC   (OM_KEY_MAX - 2)
+#define OM_ERR_MEMALLOC   (OM_KEY_MAX - 1)
 /*! \brief Dummy handle signifying an Error due to invalid input */
-#define OM_ERR_INVALID    (OM_KEY_MAX - 3)
+#define OM_ERR_INVALID    (OM_KEY_MAX - 2)
 /*! \brief Dummy handle signifying an Overflow Error */
-#define OM_ERR_OVERFLOW   (OM_KEY_MAX - 4)
+#define OM_ERR_OVERFLOW   (OM_KEY_MAX - 3)
 /*! \brief Reserved dummy handle for users */
-#define OM_DUMMY_INDEX_1  (OM_KEY_MAX - 5)
+#define OM_DUMMY_INDEX_1  (OM_KEY_MAX - 4)
 /*! \brief Reserved dummy handle for users */
-#define OM_DUMMY_INDEX_2  (OM_KEY_MAX - 6)
+#define OM_DUMMY_INDEX_2  (OM_KEY_MAX - 5)
 /*! \brief Reserved dummy handle for users */
-#define OM_DUMMY_INDEX_3  (OM_KEY_MAX - 7)
+#define OM_DUMMY_INDEX_3  (OM_KEY_MAX - 6)
 /*! \brief Reserved dummy handle for users */
-#define OM_DUMMY_INDEX_4  (OM_KEY_MAX - 8)
+#define OM_DUMMY_INDEX_4  (OM_KEY_MAX - 7)
 /*! \brief Reserved dummy handle for users */
-#define OM_DUMMY_INDEX_5  (OM_KEY_MAX - 9)
+#define OM_DUMMY_INDEX_5  (OM_KEY_MAX - 8)
 /*! \brief maximum possible value for handle */
-#define OM_MAX_INDEX      (OM_KEY_MAX - 10)
+#define OM_MAX_INDEX      (OM_KEY_MAX - 9)
 
 
 /*! \brief Data Structure representing an object map */
@@ -118,18 +89,11 @@ typedef struct {
     int type;
     /*! \brief Pointer to hashtable object */
     void *map;
-    /*! \brief directmap array */
-    void *dmap[OBJMAP_DMAP_SIZE];
     
     /*! \brief Handle of cached entry */
-    int cache_id;
+    OM_key_t cache_id;
     /*! \brief Value of cached entry */
     void *cache_obj;
-    
-#ifdef OBJMAP_CYCLE_KEY
-    /*! \bried flag indicating key values have wrapped round */
-    int key_wrapped;
-#endif
     
 #ifdef MB_THREADSAFE
     /*! \if paralleldoc

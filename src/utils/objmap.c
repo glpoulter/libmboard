@@ -13,26 +13,18 @@
  */
 /* splint directive needed due to khash implementation */
 /*@+matchanyintegral -fcnuse@*/
-
 #include "khash.h"
 #include "mb_objmap.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <limits.h>
 
-#ifndef ACKNOWLEDGED_UNUSED
-/*! \brief macro to mask "unused parameters" warning for acknowledged cases */
-#define ACKNOWLEDGED_UNUSED(expr) do { (void)(expr); } while (0)
-#endif
-
 /*! \brief Khash initialisation */
 KHASH_MAP_INIT_INT(objmap, void*)
+/* from unsigned long, use KHASH_MAP_INIT_INT64 */
 
 /*! \brief shortcut to access khash map */
-#define MAP (khash_t(objmap) *)map->map
-
-/* internal routine */
-static void delete_map_data(MBIt_objmap *map);
+#define MAP(om) ((khash_t(objmap)*)om->map)
 
 /*!
  * \brief Creates a new ObjectMap
@@ -43,45 +35,32 @@ static void delete_map_data(MBIt_objmap *map);
  * 
  */
 MBIt_objmap* MBI_objmap_new(void) {
-    
-    int i;
+    MBIt_objmap *mymap = NULL;
 #ifdef MB_THREADSAFE
     int rc;
-#endif /* MB_THREADSAFE */
-    
-    MBIt_objmap *mymap = NULL;
-    
-    /* allocate memory for object map */
-    mymap = (MBIt_objmap *)malloc(sizeof(MBIt_objmap));
-    assert(mymap != NULL);
-    if (mymap == NULL) /* on malloc error */
-    {
-        return NULL;
-    }
-    
-    /* initialise values */
-    mymap->top  = 0;
-    mymap->type = 0;
-#ifdef OBJMAP_CYCLE_KEY
-    mymap->key_wrapped = 0;
 #endif
-    
-    /* initialise directmap */
-    for (i = 0; i < OBJMAP_DMAP_SIZE; i++) mymap->dmap[i] = NULL;
+
+    /* allocate memory for object map */
+    mymap = malloc(sizeof(MBIt_objmap));
+    assert(mymap != NULL);
+    if (mymap == NULL) return NULL; /* on malloc error */
+
+    /* initialise values */
+    mymap->top  = 1;
+    mymap->type = 0;
     
     /* initialise hash table for indirect mapping */
-    mymap->map  = (void *) kh_init(objmap);
+    mymap->map = (void*)kh_init(objmap);
     assert(mymap->map != NULL);
     
     /* initialise cache */
-    mymap->cache_id  = -1;
+    mymap->cache_id  = OM_KEY_MAX;
     mymap->cache_obj = NULL;
     
 #ifdef MB_THREADSAFE
     rc = pthread_mutex_init(&(mymap->lock), NULL);
     assert(0 == rc);
-    if (0 != rc)
-    {
+    if (0 != rc) {
         free(mymap);
         return NULL;
     }
@@ -98,103 +77,37 @@ MBIt_objmap* MBI_objmap_new(void) {
  * 
  * A suitable key is chosen and associated to \c obj. The key is returned
  * to be used as object handle, and the obj-key pair is added to the hashtable.
- * 
- * \note If routine returns with ::OM_ERR_OVERFLOW, we might have run out of
- *       numbers for assigning keys. Uncomment the definition of 
- *       \c OBJMAP_CYCLE_KEY in objmap.h to allow MBI_objmap_push() to recycle
- *       used keys. This will allow ObjectMap to scale better, but with the overhead
- *       ofchecking key validity before assignment (hits the hashtable for each
- *       check). If this is enabled, and you still get OM_ERR_OVERFLOW, it means
- *       something has gone really wrong. Is the user not deleting objects that 
- *       are no longer needed? Is the key type too small for the number of objects 
- *       the user needs to simultaneously store?
  */
 OM_key_t MBI_objmap_push(MBIt_objmap *map, void *obj) {
     
     int rc;
-    int index;
     OM_key_t handle;
     khiter_t k;
-    
-#ifdef OBJMAP_CYCLE_KEY
-    mymap_t *temp;
-#endif
+    khash_t(objmap)* m;
     
     /* return error code if NULL arguments given */
     if (!map) return OM_ERR_INVALID;
     if (!obj) return OM_ERR_INVALID;
         
-    
 #ifdef MB_THREADSAFE
     /* capture mutex lock before proceeding */
     rc = pthread_mutex_lock(&(map->lock));
     assert(0 == rc);
 #endif /* MB_THREADSAFE */
-
+    
     /* index to add obj to in map */
-    index = (int)map->top;
+    handle = map->top++;
+    m = MAP(map);
     
-    /* if direct map within range, use that */
-    if (index < OBJMAP_DMAP_SIZE)
-    {
-        map->dmap[index] = obj;
-    }
-    else /* else, use hash table for indirect mapping */
-    {
-        /* add to hashtable */
-        k = kh_put(objmap, MAP, index, &rc);
-        assert(rc);
-        kh_value(MAP, k) = obj;
-    }
-    
-    /* set return val */
-    handle = map->top;
-    
-    /* update map */
-    map->top++; /* increment value for next handle */
-    
-#ifdef OBJMAP_CYCLE_KEY
-    
-    if (map->top > OM_MAX_INDEX)
-    {
-        /* wrap back to starting index */
-        map->key_wrapped = 1;
-        map->top = OBJMAP_DMAP_SIZE;
-    }
-    
-    /* if key has wrapped round, we must always check if key is already
-     * being used 
-     */
-    if (1 == map->key_wrapped)
-    {
-        while (1 == 1) /* infinite loop. Wheeeeee! */
-        {
-            k = kh_get(objmap, MAP, map->top);
-            if (k == kh_end(MAP)) break;/* found available key */
-            
-            /* else, try next index */
-            map->top++;
-            
-            /* have we run out of keys?? */
-            if (map->top > OM_MAX_INDEX) 
-            {
-                handle = OM_ERR_OVERFLOW;
-                break;
-            }
-        }
+    if (handle > OM_MAX_INDEX) { /* make sure we haven't run out of keys */
+      handle = OM_ERR_OVERFLOW;
+    } else {
+      /* add to hashtable */
+      k = kh_put(objmap, m, handle, &rc);
+      assert(rc);
+      kh_value(m, k) = obj;
     }
 
-#else
-    
-    assert(map->top <= OM_MAX_INDEX); 
-    if (map->top > OM_MAX_INDEX)
-    {
-        /* return error code */
-        handle = OM_ERR_OVERFLOW;
-    }
-    
-#endif
-    
 #ifdef MB_THREADSAFE
     /* release mutex lock before proceeding */
     rc = pthread_mutex_unlock(&(map->lock));
@@ -220,55 +133,35 @@ OM_key_t MBI_objmap_push(MBIt_objmap *map, void *obj) {
  * and used in the future.
  */
 void* MBI_objmap_getobj(MBIt_objmap *map, OM_key_t handle) {
-    
-    int index;
     void  *obj = NULL;
     khiter_t k;
-    
-#ifdef MB_THREADSAFE 
-    int rc;
-#endif
+    khash_t(objmap)* m;
     
     if (!map) return NULL;
     
 #ifdef MB_THREADSAFE
     /* capture mutex lock before proceeding */
-    rc = pthread_mutex_lock(&(map->lock));
-    assert(0 == rc);
-    ACKNOWLEDGED_UNUSED(rc);
+    pthread_mutex_lock(&(map->lock));
 #endif /* MB_THREADSAFE */
 
-    index = (int)handle;
-    
-    if (index == map->cache_id)
-    {
+    if (handle == map->cache_id) {
         obj = map->cache_obj;
-    }
-    else if (index < OBJMAP_DMAP_SIZE && index >= 0)
-    {
-        obj = map->dmap[index];
-        map->cache_obj = obj;
-        map->cache_id  = index;
-    }
-    else
-    {
+    } else {
         /* retrieve item from hashtable */
-        k = kh_get(objmap, MAP, index);
-        
-        if (index >= OBJMAP_DMAP_SIZE && k < kh_end(MAP) && kh_exist(MAP, k))
-        {
-            obj = kh_value(MAP, k);
+        m = MAP(map);
+        k = kh_get(objmap, m, handle);
+        if (k != kh_end(m)) {  /* found */
+            obj = kh_value(m, k);
             assert(obj != NULL);
             
             map->cache_obj = obj;
-            map->cache_id  = index;
+            map->cache_id  = handle;
         }
     }
     
 #ifdef MB_THREADSAFE
     /* release mutex lock before proceeding */
-    rc = pthread_mutex_unlock(&(map->lock));
-    assert(0 == rc);
+    pthread_mutex_unlock(&(map->lock));
 #endif /* MB_THREADSAFE */
     
     return obj;
@@ -285,60 +178,40 @@ void* MBI_objmap_getobj(MBIt_objmap *map, OM_key_t handle) {
  * done with it.
  */
 void* MBI_objmap_pop(MBIt_objmap *map, OM_key_t handle) {
-    
-    int index;
     khiter_t k;
-    void  *obj   = NULL;
-    
-#ifdef MB_THREADSAFE 
-    int rc;
-    ACKNOWLEDGED_UNUSED(rc); /* only for assertions */
-#endif
+    void *obj = NULL;
+    khash_t(objmap)* m;
     
     if (!map) return NULL;
+    m = MAP(map);
     
 #ifdef MB_THREADSAFE
     /* capture mutex lock before proceeding */
-    rc = pthread_mutex_lock(&(map->lock));
-    assert(0 == rc);
+    pthread_mutex_lock(&(map->lock));
 #endif /* MB_THREADSAFE */
-    
-    index = (int)handle;
    
-    if (index < OBJMAP_DMAP_SIZE && index >= 0)
-    {
-        obj = map->dmap[index];
-        map->dmap[index] = NULL;
+    /* retrieve item from ut_hashtable */
+    k = kh_get(objmap, m, handle);
+       
+    /* if obj found, remove from ut_hashtable */
+    if (k != kh_end(m)) {
+      /* get ptr to our object */
+      obj = kh_value(m, k);
+      assert(obj != NULL);
+           
+      /* remove hash entry */
+      kh_del(objmap, m, k);
     }
-    else
-    {
-        /* retrieve item from ut_hashtable */
-        /* HASH_FIND(hh, ht, &handle, sizeof(OM_key_t), entry); */
-        k = kh_get(objmap, MAP, index);
-        
-        /* if obj found, remove from ut_hashtable */
-        if (k < kh_end(MAP) && kh_exist(MAP, k))
-        {
-            /* get ptr to our object */
-            obj = kh_value(MAP, k);
-            assert(obj != NULL);
-            
-            /* remove hash entry */
-            kh_del(objmap, MAP, k);
-            
-        }
-    }
-    
+
     /* we may also need to clear the cache */
-    if (index == map->cache_id)
-    {
-        map->cache_id  = -1;
+    if (handle == map->cache_id) {
+        map->cache_id  = OM_KEY_MAX;
         map->cache_obj = NULL;
     }
+    
 #ifdef MB_THREADSAFE
     /* release mutex lock before proceeding */
-    rc = pthread_mutex_unlock(&(map->lock));
-    assert(0 == rc);
+    pthread_mutex_unlock(&(map->lock));
 #endif /* MB_THREADSAFE */
     
     return obj;
@@ -354,17 +227,23 @@ void* MBI_objmap_pop(MBIt_objmap *map, OM_key_t handle) {
  *    returned by MBI_objmap_getobj() and MBI_objmap_pop().
  */
 void MBI_objmap_destroy(MBIt_objmap **map) {
-    
     MBIt_objmap *mytmp;
+    khash_t(objmap)* m;
+    khiter_t k;
     
     if (*map == NULL) return;
     
     mytmp = *map;
     *map  = NULL;
+    m = MAP(mytmp);
     
-    delete_map_data(mytmp);
+    /* detroy objects stored in hash */
+    for (k = kh_begin(m); k != kh_end(m); ++k) {
+      if (kh_exist(m, k)) free(kh_value(m, k));
+    }
     
-    kh_destroy(objmap, (khash_t(objmap) *)mytmp->map);
+    /* destroy hash object */
+    kh_destroy(objmap, m);
 
 #ifdef MB_THREADSAFE
     /* destroy mutex obj */
@@ -373,35 +252,3 @@ void MBI_objmap_destroy(MBIt_objmap **map) {
     
     free(mytmp);
 }
-
-/* --- internal routines --- */
-
-/*! 
- * \brief Deletes all memory associated to object hashtable
- * \param[in] map pointer to hashtable
- * 
- */
-static void delete_map_data(MBIt_objmap *map) {
-    
-    int i;
-    khiter_t k;
-    void * obj;
-    
-    /* first, destroy objects in directmap */
-    for (i = 0; i < OBJMAP_DMAP_SIZE; i++)
-    {
-        if (map->dmap[i] != NULL) free(map->dmap[i]);
-    }
-    
-    /* detroy objects stored in indirect map */
-    for (k = kh_begin(MAP); k != kh_end(MAP); ++k)
-    {
-        if (kh_exist(MAP, k))
-        {
-            obj = kh_value(MAP, k);
-            free(obj);
-        }
-
-    }
-}
-

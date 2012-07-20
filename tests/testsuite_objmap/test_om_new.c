@@ -16,8 +16,6 @@ void test_om_new_destroy(void) {
     mymap = MBI_objmap_new();
     
     CU_ASSERT_PTR_NOT_NULL_FATAL(mymap);
-    /* CU_ASSERT_PTR_NULL_FATAL(mymap->map); */
-    CU_ASSERT_EQUAL(mymap->top, 0);
     
     MBI_objmap_destroy(&mymap);
     CU_ASSERT_PTR_NULL(mymap);

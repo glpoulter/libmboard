@@ -26,8 +26,8 @@ void test_om_push(void) {
     /* add obj to map */
     handle = MBI_objmap_push(mymap, obj);
     
-    CU_ASSERT_EQUAL(handle, 0);
-    CU_ASSERT_EQUAL(mymap->top, 1);
+    CU_ASSERT_EQUAL(handle, 1);
+    CU_ASSERT_EQUAL(mymap->top, 2);
     CU_ASSERT_PTR_NOT_NULL(mymap->map);
     
     /* adding to NULL map */
