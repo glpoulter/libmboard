@@ -182,7 +182,7 @@ static void __record_memory_usage(void) {
  * \param[in] size Size of allocated memory
  * \return Integer value of allocated memory size 
  * 
- * ptr-size pair is store in the ::sizemap hash table.
+ * ptr-size pair is store in the \c sizemap hash table.
  * 
  * If value of \c ptr already exists in the hash table, remove it and 
  * increment the ::lost variable by the previous size. Users must have
@@ -235,7 +235,7 @@ static int __sizemap_add(void *ptr, size_t size) {
  * \param[in] ptr Pointer
  * \return Integer value of size of memory allocated to ptr 
  * 
- * \c ptr entry is  deleted from the ::sizemap hash table. The corresponding
+ * \c ptr entry is  deleted from the \c sizemap hash table. The corresponding
  * size assigned to \c ptr is returned.
  * 
  * If value of \c ptr does not exists in the hash table, do nothing 
@@ -266,7 +266,7 @@ static int __sizemap_del(void *ptr) {
  * \return Integer value of the sum of sizes assigned to pointers still 
  * referenced to by the hash table
  * 
- * The ::sizemap is emptied. Nodes still present in the hash table are
+ * The \c sizemap is emptied. Nodes still present in the hash table are
  * freed, and the sum of \c size is accumulated and returned. 
  * 
  * If the hash table is empty, do nothing except return 0.
@@ -513,7 +513,7 @@ void memlog_finalise(void) {
  * \brief Replacement for free()
  * \param[in] ptr Pointer to free
  * 
- * Removes \c ptr entry from ::sizemap, decrements ::allocated, records 
+ * Removes \c ptr entry from \c sizemap, decrements ::allocated, records 
  * current memory usage in db, then calls the real free() on behalf of user.
  */
 void memlog_free(void *ptr) {
@@ -534,7 +534,7 @@ void memlog_free(void *ptr) {
  * 
  * Calls the real calloc() on behalf of user.
  * 
- * If return pointer is not \c NULL, adds \c ptr entry to ::sizemap, 
+ * If return pointer is not \c NULL, adds \c ptr entry to \c sizemap, 
  * increment ::allocated, and record current memory usage in db. 
  */
 void *memlog_calloc(size_t nmemb, size_t size) {
@@ -566,7 +566,7 @@ void *memlog_calloc(size_t nmemb, size_t size) {
  * 
  * Calls the real malloc() on behalf of user.
  * 
- * If return pointer is not \c NULL, adds \c ptr entry to ::sizemap, 
+ * If return pointer is not \c NULL, adds \c ptr entry to \c sizemap, 
  * increment ::allocated, and record current memory usage in db. 
  */
 void *memlog_malloc(size_t size) {
@@ -598,8 +598,8 @@ void *memlog_malloc(size_t size) {
  * 
  * Calls the real realloc() on behalf of user.
  * 
- * If return pointer is not \c NULL, delete the old \c ptr entry from ::sizemap
- * and add the newly returned pointer to ::sizemap.
+ * If return pointer is not \c NULL, delete the old \c ptr entry from \c sizemap
+ * and add the newly returned pointer to \c sizemap.
  *  
  * The old value of \c size is decremented from ::allocated, the new value is
  * added to ::allocated. Then, record current memory usage in db. 

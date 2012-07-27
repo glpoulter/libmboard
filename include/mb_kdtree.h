@@ -1,6 +1,6 @@
 /* $Id$ */
 /*!
- * \file kdtree.h
+ * \file mb_kdtree.h
  *
  * \code
  *      Author: Shawn Chin
@@ -40,10 +40,7 @@
  * implementation which supports arbitrary dimensions is possible. That shall
  * be the domain of future updates.
  *
- * \TODO Extend our kd-tree implementation to support arbitrary dimensions.
- *
- *
- * \TODO Consider using a not-so-balanced kd-tree to save on the expensive
+ * \todo Consider using a not-so-balanced kd-tree to save on the expensive
  * median-finding sorts. Perhaps consider only a random subset of points for
  * median calculation to get an approximation.
  *

@@ -538,7 +538,7 @@ static inline MBIt_KDtree_node* _get_branch_node(MBIt_KDtree *tree,
 /*!
  * \brief Traverses a tree and adds contents of all leaf nodes to result
  * \param[in] root Root node to begin traversal from
- * \param[result] result Pooled list to append results to
+ * \param[in,out] result Pooled list to append results to
  *
  * Recursively traverses the tree and adds the value of \c msg_ptr on all
  * leaf nodes to \c result.

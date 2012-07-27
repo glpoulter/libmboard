@@ -19,7 +19,7 @@
  * \param[in] mb Message Board handle
  * \param[in] fh Filter handle
  * 
- * Users can also remove a filters assigned to a board by passing ::MB_NULL_FITLER
+ * Users can also remove a filters assigned to a board by passing ::MB_NULL_FILTER
  * into \c fh.
  * 
  * On error, \c mb will remain unchanged and an appropriate error code is returned.

@@ -160,7 +160,7 @@ int tt_setbits(tag_table *tt, int row, int byte_offset, char bitmask) {
  * Replace the value of a target byte (defined by \c row and \c byte_offset) within
  * the table.
  * 
- * This routine is different from ::tt_setbit in that it replaces all bits
+ * This routine is different from tt_setbit() in that it replaces all bits
  * within the target byte. Bits that were previously set within
  * the target byte may be unset depending on the value of \c bitmask.
  * 

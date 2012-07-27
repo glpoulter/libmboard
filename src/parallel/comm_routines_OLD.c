@@ -457,7 +457,7 @@ int MBI_CommRoutine_OLD_WaitBufInfo(struct MBIt_commqueue *node) {
  *   - if node->board->filter != \c NULL Set delayed_filtering flag in header to ::MB_TRUE
  *   - if node->board->filter == \c NULL Set delayed_filtering flag in header to ::MB_FALSE
  *   - Issue MPI_Issend() to all remote procs. node->pending_out++
- *  - If node->flag_shareOutbuf == ::MB_FLASE
+ *  - If node->flag_shareOutbuf == ::MB_FALSE
  *   - Ensure that node->board->filter != \c NULL and 
  *        node->flag_fdrFallback == ::MB_FALSE
  *   - For each remote node i, if node->outcount[i] != 0

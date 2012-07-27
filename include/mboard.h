@@ -276,14 +276,14 @@ typedef MBt_handle MBt_Function;
  * 
  * Filters are objects that represent user functions that have
  * been registered with the Message Board Library using 
- * ::MB_Filter_Create(). 
+ * MB_Filter_Create(). 
  * 
  * This registration provides a unique handle to the function that is 
  * recognised across all processing nodes and can therefore be passed on as 
- * filter functions to boards using ::MB_Fitler_Assign().
+ * filter functions to boards using MB_Filter_Assign().
  * 
  * The Registered Function is valid until it is deleted using 
- * ::MB_Filter_Delete().
+ * MB_Filter_Delete().
  * 
  * \par See also:
  * - ::MB_NULL_FILTER
@@ -298,14 +298,9 @@ typedef MBt_handle MBt_Filter;
  * \brief A handle to reference Index Map objects
  * 
  * IndexMaps are objects representing a distributed lookup table created using 
- * ::MB_IndexMap_Create(). 
+ * MB_IndexMap_Create(). 
  * 
- * This registration provides a unique handle to the function that is 
- * recognised across all processing nodes and can therefore be in filters
- * assigned to boards.
- * 
- * The Index Map is valid until it is freed using 
- * ::MB_IndexMap_Delete().
+ * The Index Map is valid until it is freed using MB_IndexMap_Delete().
  * 
  * \par See also:
  * - ::MB_NULL_INDEXMAP
@@ -313,6 +308,23 @@ typedef MBt_handle MBt_Filter;
  */
 typedef MBt_handle MBt_IndexMap;
 
+/*!
+ * \var MBt_SearchTree
+ * \ingroup MB_API
+ * \ingroup DT
+ * \brief A handle to reference Search Tree objects
+ * 
+ * SearchTrees are objects representing a search tree created using 
+ * MB_SearchTree_Create1D(), MB_SearchTree_Create2D(), or
+ * MB_SearchTree_Create3D().
+ * 
+ * The SearchTree is valid until it is freed using MB_SearchTree_Delete() or the
+ * the associated message board is deleted
+ * 
+ * \par See also:
+ * - ::MB_NULL_SEARCHTREE
+ * 
+ */
 typedef MBt_handle MBt_SearchTree;
 
 /* ========== User Routines ========== */
@@ -427,33 +439,33 @@ int MB_IndexMap_MemberOf(MBt_IndexMap im, int pid, int value);
 
 /* Create a 1D Search Tree */
 int MB_SearchTree_Create1D(MBt_Board mb, MBt_SearchTree *tree_ptr,
-						   double (*extract_dim1)(void*));
+                           double (*extract_dim1)(void*));
 
 /* Create a 2D Search Tree */
 int MB_SearchTree_Create2D(MBt_Board mb, MBt_SearchTree *tree_ptr,
-						   double (*extract_dim1)(void*),
-						   double (*extract_dim2)(void*));
+                           double (*extract_dim1)(void*),
+                           double (*extract_dim2)(void*));
 
 /* Create a 3D Search Tree */
 int MB_SearchTree_Create3D(MBt_Board mb, MBt_SearchTree *tree_ptr,
-						   double (*extract_dim1)(void*),
-						   double (*extract_dim2)(void*),
-						   double (*extract_dim3)(void*));
+                           double (*extract_dim1)(void*),
+                           double (*extract_dim2)(void*),
+                           double (*extract_dim3)(void*));
 
 /* Search a 1D Search Tree */
 int MB_SearchTree_Search1D(MBt_SearchTree tree, MBt_Iterator *itr_ptr,
-					       double dim1_min, double dim1_max);
+                           double dim1_min, double dim1_max);
 
 /* Search a 2D Search Tree */
 int MB_SearchTree_Search2D(MBt_SearchTree tree, MBt_Iterator *itr_ptr,
-					       double dim1_min, double dim1_max,
-					       double dim2_min, double dim2_max);
+                           double dim1_min, double dim1_max,
+                           double dim2_min, double dim2_max);
 
 /* Search a 3D Search Tree */
 int MB_SearchTree_Search3D(MBt_SearchTree tree, MBt_Iterator *itr_ptr,
-					       double dim1_min, double dim1_max,
-					       double dim2_min, double dim2_max,
-					       double dim3_min, double dim3_max);
+                           double dim1_min, double dim1_max,
+                           double dim2_min, double dim2_max,
+                           double dim3_min, double dim3_max);
 
 /* Delete a search tree */
 int MB_SearchTree_Delete(MBt_SearchTree *tree_ptr);
@@ -525,6 +537,16 @@ int MB_SearchTree_Delete(MBt_SearchTree *tree_ptr);
  */
 #define MB_NULL_INDEXMAP   (MBt_IndexMap)OM_NULL_INDEX
 
+/*!
+ * \def MB_NULL_SEARCHTREE
+ * \ingroup MB_API
+ * \ingroup CONST
+ * \brief Null Search Tree
+ * 
+ * This value represents an non-existent or invalid Search Tree. It
+ * is typically returned in place of a Search Tre that has been 
+ * deleted, or after an erroneous creation of a Search Tre.
+ */
 #define MB_NULL_SEARCHTREE (MBt_SearchTree)OM_NULL_INDEX
 
 /* Access Modes */
@@ -1749,6 +1771,272 @@ int MB_SearchTree_Delete(MBt_SearchTree *tree_ptr);
  */
 
 /*!\if userdoc
+ * \fn MB_SearchTree_Create1D(MBt_Board mb, MBt_SearchTree *tree_ptr, double (*extract_dim1)(void*))
+ * \ingroup FUNC
+ * \brief Creates a search tree to allow fast range searches across 1 variable
+ * \param[in] mb Message Board Handle
+ * \param[out] tree_ptr Address of var to store tree handle
+ * \param[in] extract_dim1 Function that returns the value of the first dimension given an anonymous pointer to a message
+ * \endif
+ *
+ * <i>Introduced in version 0.3.0.</i>
+ *
+ * Creates a balanced 1D k-d tree of messages within the board and returns
+ * a handle to it via \c tree_ptr. This data structure enables very fast
+ * searches of the board for messages that contain a value that fall within a
+ * specific range.
+ *
+ * Since libmboard has no notion of the data layout of messages, it needs a
+ * message-specific function (provided by the user) to extracts the value of a
+ * message to be used for partitioning. This is done via the \c extract_dim1
+ * input argument.
+ * 
+ * This tree is no longer valid once the board is deleted or cleared. Messages
+ * added to the board after the tree has been created will not be accounted for
+ * and will not show up in search results.
+ * 
+ * The resulting tree can be searched using ::MB_SearchTree_Search1D().
+ * 
+ * Usage example:
+ * \include ex_mb_searchtree1d.c
+ * 
+ * Possible return codes:
+ *  - ::MB_SUCCESS
+ *  - ::MB_ERR_INVALID (invalid or null board given)
+ *  - ::MB_ERR_MEMALLOC (error allocating memory for search tree object)
+ *  - ::MB_ERR_LOCKED (\c mb is locked)
+ *  - ::MB_ERR_DISABLED (\c mb is disabled)
+ *  - ::MB_ERR_INTERNAL (possible bug. Recompile and run in debug mode for hints)
+ *  - ::MB_ERR_OVERFLOW (Object map overflow. Too many SearchTrees created.)
+ */
+
+/*!\if userdoc
+ * \fn MB_SearchTree_Create2D(MBt_Board mb, MBt_SearchTree *tree_ptr, double (*extract_dim1)(void*), double (*extract_dim2)(void*))
+ * \ingroup FUNC
+ * \brief  Creates a search tree to allow fast range searches across 2 variables
+ * \param[in] mb Message Board Handle
+ * \param[out] tree_ptr Address of var to store tree handle
+ * \param[in] extract_dim1 Function that returns the value of the first dimension given an anonymous pointer to a message
+ * \param[in] extract_dim2 Function that returns the value of the second dimension given an anonymous pointer to a message
+ * \endif
+ *
+ * <i>Introduced in version 0.3.0.</i>
+ *
+ * Creates a balanced 2D k-d tree of messages within the board and returns
+ * a handle to it via \c tree_ptr. This data structure enables very fast
+ * searches of the board for messages that contain a value that fall within a
+ * specific 2D box.
+ *
+ * Since libmboard has no notion of the data layout of messages, it needs a
+ * message-specific function (provided by the user) to extracts the value of a
+ * message to be used for partitioning. This is done via the \c extract_dim1
+ * and \c extract_dim2 input arguments.
+ * 
+ * This tree is no longer valid once the board is deleted or cleared. Messages
+ * added to the board after the tree has been created will not be accounted for
+ * and will not show up in search results.
+ * 
+ * The resulting tree can be searched using ::MB_SearchTree_Search2D().
+ * 
+ * Usage example:
+ * \include ex_mb_searchtree2d.c
+ * 
+ * Possible return codes:
+ *  - ::MB_SUCCESS
+ *  - ::MB_ERR_INVALID (invalid or null board given)
+ *  - ::MB_ERR_MEMALLOC (error allocating memory for search tree object)
+ *  - ::MB_ERR_LOCKED (\c mb is locked)
+ *  - ::MB_ERR_DISABLED (\c mb is disabled)
+ *  - ::MB_ERR_INTERNAL (possible bug. Recompile and run in debug mode for hints)
+ *  - ::MB_ERR_OVERFLOW (Object map overflow. Too many SearchTrees created.)
+ */
+
+/*!\if userdoc
+ * \fn MB_SearchTree_Create3D(MBt_Board mb, MBt_SearchTree *tree_ptr, double (*extract_dim1)(void*), double (*extract_dim2)(void*), double (*extract_dim3)(void*))
+ * \ingroup FUNC
+ * \brief  Creates a search tree to allow fast range searches across 3 variables
+ * \param[in] mb Message Board Handle
+ * \param[out] tree_ptr Address of var to store tree handle
+ * \param[in] extract_dim1 Function that returns the value of the first dimension given an anonymous pointer to a message
+ * \param[in] extract_dim2 Function that returns the value of the second dimension given an anonymous pointer to a message
+ * \param[in] extract_dim3 Function that returns the value of the third dimension given an anonymous pointer to a message
+ * \endif
+ *
+ * <i>Introduced in version 0.3.0.</i>
+ *
+ * Creates a balanced 3D k-d tree of messages within the board and returns
+ * a handle to it via \c tree_ptr. This data structure enables very fast
+ * searches of the board for messages that contain a value that fall within a
+ * specific 3D area.
+ *
+ * Since libmboard has no notion of the data layout of messages, it needs a
+ * message-specific function (provided by the user) to extracts the value of a
+ * message to be used for partitioning. This is done via the \c extract_dim1,
+ * \c extract_dim2, and \c extract_dim3 input arguments.
+ * 
+ * This tree is no longer valid once the board is deleted or cleared. Messages
+ * added to the board after the tree has been created will not be accounted for
+ * and will not show up in search results.
+ * 
+ * The resulting tree can be searched using ::MB_SearchTree_Search3D().
+ * 
+ * Usage example:
+ * \include ex_mb_searchtree3d.c
+ * 
+ * Possible return codes:
+ *  - ::MB_SUCCESS
+ *  - ::MB_ERR_INVALID (invalid or null board given)
+ *  - ::MB_ERR_MEMALLOC (error allocating memory for search tree object)
+ *  - ::MB_ERR_LOCKED (\c mb is locked)
+ *  - ::MB_ERR_DISABLED (\c mb is disabled)
+ *  - ::MB_ERR_INTERNAL (possible bug. Recompile and run in debug mode for hints)
+ *  - ::MB_ERR_OVERFLOW (Object map overflow. Too many SearchTrees created.)
+ */
+
+/*!\if userdoc
+ * \fn MB_SearchTree_Search1D(MBt_SearchTree tree, MBt_Iterator *itr_ptr, double dim1_min, double dim1_max)
+ * \ingroup FUNC
+ * \brief Search a 1D tree for messages with values that fall within the given range
+ * \param[in] tree Tree handle
+ * \param[out] itr_ptr Address of var to store output iterator handle
+ * \param[in] dim1_min Lower bound for first dimension (inclusive)
+ * \param[in] dim1_max Upper bound for first dimension (inclusive)
+ *
+ * <i>Introduced in version 0.3.0.</i>
+ * 
+ * Searches the tree for messages that fall within the given range, and returns
+ * the result as a message iterator. The returned iterator can be treated as
+ * a standard iterator and should be deleted when no longer in use.
+ * 
+ * There is no guarantee that messages will appear in the same order as they
+ * are in the board. The output iterator can be randomised (using
+ * MB_Iterator_Randomise()) to obtain different results for each run; however
+ * there is currently no facility to sort the search results to guarantee
+ * reproducibility.
+ *
+ * This function can only be used for searching trees that were generated using
+ * MB_SearchTree_Create1D().
+ * 
+ * Usage example: see MB_SearchTree_Create1D()
+ * 
+ * Possible return codes:
+ *  - ::MB_SUCCESS
+ *  - ::MB_ERR_INVALID (invalid search tree of mismatching dimensions)
+ *  - ::MB_ERR_MEMALLOC (error allocating memory)
+ *  - ::MB_ERR_LOCKED (Associated message board is locked)
+ *  - ::MB_ERR_INTERNAL (possible bug. Recompile and run in debug mode for hints)
+ *  - ::MB_ERR_OVERFLOW (Object map overflow. Too many Iterators created.)
+ * 
+ * \endif userdoc
+ */
+
+/*!\if userdoc
+ * \fn MB_SearchTree_Search2D(MBt_SearchTree tree, MBt_Iterator *itr_ptr, double dim1_min, double dim1_max, double dim2_min, double dim2_max)
+ * \ingroup FUNC
+ * \brief Search a 2D tree for messages with values that fall within the given ranges
+ * \param[in] tree Tree handle
+ * \param[out] itr_ptr Address of var to store output iterator handle
+ * \param[in] dim1_min Lower bound for first dimension (inclusive)
+ * \param[in] dim1_max Upper bound for first dimension (inclusive)
+ * \param[in] dim2_min Lower bound for second dimension (inclusive)
+ * \param[in] dim2_max Upper bound for second dimension (inclusive)
+ *
+ * <i>Introduced in version 0.3.0.</i>
+ * 
+ * Searches the tree for messages that fall within the given ranges, and returns
+ * the result as a message iterator. The returned iterator can be treated as
+ * a standard iterator and should be deleted when no longer in use.
+ * 
+ * There is no guarantee that messages will appear in the same order as they
+ * are in the board. The output iterator can be randomised (using
+ * MB_Iterator_Randomise()) to obtain different results for each run; however
+ * there is currently no facility to sort the search results to guarantee
+ * reproducibility.
+ *
+ * This function can only be used for searching trees that were generated using
+ * MB_SearchTree_Create2D().
+ * 
+ * Usage example: see MB_SearchTree_Create2D()
+ * 
+ * Possible return codes:
+ *  - ::MB_SUCCESS
+ *  - ::MB_ERR_INVALID (invalid search tree of mismatching dimensions)
+ *  - ::MB_ERR_MEMALLOC (error allocating memory)
+ *  - ::MB_ERR_LOCKED (Associated message board is locked)
+ *  - ::MB_ERR_INTERNAL (possible bug. Recompile and run in debug mode for hints)
+ *  - ::MB_ERR_OVERFLOW (Object map overflow. Too many Iterators created.)
+ * 
+ * \endif userdoc
+ */
+
+/*!\if userdoc
+ * \fn MB_SearchTree_Search3D(MBt_SearchTree tree, MBt_Iterator *itr_ptr, double dim1_min, double dim1_max, double dim2_min, double dim2_max, double dim3_min, double dim3_max)
+ * \ingroup FUNC
+ * \brief Search a 3D tree for messages with values that fall within the given ranges
+ * \param[in] tree Tree handle
+ * \param[out] itr_ptr Address of var to store output iterator handle
+ * \param[in] dim1_min Lower bound for first dimension (inclusive)
+ * \param[in] dim1_max Upper bound for first dimension (inclusive)
+ * \param[in] dim2_min Lower bound for second dimension (inclusive)
+ * \param[in] dim2_max Upper bound for second dimension (inclusive)
+ * \param[in] dim3_min Lower bound for second dimension (inclusive)
+ * \param[in] dim3_max Upper bound for second dimension (inclusive)
+ *
+ * <i>Introduced in version 0.3.0.</i>
+ * 
+ * Searches the tree for messages that fall within the given ranges, and returns
+ * the result as a message iterator. The returned iterator can be treated as
+ * a standard iterator and should be deleted when no longer in use.
+ * 
+ * There is no guarantee that messages will appear in the same order as they
+ * are in the board. The output iterator can be randomised (using
+ * MB_Iterator_Randomise()) to obtain different results for each run; however
+ * there is currently no facility to sort the search results to guarantee
+ * reproducibility.
+ *
+ * This function can only be used for searching trees that were generated using
+ * MB_SearchTree_Create3D().
+ * 
+ * Usage example: see MB_SearchTree_Create3D()
+ * 
+ * Possible return codes:
+ *  - ::MB_SUCCESS
+ *  - ::MB_ERR_INVALID (invalid search tree of mismatching dimensions)
+ *  - ::MB_ERR_MEMALLOC (error allocating memory)
+ *  - ::MB_ERR_LOCKED (Associated message board is locked)
+ *  - ::MB_ERR_INTERNAL (possible bug. Recompile and run in debug mode for hints)
+ *  - ::MB_ERR_OVERFLOW (Object map overflow. Too many Iterators created.)
+ * 
+ * \endif userdoc
+ */
+
+/*!\if userdoc
+ * \fn MB_SearchTree_Delete(MBt_SearchTree *tree_ptr)
+ * \ingroup FUNC
+ * \brief Deletes a search tree
+ * \param[in,out] tree_ptr Address of variable that holds the tree handle
+ *
+ * <i>Introduced in version 0.3.0.</i>
+ * 
+ * Upon successful deletion, the handle referenced by \c tree_ptr will be set 
+ * to ::MB_NULL_SEARCHTREE.
+ * 
+ * If an error occurs, this routine will return an error code and \c im_ptr 
+ * will remain unchanged.
+ * 
+ * If a null board (::MB_NULL_SEARCHTREE) is given, the routine will return 
+ * immediately with ::MB_SUCCESS
+ *
+ * Usage example: see MB_SearchTree_Create1D()
+ * 
+ * Possible return codes:
+ *  - ::MB_SUCCESS
+ *  - ::MB_ERR_INVALID (invalid SearchTree given)
+ * 
+ * \endif userdoc
+ */
+ 
+/*!\if userdoc
  * \page tuning Tuning libmboard using environment variables
  * 
  * The behaviour and configuration parameters of libmboard can be modified by 
@@ -1756,7 +2044,6 @@ int MB_SearchTree_Delete(MBt_SearchTree *tree_ptr);
  * 
  * \section toc Table of Contents
  * -# \ref tune_mem
- *  - \ref mempool_recycle
  *  - \ref mempool_blocksize
  * -# \ref tune_comm
  *  - \ref comm_protocol
@@ -1767,22 +2054,6 @@ int MB_SearchTree_Delete(MBt_SearchTree *tree_ptr);
  * 
  * The following environment variables can be used to influence the memory
  * usage of boards.
- * 
- * \subsection mempool_recycle MBOARD_MEMPOOL_RECYCLE (default: OFF)
- * 
- * Use this variable to recycle memory used by the message board. When this 
- * is enabled MB_Clear() will reset the internal cursors but leave the
- * used memory unallocated. 
- * 
- * Enabling this feature will reduce the time taken to deallocate (and 
- * reallocate) memory used to store messages in boards. It will however lead
- * to higher memory usage.
- * 
- * \c MBOARD_MEMPOOL_RECYCLE can be set to "1", "ON", "YES", or "TRUE" to 
- * enable this feature.
- * 
- * \c MBOARD_MEMPOOL_RECYCLE can be set to "0", "OFF", "NO", or "FALSE" to 
- * disable this feature.
  * 
  * \subsection mempool_blocksize MBOARD_MEMPOOL_BLOCKSIZE (default: 512)
  * 
