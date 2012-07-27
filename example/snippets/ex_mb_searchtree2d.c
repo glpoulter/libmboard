@@ -42,6 +42,7 @@ void func_search_box(void) {
       MB_Iterator_GetMessage(iterator, &msg);
       while(msg) {
         /* ... do something with msg ... */
+        free(msg);
         MB_Iterator_GetMessage(iterator, &msg);
       }
 
