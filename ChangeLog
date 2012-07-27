@@ -9,6 +9,8 @@
 	* src/utils/objmap.c: Simplified the objmap module. Direct mapping
 	  and key recycling (experimental) no longer included.
 
+	* : Tagged as 0.3.0
+
 2012-07-02 Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
 
 	* src/parallel/env_init.c: srand() now only called in production
