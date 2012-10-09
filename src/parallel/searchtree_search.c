@@ -66,8 +66,8 @@ static int _SearchTree_Search(MBt_SearchTree tree, MBt_Iterator *itr_ptr,
 
   /* check ndims match */
   if (searchtree->ndims != ndims) {
-    P_FUNCFAIL("SearchTree was created with %u dims, not %u",
-              searchtree->ndims, ndims);
+    P_FUNCFAIL("SearchTree was created with %d dims, not %d",
+              (int)searchtree->ndims, (int)ndims);
     return MB_ERR_INVALID;
   }
 
@@ -87,7 +87,7 @@ static int _SearchTree_Search(MBt_SearchTree tree, MBt_Iterator *itr_ptr,
   /* do search */
   rc = MBI_KDtree_Search(searchtree->tree, &result, ndims, dim_boundaries);
   if (rc != KDTREE_SUCCESS) {
-    P_FUNCFAIL("Failed to search k-d tree object (err: %d)" % rc);
+    P_FUNCFAIL("Failed to search k-d tree object (err: %d)", rc);
     return MB_ERR_INTERNAL;
   }
   assert(result != NULL);

@@ -89,7 +89,7 @@ static int _SearchTree_Create(MBt_Board mb, MBt_SearchTree *tree_ptr,
   /* Create search tree */
   rc = MBI_KDtree_Create(&kdtree, board->data, ndims, extract_funcs);
   if (rc != KDTREE_SUCCESS) {
-    P_FUNCFAIL("Failed to create k-d tree object (err: %d)" % rc);
+    P_FUNCFAIL("Failed to create k-d tree object (err: %d)", rc);
     return MB_ERR_INTERNAL;
   }
   assert(kdtree != NULL);
@@ -128,8 +128,8 @@ static int _SearchTree_Create(MBt_Board mb, MBt_SearchTree *tree_ptr,
 
   /* assign return pointer */
   *tree_ptr = (MBt_SearchTree)rc_om;
-  P_INFO("SearchTree created (tree:%d, board:%d, dims:%u",
-         (int)rc_om, (int)mb, ndims);
+  P_INFO("SearchTree created (tree:%d, board:%d, dims:%d",
+         (int)rc_om, (int)mb, (int)ndims);
 
   return MB_SUCCESS;
 }

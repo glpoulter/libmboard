@@ -601,9 +601,9 @@ int MBI_CommRoutine_HANDSHAKE_PropagateMessages(struct MBIt_commqueue *node) {
             assert(buf != NULL);
             
             P_INFO("COMM: (Board %d) Sending %d of %d new messages to %d",
-                    (int)node->mb, node->outcount[p],
+                    (int)node->mb, (int)node->outcount[p],
                     (int)(node->board->data->count_current - 
-                            node->board->synced_cursor));
+                            node->board->synced_cursor), p);
             
             size = 1 + (node->outcount[p] * node->board->data->elem_size);
             
