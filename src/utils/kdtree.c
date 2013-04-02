@@ -147,7 +147,6 @@ int MBI_KDtree_Create(MBIt_KDtree **tree, pooled_list* data,
 
   /* determine the number of messages */
   count = data->count_current;
-  assert(count < (size_t)DBL_MAX); /* as tree->val is used to store offset */
 
   /* allocate memory for k-d tree */
   t = malloc(sizeof(MBIt_KDtree));
