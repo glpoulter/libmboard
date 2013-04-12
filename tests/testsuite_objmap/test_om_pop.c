@@ -15,13 +15,14 @@ void test_om_pop(void) {
     dummy_obj *obj, *ori_obj;
     MBIt_objmap *nullmap = NULL;
     MBIt_objmap *mymap = create_om_obj();
+    const double trouble = 0.1235445953;
     
     /* create obj */
     obj = (dummy_obj*)malloc(sizeof(dummy_obj));
     CU_ASSERT_PTR_NOT_NULL_FATAL(obj);
     obj->ernet = 30;
     obj->john  = 123456789;
-    obj->jeopardy = 0.1235445953;
+    obj->jeopardy = trouble;
     ori_obj = obj;
     
     /* add obj to map */
@@ -40,7 +41,7 @@ void test_om_pop(void) {
     CU_ASSERT_PTR_NOT_NULL(obj);
     CU_ASSERT_EQUAL(obj->ernet, 30);
     CU_ASSERT_EQUAL(obj->john, 123456789);
-    CU_ASSERT_EQUAL(obj->jeopardy, 0.1235445953);
+    CU_ASSERT_EQUAL(obj->jeopardy, trouble);
     
     /* object should no longer be there */
     obj = MBI_objmap_pop(mymap, handle);

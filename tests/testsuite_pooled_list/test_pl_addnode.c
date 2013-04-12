@@ -18,6 +18,7 @@ void test_pl_addnodes(void) {
     my_message_t *new;
     pl_address_node *dh; /* datablock header */
     const int elem_size = 5;
+    const double trouble = 0.1235445953;
     
     rc = pl_create(&pl, sizeof(my_message_t), elem_size);
         
@@ -41,7 +42,7 @@ void test_pl_addnodes(void) {
     /* add values to node */
     new->ernet = 42;
     new->john  = 2738;
-    new->trouble = 0.1235445953;
+    new->trouble = trouble;
 
     /* check that first block next pointer is null */
     CU_ASSERT_PTR_NULL(((pl_address_node*)pl->head)->next);
@@ -50,7 +51,7 @@ void test_pl_addnodes(void) {
     firstnode = (my_message_t*)PL_NODEDATA(pl->head);
     CU_ASSERT(firstnode->ernet   == 42);
     CU_ASSERT(firstnode->john    == 2738);
-    CU_ASSERT(firstnode->trouble == 0.1235445953);
+    CU_ASSERT(firstnode->trouble == trouble);
     
  
     
@@ -80,7 +81,7 @@ void test_pl_addnodes(void) {
     /* check that first node still accessible */
     CU_ASSERT(firstnode->ernet   == 42);
     CU_ASSERT(firstnode->john    == 2738);
-    CU_ASSERT(firstnode->trouble == 0.1235445953);
+    CU_ASSERT(firstnode->trouble == trouble);
         
     destroy_pl_object(&pl);
 }
