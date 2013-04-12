@@ -13,6 +13,9 @@
 void test_mb_s_addmessage(void) {
     
     int rc, rc2;
+    const double jeopardy = 3.142;
+    const double jeopardy2 = 2.143;
+    const double trouble = 19.0179;
     
     MBt_Board mb, mb2;
     MBt_Board invalid_mb = (MBt_Board)-1;
@@ -41,15 +44,15 @@ void test_mb_s_addmessage(void) {
     
     /* Assign values for messages */
     msg.ernet    = 42;
-    msg.jeopardy = 3.142;
+    msg.jeopardy = jeopardy;
     
     msg_ptr = (dummy_msg *)malloc(sizeof(dummy_msg));
     CU_ASSERT_PTR_NOT_NULL_FATAL(msg_ptr);
     msg_ptr->ernet    = 24;
-    msg_ptr->jeopardy = 2.413;
+    msg_ptr->jeopardy = jeopardy2;
     
     msg2.eger    = 36;
-    msg2.trouble = 19.0179;
+    msg2.trouble = trouble;
     
     /* Adding message to null board */
     rc = MB_AddMessage(null_mb, (void *)&msg);
@@ -122,21 +125,21 @@ void test_mb_s_addmessage(void) {
     CU_ASSERT_EQUAL(rc, PL_SUCCESS);
     CU_ASSERT_PTR_NOT_NULL_FATAL(msg_ptr);
     CU_ASSERT_EQUAL(msg_ptr->ernet, 42);
-    CU_ASSERT_EQUAL(msg_ptr->jeopardy, 3.142);
+    CU_ASSERT_EQUAL(msg_ptr->jeopardy, jeopardy);
     
     rc = pl_getnode(pl, 1, (void **)&ptr);
     msg_ptr = (dummy_msg*)ptr;
     CU_ASSERT_EQUAL(rc, PL_SUCCESS);
     CU_ASSERT_PTR_NOT_NULL_FATAL(msg_ptr);
     CU_ASSERT_EQUAL(msg_ptr->ernet, 24);
-    CU_ASSERT_EQUAL(msg_ptr->jeopardy,2.413);
+    CU_ASSERT_EQUAL(msg_ptr->jeopardy, jeopardy2);
     
     rc = pl_getnode(pl2, 0, (void **)&ptr);
     msg2_ptr = (dummy_msg2*)ptr;
     CU_ASSERT_EQUAL(rc, PL_SUCCESS);
     CU_ASSERT_PTR_NOT_NULL_FATAL(msg2_ptr);
     CU_ASSERT_EQUAL(msg2_ptr->eger, 36);
-    CU_ASSERT_EQUAL(msg2_ptr->trouble, 19.0179);
+    CU_ASSERT_EQUAL(msg2_ptr->trouble, trouble);
     
     
     /* Delete boards */
