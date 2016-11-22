@@ -1,4 +1,4 @@
-MESSAGE BOARD LIBRARY
+# MESSAGE BOARD LIBRARY #
         
         
 The Message Board Library is a data management and communication
