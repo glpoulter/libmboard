@@ -1,0 +1,236 @@
+2012-07-20 Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
+	* src/*: Added MB_SearchTree_*() routines to store contents of a board
+	  within a k-d tree. This allows fast filtering by parameter ranges.
+	  The implementation allows k-d trees of arbitrary dimensions, but
+	  for now we only expose 2D and 3D variants in the public API.
+
+	* include/khash.h: Upgraded khash.h to version 0.2.6
+
+	* src/utils/objmap.c: Simplified the objmap module. Direct mapping
+	  and key recycling (experimental) no longer included.
+
+	* : Tagged as 0.3.0
+
+2012-07-02 Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
+
+	* src/parallel/env_init.c: srand() now only called in production
+	  mode and not in debug (which is what was meant to happen).
+
+	* src/utils/pooled_list.c: Fixed bug in iterator randomisation. There were
+	  cases where the index used to calculate offsets could overflow which 
+	  would lead to out-of-bounds memory access.
+
+	* src/serial/env_init.c, src/parallel/env_init.c: Output banner now
+	  suppressed in production runs.
+
+	* : Tagged as 0.2.2
+
+2009-10-01 Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
+
+	* include/mb_settings.h, src/utils/settings.c: libmboard can now 
+	  read configuration settings from environment variables
+	* :MBOARD_MEMPOOL_RECYCLE env var can be set to allow message 
+	  boards to recycle allocated memory. (default: disabled)
+	* :MBOARD_MEMPOOL_BLOCKSIZE env var can be set to change the block
+	  size of memory pools. (default: 512 messages)
+	* :MBOARD_COMM_PROTOCOL env var can be set to change the communication
+	  protocol used for board syncs. (default: HANDSHAKE)
+	  
+	* configure.ac, src/parallel/*.c: renamed --enable-developer config
+	  option to --enable-unsafe-checks. 
+	  
+	* src/*/setaccessmode.c: MB_SetAccessMode() routine added to set
+	  access mode of board. 
+	* src/*/setsyncpattern.c: MB_SetSyncPattern() routine added to fine tune
+	  synchronisation pattern of board.
+
+	* src/parallel/comm*: New communication protocol implemented to make
+	  use of board access modes and sync patterns to allow better communication
+	  overlap and reduce lock-stepping of processors.
+	  
+	* src/utils/sqlite3.c, include/sqlite3.h: Upgraded sqlite3 to v3.6.18
+	
+	* : Tagged as 0.2.1
+	   
+2009-07-20 Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
+
+	* configure.ac, src/parallel/*.c: Added --enable-developer config
+	  option to enable additional debug level to be used by FLAME
+	  developers. This will include additional run-time checks that
+	  uses MPI routines, which is less portable since they may clash
+	  with the communication thread when used with MPI libraries that
+	  do not support full threading levels. 
+	  
+	* src/utis/banner.c: Version banner downsized
+	
+	* : Tagged as 0.2.0.1
+
+2009-07-02 Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
+
+	* src/progs/mboard-check-minversion.in: Added script to allow users to 
+	  check if the installed libmboard meets a minimum version requirement
+	  
+	* src/utils/avltree.c, include/mb_avltree.h: Added utility to create
+	  search and manipulate an AVL binary search tree
+	* src/utils/string_map.c, include/mb_string_map.h: Added utility to
+	  keep track of unique strings. Used by MB_IndexMap_Create()
+	  
+	* src/*/indexmap_*: Introduction of the MB_IndexMap_*() routines
+	* src/*/filter_*: Introduction of the MB_Filter_*() routines
+	* src/*/function_*: Deprecation of the MB_Function_*() rutines
+	
+	* src/parallel/comm.c: All communication routines are now asynchronous 
+	  and non-blocking
+	* src/parallel/comm.c: Communication now falls back to full data 
+	  replication if message tagging leads to buffers that are larger 
+	  than the total board size. Filtering is instead performed by 
+	  he recipient
+	  
+	* include/mb_parallel.h, src/parallel/comm.c, src/parallel/create.c, 
+	  src/parallel/clear.c: Fixed critical bug where messages were being 
+	  duplicated when board synced multiple times.
+	  
+	* configure.ac: Added --enable-warnings and --enable-verbose options
+	* include/mb_reporting.h: Added macros to print error and warning 
+	   messages when --enable-warnings is used during ./configure
+	* include/mb_reporting.h: Added macros to print info messages when
+	  --enable-verbose is used during ./configure. --enable-verbose also
+	  implies --enable-warnings which prints out error and warning messages
+	  
+	* : Tagged as 0.2.0
+	
+2009-05-08 Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
+
+	* m4/acx_pthread.m4, m4/check_parallel.m4: Added support pthreads-win32.
+	  Necessary when compiling on Windows using MinGW/MSYS (Cygwin has built-
+	  in support for pthreads)
+	  
+	* Makefile.am: Disable automatic running of test after "make test"
+	
+	* configure.ac, m4/check_coverage, Makefile.am: Added support for coverage 
+	  testing. Enabled using --enable-coverage. Executed using "make coverage"
+	* src/utils/compile_coverage.sh: Added script to gather coverage data into
+	  HTML report using LCOV 
+	
+	* include/mb_commqueue.h, src/parallel/util_commqueue.c: CommQueue now
+	  uses a bi-directional list instead of uthash.h
+	* src/utils/memlog.c: Replaced uthash usage with khash
+	* include/uthash.h: Removed from distribution
+	  
+	* include/sqlite3.h, src/utils/sqlite3.c: Upgraded SQLite to version 3.6.14
+	
+	* README.in: Replaced stubs with actual information :)
+
+	* : Tagged as 0.1.6
+	
+2008-11-21  Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
+
+	* src/utils/pooled_list.c: Fixed critical bug in randomisation routine.
+
+	* : Tagged as 0.1.5.2-beta
+
+2008-11-14  Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
+
+	* : Memory logging implemented. Activated using --enable-memlog.
+	* include/sqlite3.h, src/utils/sqlite3.c: Added sqlite3 files for storing
+	  memory usage.
+	* configure.ac, Makefile.am, src/utils/Makefile.am: sqlite3 built into 
+	  binaries if Memory Logging is enabled.
+	* src/progs/mboard-parse-memlogdb: Added program to generate graphs from 
+	  memlog output. Installed when source configured with --enable-memlog
+
+	* src/progs/mboard-config.in: Added script to provide users with required 
+	  compile/link options, as well as to query parameters used to configure 
+	  and compile the local installation of libmboard.
+	
+	* m4/utils.m4: Added collection of small utiltity macros.
+	
+	* src/utils/objmap.c: Improved performance.
+	* src/utils/pooled_list.c: Improved performance.
+	* src/*/MB_Iterator_Randomise.c: Faster randomisation.
+
+	* m4/check_parallel.m4: Improved portability.
+
+	* : Tagged as 0.1.5-beta
+
+2008-08-08  Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
+
+	* src/utils/*.c, src/serial/*.c: Further removal of checks to errno (missed
+	  out during previous update).
+	* src/utils/objmap.c, include/mb_objmap.h: ObjectMapper is now thread-safe.
+	
+	* src/utils/tag_table.c, include mb_tag_table.h: TagTable implemented as 
+	  utility to manage message tagging.
+	* tests/testsuite_tag_table: Unit tests implemented for TagTable utility.
+	
+	* src/parallel/comm*, includes/*: Communication routines simplified (less 
+	  optimised, for now). Better support for varios MPI implementations.
+	* src/parallel/function_assign.c, src/parallel/comm.c: Message boards can
+	  now be assigned with parameters of different size (however the function 
+	  handle must still be the same).
+	  
+	* autogen.sh, example/circles_mb/autogen.sh: Added version checks for 
+	  automake and autoconf.
+	* example/circles_mb/configure.ac: Added option to specify libexpat 
+	  installation path.
+
+	* include/uthash.h: Upgraded from v1.2 to v1.3 (with minor modifications).
+	
+	* Makefile.am, tests/Makefile.am: Added make targets for generating 
+	  documentation ('make doc', required Doxygen) and running static analysis
+	  on code ('make splint', requires splint). 
+	  
+	* configure.ac: Added --enable-memlog option to ./configure
+	* include/mb_memlog.h, src/utils/memlog.c: Added initial routines for 
+	  implementing instrumentation of memory usage (not fully implemented yet)
+	
+	* : Tagged as 0.1.4-alpha
+	
+2008-07-12  Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
+
+	* configure.ac, m4/*.m4: Implemented better configuration checks for MPI and
+	  Pthreads.
+	* Makefile.am, */Makefile.am: Updated to match changes in *.m4
+	
+	* include/*.h, */*.c: Headers (apart from mboard.h and uthash.h) renamed to
+	 mb_*.h to avoid conflicts with existing headers.
+	* Makefile.am: Only mboard.h and mb_objmap.h are installed.
+	
+	* src/utils/objmap.c: Renamed map_t type declaration which clashes with 
+	  those defined in AIX system header files.
+
+	* : Builds and runs fine on bglogin2 (Bluegene/P) - using cc defined 
+	  by `mpicc -show`.
+	* : Builds and runs fine on HPCx (IBM AIX) - tested with gcc and xlc_r
+	* : Builds and runs fine on HAPU (HP Cluster Platform 4000) - tested with
+	  gcc and pgcc.
+	* : Builds and runs fine on SCARF (Based on RHEL4.4) - tested with gcc, 
+	  icc and pgcc.
+	
+	* : Tagged as 0.1.3-alpha
+	
+2008-06-27	Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
+	
+	* comm.c, tests/testsuite_commroutines/test_cr1.c: update to solve bug with
+	  board->locked status being updated prematurely.
+	* src/parallel/*.c: removed checks on errno as they sometimes pick up values
+	  from non-blocking MPI routines.
+	
+	* m4/check_parallel, m4/check_testing: properly define export *_LDFLAGS and
+	  *_LIBS.
+	* configure.ac, */Makefile.am: now possible to override CFLAGS during 'make'
+	* example/circles_mb/configure.ac, example/circles_mb/Makefile.am, 
+	  m4/check_mboard: updated to reflect changes in main configure.ac and m4/*
+	
+	* tests/Makefile.am, tests/*/Makefile.am: testsuites now have assertion 
+	 enabled, and uses the debug versions of libs.
+	  
+	* : Builds and runs fine on Linux (tested with MPICH & LAM/MPI)
+	* : Builds and runs fine on Windows via Cygwin (tested with MPICH)
+	
+	* : Tagged as 0.1.2-alpha
+
+2008-06-06  Lee-Shawn Chin <shawn.chin@_NOSPAM_stfc.ac.uk>
+
+	* : First version. Tagged as 0.1.1-alpha
+	

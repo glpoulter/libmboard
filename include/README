@@ -1,0 +1,8 @@
+Naming convention:
+------------------
+
+MB* : API called by users. May be a routine (MB_*) or datatype(MBt_*).
+	+ MB_Iterator_*()         : Iterator specific routines
+	+ MB_ERR_* and MB_SUCCESS : Return codes
+	
+MBI* : Internal routines (MBI_*) and datatypes (MBIt_*)
