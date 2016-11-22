@@ -1,7 +1,7 @@
-        MESSAGE BOARD LIBRARY (@PACKAGE_NAME@ Release @PACKAGE_VERSION@)
+MESSAGE BOARD LIBRARY
         
         
-The Message Board Library (@PACKAGE_NAME@) is a data management and communication
+The Message Board Library is a data management and communication
 library  developed  for  multi-agent  simulations  generated using the FLAME 
 framework.
 
@@ -18,8 +18,7 @@ to be overlapped with computation.
 -------------------------------------------------------------------------------
 
       Copyright (c) 2007-2012 STFC Rutherford Appleton Laboratory
-      If you have any problems or enquiries, you can contact the
-      library maintainer at <@PACKAGE_BUGREPORT@>
+      If you have any problems or enquiries, you should raise github issue.
       
 ===============================================================================
 
@@ -153,10 +152,4 @@ instructions above.
 From the developer's source tree, you can generate a distribution version by
 running the following command:
   ./create_distribution.sh
-  
-  
-  
-
--------------------------------------------------------------------------------
-$Id: README.in 2858 2012-07-02 12:27:44Z lsc $
  
